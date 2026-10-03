@@ -1,6 +1,7 @@
 package com.example.apirestspringboot.entity;
 
 import jakarta.persistence.*;
+import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;
 import java.util.HashSet;
@@ -14,14 +15,17 @@ public class User {
         ADMIN
     }
 
-    @Id @GeneratedValue
+    @Id
+    @GeneratedValue(generator = "UUID")
     private UUID id;
 
     private String email;
     private String password;
     @Enumerated(EnumType.STRING) // armazenar enum como string
     private Role role;
-    private LocalDateTime dateCreation;
+
+    @CreationTimestamp
+    private LocalDateTime createdAt;
 
     @OneToMany(mappedBy = "user")
     private Set<Loan> loans = new HashSet<>();
@@ -54,12 +58,12 @@ public class User {
         this.role = role;
     }
 
-    public LocalDateTime getDateCreation() {
-        return dateCreation;
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
     }
 
-    public void setDateCreation(LocalDateTime dateCreation) {
-        this.dateCreation = dateCreation;
+    public void setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
     }
 
     public Set<Loan> getLoans() {

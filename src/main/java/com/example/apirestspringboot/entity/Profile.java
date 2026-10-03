@@ -8,7 +8,7 @@ import java.util.UUID;
 public class Profile {
 
     @Id
-    @GeneratedValue
+    @GeneratedValue(generator = "UUID")
     private UUID id;
 
     private String name;

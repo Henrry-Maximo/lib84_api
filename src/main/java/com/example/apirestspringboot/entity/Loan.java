@@ -1,6 +1,7 @@
 package com.example.apirestspringboot.entity;
 
 import jakarta.persistence.*;
+import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;
 import java.util.HashSet;
@@ -11,10 +12,12 @@ import java.util.UUID;
 public class Loan {
 
     @Id
-    @GeneratedValue
+    @GeneratedValue(generator = "UUID")
     private UUID id;
 
+    @CreationTimestamp
     private LocalDateTime loanDate;
+
     private LocalDateTime loanDateScheduled;
     private LocalDateTime loanDateReturn;
 

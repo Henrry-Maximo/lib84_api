@@ -1,8 +1,10 @@
 package com.example.apirestspringboot.entity;
 
 import jakarta.persistence.*;
+import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
@@ -12,13 +14,16 @@ import java.util.UUID;
 public class Book {
 
     @Id
-    @GeneratedValue
+    @GeneratedValue(generator = "UUID")
     private UUID id;
 
     private String title;
     private String isbn;
     private Integer amount;
     private LocalDate datePublication;
+
+    @CreationTimestamp
+    private LocalDateTime createdAt;
 
     @ManyToOne
     @JoinColumn(name = "category_id", nullable = false)
@@ -94,5 +99,13 @@ public class Book {
 
     public void setSupplier(Supplier supplier) {
         this.supplier = supplier;
+    }
+
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
     }
 }

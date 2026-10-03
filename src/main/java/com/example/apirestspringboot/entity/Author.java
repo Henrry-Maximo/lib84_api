@@ -10,7 +10,7 @@ import java.util.UUID;
 public class Author {
 
     @Id
-    @GeneratedValue
+    @GeneratedValue(generator = "UUID")
     private UUID id;
 
     private String name;
