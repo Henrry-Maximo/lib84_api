@@ -1,12 +1,14 @@
-# Java: API RESTful com Spring Boot
+# LIB84 - API RESTful em Java com Spring Boot
 
-- A API em questão é ..., desenvolvida utilizando a linguagem de programação Java com recursos do Spring Boot. Abaixo, segue status de desenvolvimento, stack e requisitos.
+- A API é para uso em sistemas de gestão de livros, desenvolvida utilizando a linguagem de programação Java com recursos do Spring Boot. Abaixo, segue status de desenvolvimento, stack e requisitos.
+
+![alt text](logo.png)
 
 > 🚧 **Status:** Em desenvolvimento
 
 ## Estrutura do Repositório
 
-- **API-REST-SPRING-BOOT**: Armazena o código backend;
+- **API-REST-SPRING-BOOT**: Armazena o código da API (backend);
 
 ## Stack Ferramental
 
@@ -23,6 +25,32 @@
 - Validação de dados;
 - Documentação API com Swagger;
 
+## Solicitado
+
+- Mínimo de 5 entidades com relacionamentos entre si
+- Pelo menos um relacionamento de cada tipo: One-to-One, One-to-Many e Many-to-Many
+- Utilizar validações adequadas (Bean Validation) em cada entidade
+- Implementar pelo menos um enum em uma das entidades
+- Mínimo de 5 endpoints REST para cada entidade
+- Implementar operações CRUD completas para cada entidade
+- Todas as rotas de listagem devem ser paginadas (utilizando Pageable)
+- Incluir pelo menos 1 endpoint com consultas personalizadas por entidade
+- Utilizar códigos de status HTTP apropriados para cada operação
+- Documentar todos os endpoints usando Springdoc OpenAPI (Swagger)
+  - Incluir descrições detalhadas, exemplos e possíveis códigos de resposta
+  - Garantir que a documentação esteja completa e precisa
+- Implementar HATEOAS utilizando Spring HATEOAS
+- Incluir links relevantes nas respostas (self, update, delete, etc.)
+- Garantir navegabilidade entre recursos da API
+- Utilizar EntityModel, CollectionModel ou PagedModel quando aplicável
+- Idempotência
+- Autenticação com Chave de API
+- Rate Limiting
+- CORS (Cross-Origin Resource Sharing)
+- Versionamento da API (X-API-Version)
+- Validações e Tratamento de Erros
+- Documentação com Swagger/OpenAPI
+
 ## Tarefas (P1)
 
 - [x] Utilizar o framework Spring Boot em sua versão mais recente
@@ -33,40 +61,84 @@
 
 ## Documentação de Negócio
 
-### Requisitos Funcionais (RF)
-
-- [ ] O usuário deve...;
-
-### Requisitos Não-Funcionais (RNF)
-
-- [ ] A senha do usuário precisa estar em formato hash;
-
-### Regras de Negócio (RN)
-
-- [ ] O usuário não deve...;
-
-## Fluxograma do Banco de Dados
-
 ## Estrutura do Banco de Dados
 
 ### Entidades
 
-- [ ]
+- Usuário
+- Perfil
+- Livro
+- Categoria
+- Fornecedor
+- Autor
+- Empréstimo
 
-### Relacionamentos
+### Requisitos Funcionais (RF)
 
-- Um usuário...
+- [ ] O usuário deve poder se cadastrar;
+- [ ] O usuário deve poder se logar;
+- [ ] O usuário deve poder resetar a senha;
+- [ ] O usuário deve poder realizar um empréstimo;
+- [ ] O usuário deve poder visualizar todos os livros;
+- [ ] O usuário deve poder visualizar suas informações de perfil;
+- [ ] O usuário deve poder visualizar o histórico de empréstimos;
+- [ ] O administrador deve poder registrar um fornecedor;
+- [ ] O administrador deve poder registrar uma categoria;
+- [ ] O administrador deve poder registrar um livro;
+- [ ] O administrador deve poder registar um autor;
+- [ ] O administrador deve poder deletar um fornecedor;
+- [ ] O administrador deve poder deletar uma categoria;
+- [ ] O administrador deve poder deletar um livro;
+- [ ] O administrador deve poder deletar um autor;
+- [ ] O usuário deve poder deletar a própria conta;
+- [ ] O usuário deve poder atualizar as informações de seu perfil;
+- [ ] O usuário deve poder atualizar seu empréstimo;
+- [ ] O usuário deve poder visualizar livros agrupados por autor/categoria/fornecedor;
+- [ ] O usuário deve poder visualizar todas as categorias;
+- [ ] O usuário deve poder visualizar a quantidade de livros por categoria;
+- [ ] O usuário deve poder filtrar seu histórico de empréstimos por período e por categoria;
+- [ ] O administrador deve poder visualizar todos os usuários.
 
-## Comandos para Iniciar o Projeto
+### Requisitos Não-Funcionais (RNF)
 
-### API
+- [ ] A senha do usuário precisa estar em formato hash;
+- [ ] Os dados da aplicação precisam estar persistidos em um banco H2;
+- [ ] Todas as listas de dados precisam estar paginadas com 10 itens por página; 
+- [ ] O banco de dados deve utilizar UUID v7 para performance e identificação;
+- [ ] O usuário deve ser identificado por um JWT (JSON Web Token) entre as requisições;
+- [ ] Todos os usuários devem ser identificados pela permissão de "membro" ou "admin";
+- [ ] O sistem deve ter rate limiting;
+- [ ] O sistema deve possuir tratamento centralizado de erros;
+- [ ] O administrador não pode visualizar senhas dos usuários.
+- [ ] Todas as rotas precisam estar documentadas utilizando o swagger;
+- [ ] O sistema deve implementar refresh token para renovação de autenticação;
+- [ ] Invalidar o JWT ao deletar a conta do usuário.
 
-#### Desenvolvimento
+### Regras de Negócio (RN)
 
-#### Testes
+- [ ] O usuário não deve poder se cadastrar com e-mail duplicado;
+- [ ] O administrador não deve poder cadastrar categorias com o mesmo título;
+- [ ] O administrador não deve poder cadastrar mais que 15 categorias;
+- [ ] O token de reset de senha deve expirar em 15 minutos e só pode ser usado uma vez;
+- [ ] O usuário que solicitou renovação de senha não pode cadastrar a mesma senha novamente;
+- [ ] O usuário não deve poder solicitar empréstimo para outro usuário;
+- [ ] O usuário só pode visualizar os próprios empréstimos;
+- [ ] O administrador não deve poder atualizar o livro com a mesma categoria já em uso pelo próprio livro;
+- [ ] Os usuários, por padrão, recebem o cargo (permissão) de "membro";
+- [ ] O usuário não deve poder visualizar empréstimos de outros usuários;
+- [ ] O administrador pode visualizar todos os usuários;
+- [ ] Ao deletar uma conta, os empréstimos vinculados ao usuário devem ser mantidos.
 
-#### Banco de Dados
+## Banco de dados
 
-#### Qualidade de Código
+### Fluxograma
 
-## Comandos de Desenvolvimento
+![alt text](fluxo.png)
+
+### Relacionamento
+
+- Um usuário pode possuir vários empréstimos. Cada empréstimo pertence a exatamente um usuário (One-to-Many).
+- Uma categoria pode possuir vários livros. Cada livro pertence a uma categoria (One-to-Many).
+- Um fornecedor pode fornecer vários livros. Cada livro possui um fornecedor (One-to-Many).
+- Um livro pode possuir vários autores e um autor pode escrever vários livros (Many-to-Many).
+- Um usuário possui exatamente um perfil, e cada perfil pertence a exatamente um usuário (One-to-One)
