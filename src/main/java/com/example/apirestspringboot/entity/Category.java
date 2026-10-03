@@ -6,7 +6,7 @@ import jakarta.persistence.Id;
 
 import java.util.UUID;
 
-@Entity
+@Entity(name = "tb_categories")
 public class Category {
 
     @Id

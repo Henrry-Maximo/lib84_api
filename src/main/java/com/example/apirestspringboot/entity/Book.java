@@ -8,7 +8,7 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
 
-@Entity
+@Entity(name = "tb_books")
 public class Book {
 
     @Id
@@ -30,7 +30,7 @@ public class Book {
 
     @ManyToMany
     @JoinTable(
-            name = "book_author",
+            name = "tb_book_author",
             joinColumns = @JoinColumn(name = "book_id"),
             inverseJoinColumns = @JoinColumn(name = "author_id")
     )

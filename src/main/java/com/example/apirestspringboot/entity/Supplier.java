@@ -6,7 +6,7 @@ import jakarta.persistence.Id;
 
 import java.util.UUID;
 
-@Entity
+@Entity(name = "tb_suppliers")
 public class Supplier {
 
     @Id
