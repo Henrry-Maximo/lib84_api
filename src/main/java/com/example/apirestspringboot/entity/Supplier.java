@@ -1,5 +1,6 @@
 package com.example.apirestspringboot.entity;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
@@ -15,7 +16,9 @@ public class Supplier {
     @GeneratedValue(generator = "UUID")
     private UUID id;
 
+    @Column(unique = true)
     private String name;
+    @Column(unique = true)
     private String email;
     private String phone;
     private String cnpj;

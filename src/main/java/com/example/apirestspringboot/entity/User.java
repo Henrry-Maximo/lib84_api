@@ -19,6 +19,7 @@ public class User {
     @GeneratedValue(generator = "UUID")
     private UUID id;
 
+    @Column(unique = true)
     private String email;
     private String password;
     @Enumerated(EnumType.STRING) // armazenar enum como string
