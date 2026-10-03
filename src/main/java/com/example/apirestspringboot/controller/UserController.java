@@ -1,14 +1,15 @@
 package com.example.apirestspringboot.controller;
 
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RestController;
+import com.example.apirestspringboot.entity.User;
+import org.springframework.web.bind.annotation.*;
 
 @RestController()
+@RequestMapping("/users")
 public class UserController {
 
-    @GetMapping("/users")
-    public String hello() {
-        return "rota de usuários";
+    @PostMapping("/")
+    public void create(@RequestBody User User) {
+        System.out.println(User.getEmail());
     }
 
 }

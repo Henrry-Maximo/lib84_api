@@ -3,6 +3,8 @@ package com.example.apirestspringboot.entity;
 import jakarta.persistence.*;
 
 import java.time.LocalDateTime;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.UUID;
 
 @Entity
@@ -20,6 +22,9 @@ public class User {
     @Enumerated(EnumType.STRING) // armazenar enum como string
     private Role role;
     private LocalDateTime dateCreation;
+
+    @OneToMany(mappedBy = "user")
+    private Set<Loan> loans = new HashSet<>();
 
     public UUID getId() {
         return id;
@@ -55,5 +60,13 @@ public class User {
 
     public void setDateCreation(LocalDateTime dateCreation) {
         this.dateCreation = dateCreation;
+    }
+
+    public Set<Loan> getLoans() {
+        return loans;
+    }
+
+    public void setLoans(Set<Loan> loans) {
+        this.loans = loans;
     }
 }
