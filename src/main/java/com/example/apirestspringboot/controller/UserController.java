@@ -19,7 +19,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 @RestController()
-@RequestMapping("/users")
+//@RequestMapping("/users")
 @Tag(name = "Users", description = "User management, featuring options such as listing, searching, creating, updating, and deleting.")
 public class UserController {
 
@@ -33,17 +33,26 @@ public class UserController {
         this.userService = userService;
     }
 
-    @GetMapping("/")
-    public List<User> all() {
-        return this.userRepository.findAll();
+    @GetMapping("/users")
+    public ResponseEntity<List<User>> all() {
+        return ResponseEntity.status(HttpStatus.OK).body(this.userRepository.findAll());
     }
 
-    @GetMapping("/{id}")
-    public User getUserById(@PathVariable UUID id) {
-        return this.userRepository.findById(id).orElseThrow(() -> new UserNotFoundException(id));
+    @GetMapping("/users/{id}")
+    public ResponseEntity<Object> getUserById(@PathVariable(value="id") UUID id) {
+        Optional<User> user = this.userRepository.findById(id);
+
+        if (user.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found.");
+        }
+
+        return ResponseEntity.status(HttpStatus.OK).body(user.get());
+
+        // return user.<ResponseEntity<Object>>map(value -> ResponseEntity.status(HttpStatus.OK).body(value)).orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found."));
+        // return this.userRepository.findById(id).orElseThrow(() -> new UserNotFoundException(id));
     }
 
-    @PostMapping("/")
+    @PostMapping("/users/")
     public ResponseEntity<User> create(@RequestBody @Valid UserRecordDto dto) {
         User userCreated = userService.create(dto);
 
@@ -52,7 +61,7 @@ public class UserController {
                 .body(userCreated);
     }
 
-    @PutMapping("/{id}")
+    @PutMapping("/users/{id}")
     public Optional<User> updateAllFields(@RequestBody User newUser, @PathVariable UUID id) {
         return this.userRepository.findById(id).map(user -> {
             user.setEmail(newUser.getEmail());
@@ -63,7 +72,7 @@ public class UserController {
         });
     }
 
-    @PatchMapping("/{id}")
+    @PatchMapping("/users/{id}")
     public Optional<User> updateSameFields(@RequestBody User newUser, @PathVariable UUID id) {
         return this.userRepository.findById(id).map(user -> {
             user.setEmail(newUser.getEmail());
@@ -74,7 +83,7 @@ public class UserController {
         });
     }
 
-    @DeleteMapping("/{id}")
+    @DeleteMapping("/users/{id}")
     public void delete(@PathVariable UUID id) {
         this.userRepository.deleteById(id);
     }

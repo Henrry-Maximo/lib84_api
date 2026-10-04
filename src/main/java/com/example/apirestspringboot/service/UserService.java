@@ -9,9 +9,7 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class UserService {
-
     private final UserRepository userRepository;
-
     public UserService(UserRepository userRepository) {
         this.userRepository = userRepository;
     }
@@ -22,10 +20,10 @@ public class UserService {
         BeanUtils.copyProperties(dto, user);
 
         var userAlreadyExists =
-                userRepository.findByEmail(user.getEmail());
+                this.userRepository.findByEmail(user.getEmail());
 
         if (userAlreadyExists != null) {
-            throw new RuntimeException("Usuário já existe");
+            throw new RuntimeException("Usuário já existe.");
         }
 
         var passwordHash = BCrypt.withDefaults()
@@ -33,6 +31,6 @@ public class UserService {
 
         user.setPassword(passwordHash);
 
-        return userRepository.save(user);
+        return this.userRepository.save(user);
     }
 }
