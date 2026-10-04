@@ -5,6 +5,7 @@ import com.example.apirestspringboot.dto.UserRecordDto;
 import com.example.apirestspringboot.entity.User;
 import com.example.apirestspringboot.exception.UserNotFoundException;
 import com.example.apirestspringboot.repository.UserRepository;
+import com.example.apirestspringboot.service.UserService;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.beans.BeanUtils;
@@ -25,6 +26,13 @@ public class UserController {
     @Autowired
     private UserRepository userRepository;
 
+    private final UserService userService;
+
+    @Autowired
+    public UserController(UserService userService) {
+        this.userService = userService;
+    }
+
     @GetMapping("/")
     public List<User> all() {
         return this.userRepository.findAll();
@@ -36,25 +44,12 @@ public class UserController {
     }
 
     @PostMapping("/")
-    public ResponseEntity<User> create(@RequestBody @Valid UserRecordDto userRecordDto) {
+    public ResponseEntity<User> create(@RequestBody @Valid UserRecordDto dto) {
+        User userCreated = userService.create(dto);
 
-        var user = new User();
-        BeanUtils.copyProperties(userRecordDto, user);
-
-        var userAlreadyExists = this.userRepository.findByEmail(user.getEmail());
-
-        if (userAlreadyExists != null) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
-        }
-
-        var passwordHash = BCrypt.withDefaults()
-                .hashToString(12, user.getPassword().toCharArray());
-
-        user.setPassword(passwordHash);
-
-        var userCreated = this.userRepository.save(user);
-
-        return ResponseEntity.status(HttpStatus.CREATED).body(userCreated);
+        return ResponseEntity
+                .status(HttpStatus.CREATED)
+                .body(userCreated);
     }
 
     @PutMapping("/{id}")
