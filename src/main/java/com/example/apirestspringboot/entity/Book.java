@@ -1,6 +1,8 @@
 package com.example.apirestspringboot.entity;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDate;
@@ -17,8 +19,13 @@ public class Book {
     @GeneratedValue(generator = "UUID")
     private UUID id;
 
+    @NotBlank
+    @Size(min = 3, max = 100)
     private String title;
+
+    @Size(min = 3, max = 50)
     private String isbn;
+
     private Integer amount;
     private LocalDate datePublication;
 
