@@ -62,14 +62,25 @@ public class UserController {
     }
 
     @PutMapping("/users/{id}")
-    public Optional<User> updateAllFields(@RequestBody User newUser, @PathVariable UUID id) {
-        return this.userRepository.findById(id).map(user -> {
-            user.setEmail(newUser.getEmail());
-            user.setPassword(newUser.getPassword());
-            user.setRole(newUser.getRole());
+    public ResponseEntity<Object> updateAllFields(@RequestBody @Valid UserRecordDto userRecordDto, @PathVariable(value="id") UUID id) {
+        Optional<User> user = this.userRepository.findById(id);
 
-            return this.userRepository.save(user);
-        });
+        if (user.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found.");
+        }
+
+        var userEntity = user.get();
+
+        BeanUtils.copyProperties(userRecordDto, userEntity);
+        return ResponseEntity.status(HttpStatus.OK).body(this.userRepository.save(userEntity));
+
+        // return this.userRepository.findById(id).map(user -> {
+        //    user.setEmail(newUser.getEmail());
+        //    user.setPassword(newUser.getPassword());
+        //    user.setRole(newUser.getRole());
+
+        //    return this.userRepository.save(user);
+        // });
     }
 
     @PatchMapping("/users/{id}")
@@ -84,7 +95,17 @@ public class UserController {
     }
 
     @DeleteMapping("/users/{id}")
-    public void delete(@PathVariable UUID id) {
-        this.userRepository.deleteById(id);
+    public ResponseEntity<Object> delete(@PathVariable(value="id") UUID id) {
+        Optional<User> user = this.userRepository.findById(id);
+
+        if (user.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found.");
+        }
+
+        // próprio delete do JPA, passando a entidade
+        this.userRepository.delete(user.get());
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User deleted successfully.");
+
+        // this.userRepository.deleteById(id);
     }
 }

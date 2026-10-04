@@ -56,8 +56,8 @@
 - [x] Utilizar o framework Spring Boot em sua versão mais recente
 - [x] Implementar o projeto com Java 17 ou superior
 - [x] Utilizar o Maven ou Gradle como gerenciador de dependências (Maven)
-- [ ] Configurar o banco de dados H2 para persistência de dados
-- [ ] Utilizar Spring Data JPA para ORM
+- [x] Configurar o banco de dados H2 para persistência de dados
+- [x] Utilizar Spring Data JPA para ORM
 
 ## Documentação de Negócio
 
@@ -75,38 +75,38 @@
 
 ### Requisitos Funcionais (RF)
 
-- [ ] O usuário deve poder se cadastrar;
+- [x] O usuário deve poder se cadastrar;
 - [ ] O usuário deve poder se logar;
 - [ ] O usuário deve poder resetar a senha;
 - [ ] O usuário deve poder realizar um empréstimo;
-- [ ] O usuário deve poder visualizar todos os livros;
+- [x] O usuário deve poder visualizar todos os livros;
 - [ ] O usuário deve poder visualizar suas informações de perfil;
 - [ ] O usuário deve poder visualizar o histórico de empréstimos;
 - [ ] O administrador deve poder registrar um fornecedor;
 - [ ] O administrador deve poder registrar uma categoria;
-- [ ] O administrador deve poder registrar um livro;
+- [x] O administrador deve poder registrar um livro;
 - [ ] O administrador deve poder registar um autor;
 - [ ] O administrador deve poder deletar um fornecedor;
 - [ ] O administrador deve poder deletar uma categoria;
 - [ ] O administrador deve poder deletar um livro;
 - [ ] O administrador deve poder deletar um autor;
-- [ ] O usuário deve poder deletar a própria conta;
+- [x] O usuário deve poder deletar a própria conta;
 - [ ] O usuário deve poder atualizar as informações de seu perfil;
 - [ ] O usuário deve poder atualizar seu empréstimo;
 - [ ] O usuário deve poder visualizar livros agrupados por autor/categoria/fornecedor;
 - [ ] O usuário deve poder visualizar todas as categorias;
 - [ ] O usuário deve poder visualizar a quantidade de livros por categoria;
 - [ ] O usuário deve poder filtrar seu histórico de empréstimos por período e por categoria;
-- [ ] O administrador deve poder visualizar todos os usuários.
+- [x] O administrador deve poder visualizar todos os usuários.
 
 ### Requisitos Não-Funcionais (RNF)
 
-- [ ] A senha do usuário precisa estar em formato hash;
-- [ ] Os dados da aplicação precisam estar persistidos em um banco H2;
+- [x] A senha do usuário precisa estar em formato hash;
+- [x] Os dados da aplicação precisam estar persistidos em um banco H2;
 - [ ] Todas as listas de dados precisam estar paginadas com 10 itens por página; 
 - [ ] O banco de dados deve utilizar UUID v7 para performance e identificação;
 - [ ] O usuário deve ser identificado por um JWT (JSON Web Token) entre as requisições;
-- [ ] Todos os usuários devem ser identificados pela permissão de "membro" ou "admin";
+- [x] Todos os usuários devem ser identificados pela permissão de "membro" ou "admin";
 - [ ] O sistem deve ter rate limiting;
 - [ ] O sistema deve possuir tratamento centralizado de erros;
 - [ ] O administrador não pode visualizar senhas dos usuários.
@@ -116,7 +116,7 @@
 
 ### Regras de Negócio (RN)
 
-- [ ] O usuário não deve poder se cadastrar com e-mail duplicado;
+- [x] O usuário não deve poder se cadastrar com e-mail duplicado;
 - [ ] O administrador não deve poder cadastrar categorias com o mesmo título;
 - [ ] O administrador não deve poder cadastrar mais que 15 categorias;
 - [ ] O token de reset de senha deve expirar em 15 minutos e só pode ser usado uma vez;
