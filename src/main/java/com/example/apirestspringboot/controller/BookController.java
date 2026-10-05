@@ -18,6 +18,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -46,6 +47,13 @@ public class BookController {
     @GetMapping("/{id}")
     public ResponseEntity<EntityModel<Book>> getById(@PathVariable UUID id) {
         return ResponseEntity.ok(assembler.toModel(bookService.getById(id)));
+    }
+
+    @Operation(summary = "Get books by category")
+    @GetMapping("/category/{categoryId}")
+    public ResponseEntity<List<EntityModel<Book>>> getByCategory(@PathVariable UUID categoryId) {
+        List<EntityModel<Book>> books = bookService.getByCategory(categoryId).stream().map(assembler::toModel).toList();
+        return ResponseEntity.ok(books);
     }
 
     @Operation(summary = "Create a book")

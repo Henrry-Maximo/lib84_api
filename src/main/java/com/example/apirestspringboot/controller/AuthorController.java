@@ -48,6 +48,12 @@ public class AuthorController {
         return ResponseEntity.ok(assembler.toModel(authorService.getById(id)));
     }
 
+    @Operation(summary = "Search author by name")
+    @GetMapping("/search")
+    public ResponseEntity<EntityModel<Author>> getByName(@RequestParam String name) {
+        return ResponseEntity.ok(assembler.toModel(authorService.getByName(name)));
+    }
+
     @Operation(summary = "Create an author")
     @PostMapping
     public ResponseEntity<EntityModel<Author>> create(@RequestBody @Valid AuthorRecordDto dto) {

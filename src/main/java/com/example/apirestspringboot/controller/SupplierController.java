@@ -48,6 +48,12 @@ public class SupplierController {
         return ResponseEntity.ok(assembler.toModel(supplierService.getById(id)));
     }
 
+    @Operation(summary = "Search supplier by name")
+    @GetMapping("/search")
+    public ResponseEntity<EntityModel<Supplier>> getByName(@RequestParam String name) {
+        return ResponseEntity.ok(assembler.toModel(supplierService.getByName(name)));
+    }
+
     @Operation(summary = "Create a supplier")
     @PostMapping
     public ResponseEntity<EntityModel<Supplier>> create(@RequestBody @Valid SupplierRecordDto dto) {

@@ -48,6 +48,12 @@ public class ProfileController {
         return ResponseEntity.ok(assembler.toModel(profileService.getById(id)));
     }
 
+    @Operation(summary = "Get profile by user id")
+    @GetMapping("/user/{userId}")
+    public ResponseEntity<EntityModel<Profile>> getByUserId(@PathVariable UUID userId) {
+        return ResponseEntity.ok(assembler.toModel(profileService.getByUserId(userId)));
+    }
+
     @Operation(summary = "Create a profile")
     @PostMapping
     public ResponseEntity<EntityModel<Profile>> create(@RequestBody @Valid ProfileRecordDto dto) {

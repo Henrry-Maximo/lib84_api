@@ -69,6 +69,12 @@ public class UserController {
          */
     }
 
+    @Operation(summary = "Search user by email")
+    @GetMapping("/users/search")
+    public ResponseEntity<EntityModel<User>> getByEmail(@RequestParam String email) {
+        return ResponseEntity.ok(assembler.toModel(userService.getByEmail(email)));
+    }
+
     @PostMapping("/users/")
     public ResponseEntity<EntityModel<User>> create(@RequestBody @Valid UserRecordDto dto) {
         User userCreated = userService.create(dto);

@@ -18,6 +18,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -46,6 +47,13 @@ public class LoanController {
     @GetMapping("/{id}")
     public ResponseEntity<EntityModel<Loan>> getById(@PathVariable UUID id) {
         return ResponseEntity.ok(assembler.toModel(loanService.getById(id)));
+    }
+
+    @Operation(summary = "Get loans by user")
+    @GetMapping("/user/{userId}")
+    public ResponseEntity<List<EntityModel<Loan>>> getByUser(@PathVariable UUID userId) {
+        List<EntityModel<Loan>> loans = loanService.getByUser(userId).stream().map(assembler::toModel).toList();
+        return ResponseEntity.ok(loans);
     }
 
     @Operation(summary = "Create a loan")

@@ -48,6 +48,12 @@ public class CategoryController {
         return ResponseEntity.ok(assembler.toModel(categoryService.getById(id)));
     }
 
+    @Operation(summary = "Search category by title")
+    @GetMapping("/search")
+    public ResponseEntity<EntityModel<Category>> getByTitle(@RequestParam String title) {
+        return ResponseEntity.ok(assembler.toModel(categoryService.getByTitle(title)));
+    }
+
     @Operation(summary = "Create a category")
     @PostMapping
     public ResponseEntity<EntityModel<Category>> create(@RequestBody @Valid CategoryRecordDto dto) {
