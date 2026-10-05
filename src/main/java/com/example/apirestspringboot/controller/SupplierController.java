@@ -1,16 +1,70 @@
 package com.example.apirestspringboot.controller;
 
+import com.example.apirestspringboot.asssembler.SupplierModelAssembler;
+import com.example.apirestspringboot.dto.SupplierRecordDto;
+import com.example.apirestspringboot.entity.Supplier;
+import com.example.apirestspringboot.service.SupplierService;
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RestController;
+import jakarta.validation.Valid;
+import org.springdoc.core.annotations.ParameterObject;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
+import org.springframework.data.web.PagedResourcesAssembler;
+import org.springframework.hateoas.EntityModel;
+import org.springframework.hateoas.PagedModel;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 
-@RestController()
+import java.util.UUID;
+
+@RestController
+@RequestMapping("/suppliers")
 @Tag(name = "Suppliers", description = "Supplier management, featuring options such as listing, searching, creating, updating, and deleting.")
 public class SupplierController {
 
-    @GetMapping("/suppliers")
-    public String hello() {
-        return "rota de fornecedores";
+    private final SupplierService supplierService;
+    private final SupplierModelAssembler assembler;
+    private final PagedResourcesAssembler<Supplier> pagedResourcesAssembler;
+
+    public SupplierController(SupplierService supplierService, SupplierModelAssembler assembler, PagedResourcesAssembler<Supplier> pagedResourcesAssembler) {
+        this.supplierService = supplierService;
+        this.assembler = assembler;
+        this.pagedResourcesAssembler = pagedResourcesAssembler;
     }
 
+    @Operation(summary = "Get all suppliers")
+    @GetMapping
+    public ResponseEntity<PagedModel<EntityModel<Supplier>>> all(@ParameterObject @PageableDefault(size = 10, sort = "name") Pageable pageable) {
+        Page<Supplier> suppliers = this.supplierService.getAll(pageable);
+        return ResponseEntity.ok(pagedResourcesAssembler.toModel(suppliers, assembler));
+    }
+
+    @Operation(summary = "Get a supplier by id")
+    @GetMapping("/{id}")
+    public ResponseEntity<EntityModel<Supplier>> getById(@PathVariable UUID id) {
+        return ResponseEntity.ok(assembler.toModel(supplierService.getById(id)));
+    }
+
+    @Operation(summary = "Create a supplier")
+    @PostMapping
+    public ResponseEntity<EntityModel<Supplier>> create(@RequestBody @Valid SupplierRecordDto dto) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(assembler.toModel(supplierService.create(dto)));
+    }
+
+    @Operation(summary = "Update a supplier")
+    @PutMapping("/{id}")
+    public ResponseEntity<EntityModel<Supplier>> update(@RequestBody @Valid SupplierRecordDto dto, @PathVariable UUID id) {
+        Supplier supplier = supplierService.getById(id);
+        return ResponseEntity.ok(assembler.toModel(supplierService.update(supplier, dto)));
+    }
+
+    @Operation(summary = "Delete a supplier")
+    @DeleteMapping("/{id}")
+    public ResponseEntity<?> delete(@PathVariable UUID id) {
+        supplierService.delete(supplierService.getById(id));
+        return ResponseEntity.noContent().build();
+    }
 }
