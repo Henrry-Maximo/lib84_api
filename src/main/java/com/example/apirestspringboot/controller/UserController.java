@@ -13,6 +13,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.data.web.PagedResourcesAssembler;
 import org.springframework.hateoas.EntityModel;
@@ -20,7 +21,6 @@ import org.springframework.hateoas.PagedModel;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.data.domain.Pageable;
 
 import java.util.UUID;
 
@@ -49,8 +49,7 @@ public class UserController {
     }
 
     @Operation(summary = "Get a user by your id")
-    @ApiResponse(responseCode = "200", description = "Returned a object visible user", content = {@Content(mediaType = "application/json",
-            schema = @Schema(implementation = User.class))})
+    @ApiResponse(responseCode = "200", description = "Returned a object visible user", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = User.class))})
     @GetMapping("/users/{id}")
     public ResponseEntity<EntityModel<User>> getUserById(@PathVariable(value = "id") UUID id) {
         User user = this.userService.getById(id);
@@ -71,12 +70,10 @@ public class UserController {
     }
 
     @PostMapping("/users/")
-    public ResponseEntity<User> create(@RequestBody @Valid UserRecordDto dto) {
+    public ResponseEntity<EntityModel<User>> create(@RequestBody @Valid UserRecordDto dto) {
         User userCreated = userService.create(dto);
 
-        return ResponseEntity
-                .status(HttpStatus.CREATED)
-                .body(userCreated);
+        return ResponseEntity.status(HttpStatus.CREATED).body(assembler.toModel(userCreated));
     }
 
     @PutMapping("/users/{id}")
@@ -130,7 +127,9 @@ public class UserController {
 
         this.userService.delete(user);
 
-        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+        return ResponseEntity.noContent().build();
+
+        // return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
 
         // próprio delete do JPA, passando a entidade
         // this.userRepository.delete(user.get());

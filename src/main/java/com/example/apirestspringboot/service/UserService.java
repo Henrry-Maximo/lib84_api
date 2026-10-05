@@ -4,17 +4,14 @@ import at.favre.lib.crypto.bcrypt.BCrypt;
 import com.example.apirestspringboot.dto.UserPatchDto;
 import com.example.apirestspringboot.dto.UserRecordDto;
 import com.example.apirestspringboot.entity.User;
+import com.example.apirestspringboot.exception.DuplicateEmailException;
 import com.example.apirestspringboot.exception.UserNotFoundException;
 import com.example.apirestspringboot.repository.UserRepository;
 import org.springframework.beans.BeanUtils;
 import org.springframework.data.domain.Page;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import org.springframework.data.domain.Pageable;
-
-import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -27,16 +24,15 @@ public class UserService {
     public User create(UserRecordDto dto) {
         var user = new User();
         BeanUtils.copyProperties(dto, user);
+        user.setRole(User.Role.MEMBER);
 
-        var userAlreadyExists =
-                this.userRepository.findByEmail(user.getEmail());
+        var userAlreadyExists = this.userRepository.findByEmail(user.getEmail());
 
         if (userAlreadyExists != null) {
-            throw new RuntimeException("Usuário já existe.");
+            throw new DuplicateEmailException(user.getEmail());
         }
 
-        var passwordHash = BCrypt.withDefaults()
-                .hashToString(12, user.getPassword().toCharArray());
+        var passwordHash = BCrypt.withDefaults().hashToString(12, user.getPassword().toCharArray());
 
         user.setPassword(passwordHash);
 
@@ -59,6 +55,7 @@ public class UserService {
         */
 
         BeanUtils.copyProperties(dto, user);
+        if (dto.role() != null) user.setRole(User.Role.valueOf(dto.role()));
         return this.userRepository.save(user);
     }
 

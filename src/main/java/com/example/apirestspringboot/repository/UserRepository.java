@@ -1,10 +1,8 @@
 package com.example.apirestspringboot.repository;
 
 import com.example.apirestspringboot.entity.User;
-import org.springframework.data.domain.Page;
 import org.springframework.data.jpa.repository.JpaRepository;
 
-import java.awt.print.Pageable;
 import java.util.UUID;
 
 public interface UserRepository extends JpaRepository<User, UUID> {

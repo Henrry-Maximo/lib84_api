@@ -1,5 +1,7 @@
 package com.example.apirestspringboot.entity;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import jakarta.persistence.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.springframework.hateoas.RepresentationModel;
@@ -11,6 +13,7 @@ import java.util.Set;
 import java.util.UUID;
 
 @Entity(name = "tb_users")
+@JsonPropertyOrder({"id", "email", "role", "createdAt", "loans", "_links"})
 public class User extends RepresentationModel<User> implements Serializable {
     public enum Role {
         MEMBER,
@@ -23,7 +26,10 @@ public class User extends RepresentationModel<User> implements Serializable {
 
     @Column(unique = true)
     private String email;
+
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private String password;
+
     @Enumerated(EnumType.STRING) // armazenar enum como string
     private Role role;
 

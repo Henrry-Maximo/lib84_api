@@ -103,13 +103,13 @@
 
 - [x] A senha do usuário precisa estar em formato hash;
 - [x] Os dados da aplicação precisam estar persistidos em um banco H2;
-- [ ] Todas as listas de dados precisam estar paginadas com 10 itens por página; 
+- [x] Todas as listas de dados precisam estar paginadas com 10 itens por página; 
 - [ ] O banco de dados deve utilizar UUID v7 para performance e identificação;
 - [ ] O usuário deve ser identificado por um JWT (JSON Web Token) entre as requisições;
 - [x] Todos os usuários devem ser identificados pela permissão de "membro" ou "admin";
 - [ ] O sistem deve ter rate limiting;
-- [ ] O sistema deve possuir tratamento centralizado de erros;
-- [ ] O administrador não pode visualizar senhas dos usuários.
+- [x] O sistema deve possuir tratamento centralizado de erros;
+- [x] O administrador não pode visualizar senhas dos usuários.
 - [ ] Todas as rotas precisam estar documentadas utilizando o swagger;
 - [ ] O sistema deve implementar refresh token para renovação de autenticação;
 - [ ] Invalidar o JWT ao deletar a conta do usuário.
@@ -124,9 +124,9 @@
 - [ ] O usuário não deve poder solicitar empréstimo para outro usuário;
 - [ ] O usuário só pode visualizar os próprios empréstimos;
 - [ ] O administrador não deve poder atualizar o livro com a mesma categoria já em uso pelo próprio livro;
-- [ ] Os usuários, por padrão, recebem o cargo (permissão) de "membro";
+- [x] Os usuários, por padrão, recebem o cargo (permissão) de "membro";
 - [ ] O usuário não deve poder visualizar empréstimos de outros usuários;
-- [ ] O administrador pode visualizar todos os usuários;
+- [x] O administrador pode visualizar todos os usuários;
 - [ ] Ao deletar uma conta, os empréstimos vinculados ao usuário devem ser mantidos.
 
 ## Banco de dados
