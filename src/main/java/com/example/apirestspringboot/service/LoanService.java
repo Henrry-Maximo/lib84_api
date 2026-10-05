@@ -11,6 +11,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -50,6 +51,10 @@ public class LoanService {
         loan.setLoanDateScheduled(dto.loanDateScheduled());
 
         return this.loanRepository.save(loan);
+    }
+
+    public List<Loan> getByUser(UUID userId) {
+        return this.loanRepository.findByUserId(userId);
     }
 
     public void delete(Loan loan) {

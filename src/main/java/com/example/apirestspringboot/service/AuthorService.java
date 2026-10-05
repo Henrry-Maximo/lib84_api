@@ -39,6 +39,10 @@ public class AuthorService {
         return this.authorRepository.save(author);
     }
 
+    public Author getByName(String name) {
+        return this.authorRepository.findByNameContainingIgnoreCase(name).orElseThrow(() -> new AuthorNotFoundException(null));
+    }
+
     public void delete(Author author) {
         this.authorRepository.deleteById(author.getId());
     }

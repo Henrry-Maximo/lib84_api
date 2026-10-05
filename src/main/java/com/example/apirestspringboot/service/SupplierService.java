@@ -39,6 +39,10 @@ public class SupplierService {
         return this.supplierRepository.save(supplier);
     }
 
+    public Supplier getByName(String name) {
+        return this.supplierRepository.findByNameContainingIgnoreCase(name).orElseThrow(() -> new SupplierNotFoundException(null));
+    }
+
     public void delete(Supplier supplier) {
         this.supplierRepository.deleteById(supplier.getId());
     }

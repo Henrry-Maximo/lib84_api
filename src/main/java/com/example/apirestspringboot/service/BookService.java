@@ -13,6 +13,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -58,6 +59,10 @@ public class BookService {
             book.setAuthors(new HashSet<>(authorRepository.findAllById(dto.authorIds())));
         }
         return this.bookRepository.save(book);
+    }
+
+    public List<Book> getByCategory(UUID categoryId) {
+        return this.bookRepository.findByCategoryId(categoryId);
     }
 
     public void delete(Book book) {

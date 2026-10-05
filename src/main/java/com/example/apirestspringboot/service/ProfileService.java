@@ -44,6 +44,10 @@ public class ProfileService {
         return this.profileRepository.save(profile);
     }
 
+    public Profile getByUserId(UUID userId) {
+        return this.profileRepository.findByUserId(userId).orElseThrow(() -> new RuntimeException("Profile not found for user: " + userId));
+    }
+
     public void delete(Profile profile) {
         this.profileRepository.deleteById(profile.getId());
     }

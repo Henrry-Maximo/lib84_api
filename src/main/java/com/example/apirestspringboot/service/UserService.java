@@ -59,6 +59,12 @@ public class UserService {
         return this.userRepository.save(user);
     }
 
+    public User getByEmail(String email) {
+        User user = this.userRepository.findByEmail(email);
+        if (user == null) throw new UserNotFoundException(null);
+        return user;
+    }
+
     public void delete(User user) {
         this.userRepository.deleteById(user.getId());
     }

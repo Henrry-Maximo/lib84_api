@@ -39,6 +39,10 @@ public class CategoryService {
         return this.categoryRepository.save(category);
     }
 
+    public Category getByTitle(String title) {
+        return this.categoryRepository.findByTitleContainingIgnoreCase(title).orElseThrow(() -> new CategoryNotFoundException(null));
+    }
+
     public void delete(Category category) {
         this.categoryRepository.deleteById(category.getId());
     }
