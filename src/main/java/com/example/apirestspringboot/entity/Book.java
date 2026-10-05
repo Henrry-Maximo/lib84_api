@@ -1,19 +1,22 @@
 package com.example.apirestspringboot.entity;
 
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import org.hibernate.annotations.CreationTimestamp;
+import org.springframework.hateoas.RepresentationModel;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
 
 @Entity(name = "tb_books")
-public class Book {
+@JsonPropertyOrder({"id", "title", "isbn", "amount","datePublication", "createdAt", "category", "authors", "supplier", "_links"})
+public class Book extends RepresentationModel<Book> {
 
     @Id
     @GeneratedValue(generator = "UUID")
@@ -32,10 +35,12 @@ public class Book {
     @CreationTimestamp
     private LocalDateTime createdAt;
 
+    @NotNull
     @ManyToOne
     @JoinColumn(name = "category_id", nullable = false)
     private Category category;
 
+    @NotNull
     @ManyToOne
     @JoinColumn(name = "supplier_id", nullable = false)
     private Supplier supplier;

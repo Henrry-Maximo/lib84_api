@@ -1,7 +1,9 @@
 package com.example.apirestspringboot.entity;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
 import org.hibernate.annotations.CreationTimestamp;
+import org.springframework.hateoas.RepresentationModel;
 
 import java.time.LocalDateTime;
 import java.util.HashSet;
@@ -9,7 +11,7 @@ import java.util.Set;
 import java.util.UUID;
 
 @Entity(name = "tb_loans")
-public class Loan {
+public class Loan extends RepresentationModel<Loan> {
 
     @Id
     @GeneratedValue(generator = "UUID")
@@ -21,6 +23,7 @@ public class Loan {
     private LocalDateTime loanDateScheduled;
     private LocalDateTime loanDateReturn;
 
+    @NotNull
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
     private User user;

@@ -1,5 +1,6 @@
 package com.example.apirestspringboot.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import jakarta.persistence.*;
@@ -36,6 +37,7 @@ public class User extends RepresentationModel<User> implements Serializable {
     @CreationTimestamp
     private LocalDateTime createdAt;
 
+    @JsonIgnore
     @OneToMany(mappedBy = "user")
     private Set<Loan> loans = new HashSet<>();
 
