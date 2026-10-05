@@ -1,72 +1,73 @@
 package com.example.apirestspringboot.controller;
 
-import at.favre.lib.crypto.bcrypt.BCrypt;
+import com.example.apirestspringboot.asssembler.UserModelAssembler;
+import com.example.apirestspringboot.dto.UserPatchDto;
 import com.example.apirestspringboot.dto.UserRecordDto;
 import com.example.apirestspringboot.entity.User;
-import com.example.apirestspringboot.exception.UserNotFoundException;
-import com.example.apirestspringboot.repository.UserRepository;
 import com.example.apirestspringboot.service.UserService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
-import org.springframework.beans.BeanUtils;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springdoc.core.annotations.ParameterObject;
+import org.springframework.data.domain.Page;
+import org.springframework.data.web.PageableDefault;
+import org.springframework.data.web.PagedResourcesAssembler;
+import org.springframework.hateoas.EntityModel;
+import org.springframework.hateoas.PagedModel;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.data.domain.Pageable;
 
-import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
-import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
-
-import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 
 @RestController()
-//@RequestMapping("/users")
 @Tag(name = "Users", description = "User management, featuring options such as listing, searching, creating, updating, and deleting.")
 public class UserController {
 
-    @Autowired
-    private UserRepository userRepository;
-
     private final UserService userService;
-    @Autowired
-    public UserController(UserService userService) {
+    private final UserModelAssembler assembler;
+    private final PagedResourcesAssembler<User> pagedResourcesAssembler;
+
+    public UserController(UserService userService, UserModelAssembler assembler, PagedResourcesAssembler<User> pagedResourcesAssembler) {
         this.userService = userService;
+        this.assembler = assembler;
+        this.pagedResourcesAssembler = pagedResourcesAssembler;
     }
 
+    @Operation(summary = "Get all users")
+    @ApiResponse(responseCode = "200", description = "Returned a paginated list of all visible users")
     @GetMapping("/users")
-    public ResponseEntity<List<User>> all() {
-        List<User> users = this.userRepository.findAll();
+    public ResponseEntity<PagedModel<EntityModel<User>>> all(@ParameterObject @PageableDefault(size = 10, page = 0, sort = "email") Pageable pageable) {
+        Page<User> users = this.userService.getAll(pageable);
+        PagedModel<EntityModel<User>> pagedModel = pagedResourcesAssembler.toModel(users, this.assembler);
 
-        if (!users.isEmpty()) {
-            for (User user : users) {
-                UUID id = user.getId();
-
-                // add -> construir link
-                // linkTo -> para qual class? / withSelfRel -> redirecionamento
-                // methodTo -> para qual método?
-                user.add(linkTo(methodOn(UserController.class).getUserById(id)).withSelfRel());
-            }
-        }
-
-        return ResponseEntity.status(HttpStatus.OK).body(users);
+        return ResponseEntity.ok(pagedModel);
     }
 
+    @Operation(summary = "Get a user by your id")
+    @ApiResponse(responseCode = "200", description = "Returned a object visible user", content = {@Content(mediaType = "application/json",
+            schema = @Schema(implementation = User.class))})
     @GetMapping("/users/{id}")
-    public ResponseEntity<Object> getUserById(@PathVariable(value="id") UUID id) {
-        Optional<User> user = this.userRepository.findById(id);
+    public ResponseEntity<EntityModel<User>> getUserById(@PathVariable(value = "id") UUID id) {
+        User user = this.userService.getById(id);
 
+        EntityModel<User> entityModel = assembler.toModel(user);
+        return ResponseEntity.ok(entityModel);
+
+        /*
         if (user.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found.");
+           return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found.");
         }
-
         user.get().add(linkTo(methodOn(UserController.class).all()).withSelfRel());
-
         return ResponseEntity.status(HttpStatus.OK).body(user.get());
 
-        // return user.<ResponseEntity<Object>>map(value -> ResponseEntity.status(HttpStatus.OK).body(value)).orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found."));
-        // return this.userRepository.findById(id).orElseThrow(() -> new UserNotFoundException(id));
+        return user.<ResponseEntity<Object>>map(value -> ResponseEntity.status(HttpStatus.OK).body(value)).orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found."));
+        return this.userRepository.findById(id).orElseThrow(() -> new UserNotFoundException(id));
+         */
     }
 
     @PostMapping("/users/")
@@ -79,9 +80,15 @@ public class UserController {
     }
 
     @PutMapping("/users/{id}")
-    public ResponseEntity<Object> updateAllFields(@RequestBody @Valid UserRecordDto userRecordDto, @PathVariable(value="id") UUID id) {
-        Optional<User> user = this.userRepository.findById(id);
+    public ResponseEntity<EntityModel<User>> updateAllFields(@RequestBody @Valid UserRecordDto userRecordDto, @PathVariable(value = "id") UUID id) {
+        User user = this.userService.getById(id);
 
+        User updated = this.userService.update(user, userRecordDto);
+
+        // EntityModel<User> entityModel = assembler.toModel(user);
+        return ResponseEntity.ok(assembler.toModel(updated));
+
+        /*
         if (user.isEmpty()) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found.");
         }
@@ -89,19 +96,24 @@ public class UserController {
         var userEntity = user.get();
 
         BeanUtils.copyProperties(userRecordDto, userEntity);
-        return ResponseEntity.status(HttpStatus.OK).body(this.userRepository.save(userEntity));
+        return this.userRepository.findById(id).map(user -> {
+           user.setEmail(newUser.getEmail());
+           user.setPassword(newUser.getPassword());
+           user.setRole(newUser.getRole());
 
-        // return this.userRepository.findById(id).map(user -> {
-        //    user.setEmail(newUser.getEmail());
-        //    user.setPassword(newUser.getPassword());
-        //    user.setRole(newUser.getRole());
-
-        //    return this.userRepository.save(user);
-        // });
+           return this.userRepository.save(user);
+        });
+         */
     }
 
     @PatchMapping("/users/{id}")
-    public Optional<User> updateSameFields(@RequestBody User newUser, @PathVariable UUID id) {
+    public ResponseEntity<EntityModel<User>> updateSameFields(@RequestBody @Valid UserPatchDto dto, @PathVariable UUID id) {
+        User user = this.userService.getById(id);
+        User updated = this.userService.updateSameFields(user, dto);
+
+        return ResponseEntity.ok(assembler.toModel(updated));
+
+        /*
         return this.userRepository.findById(id).map(user -> {
             user.setEmail(newUser.getEmail());
             user.setPassword(newUser.getPassword());
@@ -109,19 +121,20 @@ public class UserController {
 
             return this.userRepository.save(user);
         });
+         */
     }
 
     @DeleteMapping("/users/{id}")
-    public ResponseEntity<Object> delete(@PathVariable(value="id") UUID id) {
-        Optional<User> user = this.userRepository.findById(id);
+    public ResponseEntity<?> delete(@PathVariable(value = "id") UUID id) {
+        User user = this.userService.getById(id);
 
-        if (user.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found.");
-        }
+        this.userService.delete(user);
+
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
 
         // próprio delete do JPA, passando a entidade
-        this.userRepository.delete(user.get());
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User deleted successfully.");
+        // this.userRepository.delete(user.get());
+        // return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User deleted successfully.");
 
         // this.userRepository.deleteById(id);
     }

@@ -2,6 +2,7 @@ package com.example.apirestspringboot.asssembler;
 
 import com.example.apirestspringboot.controller.UserController;
 import com.example.apirestspringboot.entity.User;
+import org.springframework.data.domain.Pageable;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.server.RepresentationModelAssembler;
 import org.springframework.stereotype.Component;
@@ -16,7 +17,7 @@ public class UserModelAssembler implements RepresentationModelAssembler<User, En
     public EntityModel<User> toModel(User user) {
         return EntityModel.of(user,
                 linkTo(methodOn(UserController.class).getUserById(user.getId())).withSelfRel(),
-                linkTo(methodOn(UserController.class).all()).withRel("users"));
+                linkTo(methodOn(UserController.class).all(Pageable.unpaged())).withRel("users"));
     }
 
 }
