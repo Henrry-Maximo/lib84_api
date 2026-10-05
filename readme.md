@@ -91,6 +91,7 @@
 - [ ] O administrador deve poder deletar um livro;
 - [ ] O administrador deve poder deletar um autor;
 - [x] O usuário deve poder deletar a própria conta;
+- [x] O usuário deve poder atualizar seu usuário (email/senha)
 - [ ] O usuário deve poder atualizar as informações de seu perfil;
 - [ ] O usuário deve poder atualizar seu empréstimo;
 - [ ] O usuário deve poder visualizar livros agrupados por autor/categoria/fornecedor;
