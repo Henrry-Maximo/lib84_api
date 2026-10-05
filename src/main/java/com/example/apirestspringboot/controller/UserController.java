@@ -14,6 +14,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
+
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -35,7 +38,20 @@ public class UserController {
 
     @GetMapping("/users")
     public ResponseEntity<List<User>> all() {
-        return ResponseEntity.status(HttpStatus.OK).body(this.userRepository.findAll());
+        List<User> users = this.userRepository.findAll();
+
+        if (!users.isEmpty()) {
+            for (User user : users) {
+                UUID id = user.getId();
+
+                // add -> construir link
+                // linkTo -> para qual class? / withSelfRel -> redirecionamento
+                // methodTo -> para qual método?
+                user.add(linkTo(methodOn(UserController.class).getUserById(id)).withSelfRel());
+            }
+        }
+
+        return ResponseEntity.status(HttpStatus.OK).body(users);
     }
 
     @GetMapping("/users/{id}")
@@ -45,6 +61,8 @@ public class UserController {
         if (user.isEmpty()) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found.");
         }
+
+        user.get().add(linkTo(methodOn(UserController.class).all()).withSelfRel());
 
         return ResponseEntity.status(HttpStatus.OK).body(user.get());
 

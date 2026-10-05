@@ -2,6 +2,7 @@ package com.example.apirestspringboot.entity;
 
 import jakarta.persistence.*;
 import org.hibernate.annotations.CreationTimestamp;
+import org.springframework.hateoas.RepresentationModel;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
@@ -10,7 +11,7 @@ import java.util.Set;
 import java.util.UUID;
 
 @Entity(name = "tb_users")
-public class User extends Representation implements Serializable {
+public class User extends RepresentationModel<User> implements Serializable {
     public enum Role {
         MEMBER,
         ADMIN
