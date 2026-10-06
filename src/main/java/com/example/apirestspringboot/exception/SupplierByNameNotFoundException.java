@@ -1,9 +1,7 @@
 package com.example.apirestspringboot.exception;
 
-import java.util.UUID;
-
-public class SupplierNotFoundException extends RuntimeException {
-    public SupplierNotFoundException(UUID id) {
-        super("Could not find the supplier with ID: " + id);
+public class SupplierByNameNotFoundException extends RuntimeException {
+    public SupplierByNameNotFoundException(String name) {
+        super("Could not find the supplier with Name: " + name);
     }
 }

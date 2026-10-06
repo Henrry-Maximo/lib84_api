@@ -1,9 +1,8 @@
 package com.example.apirestspringboot.exception;
 
-import java.util.UUID;
 
-public class CategoryNotFoundException extends RuntimeException {
-    public CategoryNotFoundException(UUID id) {
-        super("Could not find the category with ID: " + id);
+public class CategoryByNameNotFoundException extends RuntimeException {
+    public CategoryByNameNotFoundException(String title) {
+        super("Could not find the category with Name: " + title);
     }
 }

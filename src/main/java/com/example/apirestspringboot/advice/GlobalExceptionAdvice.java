@@ -39,6 +39,18 @@ public class GlobalExceptionAdvice {
         return new ErrorResponse(ex.getMessage());
     }
 
+    @ExceptionHandler(CategoryByNameNotFoundException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    ErrorResponse categoryByNameNotFoundHandler(CategoryByNameNotFoundException ex) {
+        return new ErrorResponse(ex.getMessage());
+    }
+
+    @ExceptionHandler(DuplicateCategoryTitleException.class)
+    @ResponseStatus(HttpStatus.CONFLICT)
+    ErrorResponse duplicateCategoryTitleHandler(DuplicateCategoryTitleException ex) {
+        return new ErrorResponse(ex.getMessage());
+    }
+
     @ExceptionHandler(DuplicateEmailException.class)
     @ResponseStatus(HttpStatus.CONFLICT)
     ErrorResponse duplicateEmailHandler(DuplicateEmailException ex) {
@@ -63,9 +75,21 @@ public class GlobalExceptionAdvice {
         return new ErrorResponse(ex.getMessage());
     }
 
+    @ExceptionHandler(SupplierByNameNotFoundException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    ErrorResponse supplierByNameNotFoundHandler(SupplierByNameNotFoundException ex) {
+        return new ErrorResponse(ex.getMessage());
+    }
+
     @ExceptionHandler(UserNotFoundException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
     ErrorResponse userNotFoundHandler(UserNotFoundException ex) {
+        return new ErrorResponse(ex.getMessage());
+    }
+
+    @ExceptionHandler(UserByEmailNotFoundException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    ErrorResponse userByEmailNotFoundHandler(UserByEmailNotFoundException ex) {
         return new ErrorResponse(ex.getMessage());
     }
 
