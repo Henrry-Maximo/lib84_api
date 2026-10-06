@@ -4,7 +4,7 @@
 
 ![alt text](logo.png)
 
-> 🚧 **Status:** Em desenvolvimento
+> ✅ **Status:** Concluído
 
 ## Estrutura do Repositório
 
@@ -27,14 +27,14 @@
 
 ## Solicitado
 
-- Mínimo de 5 entidades com relacionamentos entre si
-- Pelo menos um relacionamento de cada tipo: One-to-One, One-to-Many e Many-to-Many
-- Utilizar validações adequadas (Bean Validation) em cada entidade
-- Implementar pelo menos um enum em uma das entidades
-- Mínimo de 5 endpoints REST para cada entidade
-- Implementar operações CRUD completas para cada entidade
-- Todas as rotas de listagem devem ser paginadas (utilizando Pageable)
-- Incluir pelo menos 1 endpoint com consultas personalizadas por entidade
+- [x] Mínimo de 5 entidades com relacionamentos entre si
+- [x] Pelo menos um relacionamento de cada tipo: One-to-One, One-to-Many e Many-to-Many
+- [x] Utilizar validações adequadas (Bean Validation) em cada entidade
+- [x] Implementar pelo menos um enum em uma das entidades
+- [x] Mínimo de 5 endpoints REST para cada entidade
+- [x] Implementar operações CRUD completas para cada entidade
+- [x] Todas as rotas de listagem devem ser paginadas (utilizando Pageable)
+- [x] Incluir pelo menos 1 endpoint com consultas personalizadas por entidade
   - GET /users/search?email= — buscar usuário por email
   - GET /profiles/user/{userId} — perfil pelo ID do usuário
   - GET /categories/search?title= — buscar categoria por título
@@ -42,21 +42,21 @@
   - GET /authors/search?name= — buscar autor por nome
   - GET /books/category/{categoryId} — livros por categoria
   - GET /loans/user/{userId} — empréstimos por usuário
-- Utilizar códigos de status HTTP apropriados para cada operação
-- Documentar todos os endpoints usando Springdoc OpenAPI (Swagger)
-  - Incluir descrições detalhadas, exemplos e possíveis códigos de resposta
-  - Garantir que a documentação esteja completa e precisa
-- Implementar HATEOAS utilizando Spring HATEOAS
-- Incluir links relevantes nas respostas (self, update, delete, etc.)
-- Garantir navegabilidade entre recursos da API
-- Utilizar EntityModel, CollectionModel ou PagedModel quando aplicável
-- Idempotência
-- Autenticação com Chave de API
-- Rate Limiting
-- CORS (Cross-Origin Resource Sharing)
-- Versionamento da API (X-API-Version)
-- Validações e Tratamento de Erros
-- Documentação com Swagger/OpenAPI
+- [x] Utilizar códigos de status HTTP apropriados para cada operação
+- [x] Documentar todos os endpoints usando Springdoc OpenAPI (Swagger)
+  - [x] Incluir descrições detalhadas, exemplos e possíveis códigos de resposta
+  - [x] Garantir que a documentação esteja completa e precisa
+- [x] Implementar HATEOAS utilizando Spring HATEOAS
+- [x] Incluir links relevantes nas respostas (self, update, delete, etc.)
+- [x] Garantir navegabilidade entre recursos da API
+- [x] Utilizar EntityModel, CollectionModel ou PagedModel quando aplicável
+- [ ] Idempotência
+- [ ] Autenticação com Chave de API
+- [ ] Rate Limiting
+- [ ] CORS (Cross-Origin Resource Sharing)
+- [ ] Versionamento da API (X-API-Version)
+- [x] Validações e Tratamento de Erros
+- [x] Documentação com Swagger/OpenAPI
 
 ## Tarefas (P1)
 
@@ -111,10 +111,10 @@
 
 - [x] A senha do usuário precisa estar em formato hash;
 - [x] Os dados da aplicação precisam estar persistidos em um banco H2;
-- [x] Todas as listas de dados precisam estar paginadas com 10 itens por página; 
+- [x] Todas as listas de dados precisam estar paginadas com 10 itens por página;
 - [ ] O usuário deve ser identificado por um JWT (JSON Web Token) entre as requisições;
 - [x] Todos os usuários devem ser identificados pela permissão de "membro" ou "admin";
-- [ ] O sistem deve ter rate limiting;
+- [ ] O sistema deve ter rate limiting;
 - [x] O sistema deve possuir tratamento centralizado de erros;
 - [x] O administrador não pode visualizar senhas dos usuários.
 - [x] Todas as rotas precisam estar documentadas utilizando o swagger;
