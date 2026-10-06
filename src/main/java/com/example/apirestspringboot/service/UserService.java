@@ -55,6 +55,7 @@ public class UserService {
         */
 
         BeanUtils.copyProperties(dto, user);
+        if (dto.password() != null) user.setPassword(BCrypt.withDefaults().hashToString(12, dto.password().toCharArray()));
         if (dto.role() != null) user.setRole(User.Role.valueOf(dto.role()));
         return this.userRepository.save(user);
     }
@@ -71,7 +72,7 @@ public class UserService {
 
     public User updateSameFields(User user, UserPatchDto dto) {
         if (dto.email() != null) user.setEmail(dto.email());
-        if (dto.password() != null) user.setPassword(dto.password());
+        if (dto.password() != null) user.setPassword(BCrypt.withDefaults().hashToString(12, dto.password().toCharArray()));
         if (dto.role() != null) user.setRole(User.Role.valueOf(dto.role()));
 
         return this.userRepository.save(user);

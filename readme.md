@@ -4,7 +4,8 @@
 
 ![alt text](logo.png)
 
-> ✅ **Status:** Concluído
+> ✅ **Status:** Concluído - Part I
+> ❌ **Status:** Andamento - Part II
 
 ## Estrutura do Repositório
 
@@ -101,8 +102,8 @@
 - [x] O usuário deve poder atualizar seu usuário (email/senha)
 - [x] O usuário deve poder atualizar as informações de seu perfil;
 - [x] O usuário deve poder atualizar seu empréstimo;
-- [ ] O usuário deve poder visualizar livros agrupados por autor/categoria/fornecedor;
 - [x] O usuário deve poder visualizar todas as categorias;
+- [ ] O usuário deve poder visualizar livros agrupados por autor/categoria/fornecedor;
 - [ ] O usuário deve poder visualizar a quantidade de livros por categoria;
 - [ ] O usuário deve poder filtrar seu histórico de empréstimos por período e por categoria;
 - [x] O administrador deve poder visualizar todos os usuários.
@@ -112,18 +113,20 @@
 - [x] A senha do usuário precisa estar em formato hash;
 - [x] Os dados da aplicação precisam estar persistidos em um banco H2;
 - [x] Todas as listas de dados precisam estar paginadas com 10 itens por página;
-- [ ] O usuário deve ser identificado por um JWT (JSON Web Token) entre as requisições;
 - [x] Todos os usuários devem ser identificados pela permissão de "membro" ou "admin";
-- [ ] O sistema deve ter rate limiting;
 - [x] O sistema deve possuir tratamento centralizado de erros;
 - [x] O administrador não pode visualizar senhas dos usuários.
 - [x] Todas as rotas precisam estar documentadas utilizando o swagger;
+- [ ] O usuário deve ser identificado por um JWT (JSON Web Token) entre as requisições;
+- [ ] O sistema deve ter rate limiting;
 - [ ] O sistema deve implementar refresh token para renovação de autenticação;
 - [ ] Invalidar o JWT ao deletar a conta do usuário.
 
 ### Regras de Negócio (RN)
 
 - [x] O usuário não deve poder se cadastrar com e-mail duplicado;
+- [x] Os usuários, por padrão, recebem o cargo (permissão) de "membro";
+- [x] O administrador pode visualizar todos os usuários;
 - [ ] O administrador não deve poder cadastrar categorias com o mesmo título;
 - [ ] O administrador não deve poder cadastrar mais que 15 categorias;
 - [ ] O token de reset de senha deve expirar em 15 minutos e só pode ser usado uma vez;
@@ -131,9 +134,7 @@
 - [ ] O usuário não deve poder solicitar empréstimo para outro usuário;
 - [ ] O usuário só pode visualizar os próprios empréstimos;
 - [ ] O administrador não deve poder atualizar o livro com a mesma categoria já em uso pelo próprio livro;
-- [x] Os usuários, por padrão, recebem o cargo (permissão) de "membro";
 - [ ] O usuário não deve poder visualizar empréstimos de outros usuários;
-- [x] O administrador pode visualizar todos os usuários;
 - [ ] Ao deletar uma conta, os empréstimos vinculados ao usuário devem ser mantidos.
 
 ## Banco de dados
