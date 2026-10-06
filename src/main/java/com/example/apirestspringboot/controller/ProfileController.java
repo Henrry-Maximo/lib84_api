@@ -5,6 +5,8 @@ import com.example.apirestspringboot.dto.ProfileRecordDto;
 import com.example.apirestspringboot.entity.Profile;
 import com.example.apirestspringboot.service.ProfileService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -51,7 +53,7 @@ public class ProfileController {
     @Operation(summary = "Get a profile by id")
     @ApiResponses({
         @ApiResponse(responseCode = "200", description = "Profile found"),
-        @ApiResponse(responseCode = "404", description = "Profile not found")
+        @ApiResponse(responseCode = "404", description = "Profile not found", content = @Content(mediaType = "application/json", schema = @Schema(example = "{\"error\": \"Could not find the profile with ID: ...\"}")))
     })
     @GetMapping("/{id}")
     public ResponseEntity<EntityModel<Profile>> getById(@PathVariable UUID id) {
@@ -61,7 +63,7 @@ public class ProfileController {
     @Operation(summary = "Get profile by user id")
     @ApiResponses({
         @ApiResponse(responseCode = "200", description = "Profile found"),
-        @ApiResponse(responseCode = "404", description = "Profile not found for user")
+        @ApiResponse(responseCode = "404", description = "Profile not found for user", content = @Content(mediaType = "application/json", schema = @Schema(example = "{\"error\": \"Could not find the profile with ID: ...\"}")))
     })
     @GetMapping("/user/{userId}")
     public ResponseEntity<EntityModel<Profile>> getByUserId(@PathVariable UUID userId) {
@@ -71,7 +73,7 @@ public class ProfileController {
     @Operation(summary = "Create a profile")
     @ApiResponses({
         @ApiResponse(responseCode = "201", description = "Profile created"),
-        @ApiResponse(responseCode = "400", description = "Invalid request body")
+        @ApiResponse(responseCode = "400", description = "Invalid request body", content = @Content(mediaType = "application/json", schema = @Schema(example = "{\"name\": \"must not be blank\"}")))
     })
     @PostMapping
     public ResponseEntity<EntityModel<Profile>> create(@RequestBody @Valid ProfileRecordDto dto) {
@@ -81,8 +83,8 @@ public class ProfileController {
     @Operation(summary = "Update a profile")
     @ApiResponses({
         @ApiResponse(responseCode = "200", description = "Profile updated"),
-        @ApiResponse(responseCode = "400", description = "Invalid request body"),
-        @ApiResponse(responseCode = "404", description = "Profile not found")
+        @ApiResponse(responseCode = "400", description = "Invalid request body", content = @Content(mediaType = "application/json", schema = @Schema(example = "{\"name\": \"must not be blank\"}"))),
+        @ApiResponse(responseCode = "404", description = "Profile not found", content = @Content(mediaType = "application/json", schema = @Schema(example = "{\"error\": \"Could not find the profile with ID: ...\"}")))
     })
     @PutMapping("/{id}")
     public ResponseEntity<EntityModel<Profile>> update(@RequestBody @Valid ProfileRecordDto dto, @PathVariable UUID id) {
@@ -94,7 +96,7 @@ public class ProfileController {
     @Operation(summary = "Delete a profile")
     @ApiResponses({
         @ApiResponse(responseCode = "204", description = "Profile deleted"),
-        @ApiResponse(responseCode = "404", description = "Profile not found")
+        @ApiResponse(responseCode = "404", description = "Profile not found", content = @Content(mediaType = "application/json", schema = @Schema(example = "{\"error\": \"Could not find the profile with ID: ...\"}")))
     })
     @DeleteMapping("/{id}")
     public ResponseEntity<?> delete(@PathVariable UUID id) {

@@ -5,6 +5,8 @@ import com.example.apirestspringboot.dto.CategoryRecordDto;
 import com.example.apirestspringboot.entity.Category;
 import com.example.apirestspringboot.service.CategoryService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -51,7 +53,7 @@ public class CategoryController {
     @Operation(summary = "Get a category by id")
     @ApiResponses({
         @ApiResponse(responseCode = "200", description = "Category found"),
-        @ApiResponse(responseCode = "404", description = "Category not found")
+        @ApiResponse(responseCode = "404", description = "Category not found", content = @Content(mediaType = "application/json", schema = @Schema(example = "{\"error\": \"Could not find the category with ID: ...\"}")))
     })
     @GetMapping("/{id}")
     public ResponseEntity<EntityModel<Category>> getById(@PathVariable UUID id) {
@@ -61,7 +63,7 @@ public class CategoryController {
     @Operation(summary = "Search category by title")
     @ApiResponses({
         @ApiResponse(responseCode = "200", description = "Category found"),
-        @ApiResponse(responseCode = "404", description = "Category not found")
+        @ApiResponse(responseCode = "404", description = "Category not found", content = @Content(mediaType = "application/json", schema = @Schema(example = "{\"error\": \"Could not find the category with ID: ...\"}")))
     })
     @GetMapping("/search")
     public ResponseEntity<EntityModel<Category>> getByTitle(@RequestParam String title) {
@@ -71,7 +73,7 @@ public class CategoryController {
     @Operation(summary = "Create a category")
     @ApiResponses({
         @ApiResponse(responseCode = "201", description = "Category created"),
-        @ApiResponse(responseCode = "400", description = "Invalid request body")
+        @ApiResponse(responseCode = "400", description = "Invalid request body", content = @Content(mediaType = "application/json", schema = @Schema(example = "{\"title\": \"must not be blank\"}")))
     })
     @PostMapping
     public ResponseEntity<EntityModel<Category>> create(@RequestBody @Valid CategoryRecordDto dto) {
@@ -81,8 +83,8 @@ public class CategoryController {
     @Operation(summary = "Update a category")
     @ApiResponses({
         @ApiResponse(responseCode = "200", description = "Category updated"),
-        @ApiResponse(responseCode = "400", description = "Invalid request body"),
-        @ApiResponse(responseCode = "404", description = "Category not found")
+        @ApiResponse(responseCode = "400", description = "Invalid request body", content = @Content(mediaType = "application/json", schema = @Schema(example = "{\"title\": \"must not be blank\"}"))),
+        @ApiResponse(responseCode = "404", description = "Category not found", content = @Content(mediaType = "application/json", schema = @Schema(example = "{\"error\": \"Could not find the category with ID: ...\"}")))
     })
     @PutMapping("/{id}")
     public ResponseEntity<EntityModel<Category>> update(@RequestBody @Valid CategoryRecordDto dto, @PathVariable UUID id) {
@@ -94,7 +96,7 @@ public class CategoryController {
     @Operation(summary = "Delete a category")
     @ApiResponses({
         @ApiResponse(responseCode = "204", description = "Category deleted"),
-        @ApiResponse(responseCode = "404", description = "Category not found")
+        @ApiResponse(responseCode = "404", description = "Category not found", content = @Content(mediaType = "application/json", schema = @Schema(example = "{\"error\": \"Could not find the category with ID: ...\"}")))
     })
     @DeleteMapping("/{id}")
     public ResponseEntity<?> delete(@PathVariable UUID id) {

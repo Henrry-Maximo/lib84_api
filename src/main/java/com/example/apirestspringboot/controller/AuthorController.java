@@ -5,6 +5,8 @@ import com.example.apirestspringboot.dto.AuthorRecordDto;
 import com.example.apirestspringboot.entity.Author;
 import com.example.apirestspringboot.service.AuthorService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -50,7 +52,7 @@ public class AuthorController {
     @Operation(summary = "Get an author by id")
     @ApiResponses({
         @ApiResponse(responseCode = "200", description = "Author found"),
-        @ApiResponse(responseCode = "404", description = "Author not found")
+        @ApiResponse(responseCode = "404", description = "Author not found", content = @Content(mediaType = "application/json", schema = @Schema(example = "{\"error\": \"Could not find the author with ID: ...\"}")))
     })
     @GetMapping("/{id}")
     public ResponseEntity<EntityModel<Author>> getById(@PathVariable UUID id) {
@@ -60,7 +62,7 @@ public class AuthorController {
     @Operation(summary = "Search author by name")
     @ApiResponses({
         @ApiResponse(responseCode = "200", description = "Author found"),
-        @ApiResponse(responseCode = "404", description = "Author not found")
+        @ApiResponse(responseCode = "404", description = "Author not found", content = @Content(mediaType = "application/json", schema = @Schema(example = "{\"error\": \"Could not find the author with ID: ...\"}")))
     })
     @GetMapping("/search")
     public ResponseEntity<EntityModel<Author>> getByName(@RequestParam String name) {
@@ -70,7 +72,7 @@ public class AuthorController {
     @Operation(summary = "Create an author")
     @ApiResponses({
         @ApiResponse(responseCode = "201", description = "Author created"),
-        @ApiResponse(responseCode = "400", description = "Invalid request body")
+        @ApiResponse(responseCode = "400", description = "Invalid request body", content = @Content(mediaType = "application/json", schema = @Schema(example = "{\"name\": \"must not be blank\"}")))
     })
     @PostMapping
     public ResponseEntity<EntityModel<Author>> create(@RequestBody @Valid AuthorRecordDto dto) {
@@ -80,8 +82,8 @@ public class AuthorController {
     @Operation(summary = "Update an author")
     @ApiResponses({
         @ApiResponse(responseCode = "200", description = "Author updated"),
-        @ApiResponse(responseCode = "400", description = "Invalid request body"),
-        @ApiResponse(responseCode = "404", description = "Author not found")
+        @ApiResponse(responseCode = "400", description = "Invalid request body", content = @Content(mediaType = "application/json", schema = @Schema(example = "{\"name\": \"must not be blank\"}"))),
+        @ApiResponse(responseCode = "404", description = "Author not found", content = @Content(mediaType = "application/json", schema = @Schema(example = "{\"error\": \"Could not find the author with ID: ...\"}")))
     })
     @PutMapping("/{id}")
     public ResponseEntity<EntityModel<Author>> update(@RequestBody @Valid AuthorRecordDto dto, @PathVariable UUID id) {
@@ -92,7 +94,7 @@ public class AuthorController {
     @Operation(summary = "Delete an author")
     @ApiResponses({
         @ApiResponse(responseCode = "204", description = "Author deleted"),
-        @ApiResponse(responseCode = "404", description = "Author not found")
+        @ApiResponse(responseCode = "404", description = "Author not found", content = @Content(mediaType = "application/json", schema = @Schema(example = "{\"error\": \"Could not find the author with ID: ...\"}")))
     })
     @DeleteMapping("/{id}")
     public ResponseEntity<?> delete(@PathVariable UUID id) {

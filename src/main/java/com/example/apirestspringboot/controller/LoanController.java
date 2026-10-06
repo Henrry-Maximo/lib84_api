@@ -5,6 +5,8 @@ import com.example.apirestspringboot.dto.LoanRecordDto;
 import com.example.apirestspringboot.entity.Loan;
 import com.example.apirestspringboot.service.LoanService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -52,7 +54,7 @@ public class LoanController {
     @Operation(summary = "Get a loan by id")
     @ApiResponses({
         @ApiResponse(responseCode = "200", description = "Loan found"),
-        @ApiResponse(responseCode = "404", description = "Loan not found")
+        @ApiResponse(responseCode = "404", description = "Loan not found", content = @Content(mediaType = "application/json", schema = @Schema(example = "{\"error\": \"Could not find the loan with ID: ...\"}")))
     })
     @GetMapping("/{id}")
     public ResponseEntity<EntityModel<Loan>> getById(@PathVariable UUID id) {
@@ -71,7 +73,7 @@ public class LoanController {
     @Operation(summary = "Create a loan")
     @ApiResponses({
         @ApiResponse(responseCode = "201", description = "Loan created"),
-        @ApiResponse(responseCode = "400", description = "Invalid request body")
+        @ApiResponse(responseCode = "400", description = "Invalid request body", content = @Content(mediaType = "application/json", schema = @Schema(example = "{\"userId\": \"must not be null\"}")))
     })
     @PostMapping
     public ResponseEntity<EntityModel<Loan>> create(@RequestBody @Valid LoanRecordDto dto) {
@@ -81,8 +83,8 @@ public class LoanController {
     @Operation(summary = "Update a loan")
     @ApiResponses({
         @ApiResponse(responseCode = "200", description = "Loan updated"),
-        @ApiResponse(responseCode = "400", description = "Invalid request body"),
-        @ApiResponse(responseCode = "404", description = "Loan not found")
+        @ApiResponse(responseCode = "400", description = "Invalid request body", content = @Content(mediaType = "application/json", schema = @Schema(example = "{\"userId\": \"must not be null\"}"))),
+        @ApiResponse(responseCode = "404", description = "Loan not found", content = @Content(mediaType = "application/json", schema = @Schema(example = "{\"error\": \"Could not find the loan with ID: ...\"}")))
     })
     @PutMapping("/{id}")
     public ResponseEntity<EntityModel<Loan>> update(@RequestBody @Valid LoanRecordDto dto, @PathVariable UUID id) {
@@ -94,7 +96,7 @@ public class LoanController {
     @Operation(summary = "Delete a loan")
     @ApiResponses({
         @ApiResponse(responseCode = "204", description = "Loan deleted"),
-        @ApiResponse(responseCode = "404", description = "Loan not found")
+        @ApiResponse(responseCode = "404", description = "Loan not found", content = @Content(mediaType = "application/json", schema = @Schema(example = "{\"error\": \"Could not find the loan with ID: ...\"}")))
     })
     @DeleteMapping("/{id}")
     public ResponseEntity<?> delete(@PathVariable UUID id) {

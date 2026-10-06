@@ -73,7 +73,7 @@ public class GlobalExceptionAdvice {
 
     // captura erros semânticos
     @ExceptionHandler(IllegalArgumentException.class)
-    @ResponseStatus(HttpStatus.UNPROCESSABLE_ENTITY)
+    @ResponseStatus(HttpStatus.UNPROCESSABLE_CONTENT)
     ErrorResponse illegalArgumentHandler(IllegalArgumentException ex) {
         return new ErrorResponse(ex.getMessage());
     }

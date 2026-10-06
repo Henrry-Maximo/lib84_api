@@ -75,7 +75,7 @@ public class UserController {
     @Operation(summary = "Search user by email")
     @ApiResponses({
         @ApiResponse(responseCode = "200", description = "User found"),
-        @ApiResponse(responseCode = "404", description = "User not found")
+        @ApiResponse(responseCode = "404", description = "User not found", content = @Content(mediaType = "application/json", schema = @Schema(example = "{\"error\": \"Could not find the user with ID: ...\"}")))
     })
     @GetMapping("/users/search")
     public ResponseEntity<EntityModel<User>> getByEmail(@RequestParam String email) {
@@ -85,8 +85,8 @@ public class UserController {
     @Operation(summary = "Create a user")
     @ApiResponses({
         @ApiResponse(responseCode = "201", description = "User created"),
-        @ApiResponse(responseCode = "400", description = "Invalid request body"),
-        @ApiResponse(responseCode = "409", description = "Email already exists")
+        @ApiResponse(responseCode = "400", description = "Invalid request body", content = @Content(mediaType = "application/json", schema = @Schema(example = "{\"email\": \"must not be blank\"}"))),
+        @ApiResponse(responseCode = "409", description = "Email already exists", content = @Content(mediaType = "application/json", schema = @Schema(example = "{\"error\": \"Could not register user with email already exists: ...\"}")))
     })
     @PostMapping("/users/")
     public ResponseEntity<EntityModel<User>> create(@RequestBody @Valid UserRecordDto dto) {
@@ -98,8 +98,8 @@ public class UserController {
     @Operation(summary = "Update all user fields")
     @ApiResponses({
         @ApiResponse(responseCode = "200", description = "User updated"),
-        @ApiResponse(responseCode = "400", description = "Invalid request body"),
-        @ApiResponse(responseCode = "404", description = "User not found")
+        @ApiResponse(responseCode = "400", description = "Invalid request body", content = @Content(mediaType = "application/json", schema = @Schema(example = "{\"email\": \"must not be blank\"}"))),
+        @ApiResponse(responseCode = "404", description = "User not found", content = @Content(mediaType = "application/json", schema = @Schema(example = "{\"error\": \"Could not find the user with ID: ...\"}")))
     })
     @PutMapping("/users/{id}")
     public ResponseEntity<EntityModel<User>> updateAllFields(@RequestBody @Valid UserRecordDto userRecordDto, @PathVariable(value = "id") UUID id) {
@@ -131,7 +131,7 @@ public class UserController {
     @Operation(summary = "Partially update a user")
     @ApiResponses({
         @ApiResponse(responseCode = "200", description = "User updated"),
-        @ApiResponse(responseCode = "404", description = "User not found")
+        @ApiResponse(responseCode = "404", description = "User not found", content = @Content(mediaType = "application/json", schema = @Schema(example = "{\"error\": \"Could not find the user with ID: ...\"}")))
     })
     @PatchMapping("/users/{id}")
     public ResponseEntity<EntityModel<User>> updateSameFields(@RequestBody @Valid UserPatchDto dto, @PathVariable UUID id) {
@@ -154,7 +154,7 @@ public class UserController {
     @Operation(summary = "Delete a user")
     @ApiResponses({
         @ApiResponse(responseCode = "204", description = "User deleted"),
-        @ApiResponse(responseCode = "404", description = "User not found")
+        @ApiResponse(responseCode = "404", description = "User not found", content = @Content(mediaType = "application/json", schema = @Schema(example = "{\"error\": \"Could not find the user with ID: ...\"}")))
     })
     @DeleteMapping("/users/{id}")
     public ResponseEntity<?> delete(@PathVariable(value = "id") UUID id) {

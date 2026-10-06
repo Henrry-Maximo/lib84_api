@@ -5,6 +5,8 @@ import com.example.apirestspringboot.dto.BookRecordDto;
 import com.example.apirestspringboot.entity.Book;
 import com.example.apirestspringboot.service.BookService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -52,7 +54,7 @@ public class BookController {
     @Operation(summary = "Get a book by id")
     @ApiResponses({
         @ApiResponse(responseCode = "200", description = "Book found"),
-        @ApiResponse(responseCode = "404", description = "Book not found")
+        @ApiResponse(responseCode = "404", description = "Book not found", content = @Content(mediaType = "application/json", schema = @Schema(example = "{\"error\": \"Could not find the book with ID: ...\"}")))
     })
     @GetMapping("/{id}")
     public ResponseEntity<EntityModel<Book>> getById(@PathVariable UUID id) {
@@ -71,7 +73,7 @@ public class BookController {
     @Operation(summary = "Create a book")
     @ApiResponses({
         @ApiResponse(responseCode = "201", description = "Book created"),
-        @ApiResponse(responseCode = "400", description = "Invalid request body")
+        @ApiResponse(responseCode = "400", description = "Invalid request body", content = @Content(mediaType = "application/json", schema = @Schema(example = "{\"title\": \"must not be blank\"}")))
     })
     @PostMapping
     public ResponseEntity<EntityModel<Book>> create(@RequestBody @Valid BookRecordDto dto) {
@@ -81,8 +83,8 @@ public class BookController {
     @Operation(summary = "Update a book")
     @ApiResponses({
         @ApiResponse(responseCode = "200", description = "Book updated"),
-        @ApiResponse(responseCode = "400", description = "Invalid request body"),
-        @ApiResponse(responseCode = "404", description = "Book not found")
+        @ApiResponse(responseCode = "400", description = "Invalid request body", content = @Content(mediaType = "application/json", schema = @Schema(example = "{\"title\": \"must not be blank\"}"))),
+        @ApiResponse(responseCode = "404", description = "Book not found", content = @Content(mediaType = "application/json", schema = @Schema(example = "{\"error\": \"Could not find the book with ID: ...\"}")))
     })
     @PutMapping("/{id}")
     public ResponseEntity<EntityModel<Book>> update(@RequestBody @Valid BookRecordDto dto, @PathVariable UUID id) {
@@ -94,7 +96,7 @@ public class BookController {
     @Operation(summary = "Delete a book")
     @ApiResponses({
         @ApiResponse(responseCode = "204", description = "Book deleted"),
-        @ApiResponse(responseCode = "404", description = "Book not found")
+        @ApiResponse(responseCode = "404", description = "Book not found", content = @Content(mediaType = "application/json", schema = @Schema(example = "{\"error\": \"Could not find the book with ID: ...\"}")))
     })
     @DeleteMapping("/{id}")
     public ResponseEntity<?> delete(@PathVariable UUID id) {

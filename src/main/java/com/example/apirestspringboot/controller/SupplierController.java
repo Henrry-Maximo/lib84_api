@@ -5,6 +5,8 @@ import com.example.apirestspringboot.dto.SupplierRecordDto;
 import com.example.apirestspringboot.entity.Supplier;
 import com.example.apirestspringboot.service.SupplierService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -52,7 +54,7 @@ public class SupplierController {
     @Operation(summary = "Get a supplier by id")
     @ApiResponses({
         @ApiResponse(responseCode = "200", description = "Supplier found"),
-        @ApiResponse(responseCode = "404", description = "Supplier not found")
+        @ApiResponse(responseCode = "404", description = "Supplier not found", content = @Content(mediaType = "application/json", schema = @Schema(example = "{\"error\": \"Could not find the supplier with ID: ...\"}")))
     })
     @GetMapping("/{id}")
     public ResponseEntity<EntityModel<Supplier>> getById(@PathVariable UUID id) {
@@ -62,7 +64,7 @@ public class SupplierController {
     @Operation(summary = "Search supplier by name")
     @ApiResponses({
         @ApiResponse(responseCode = "200", description = "Supplier found"),
-        @ApiResponse(responseCode = "404", description = "Supplier not found")
+        @ApiResponse(responseCode = "404", description = "Supplier not found", content = @Content(mediaType = "application/json", schema = @Schema(example = "{\"error\": \"Could not find the supplier with ID: ...\"}")))
     })
     @GetMapping("/search")
     public ResponseEntity<EntityModel<Supplier>> getByName(@RequestParam String name) {
@@ -72,7 +74,7 @@ public class SupplierController {
     @Operation(summary = "Create a supplier")
     @ApiResponses({
         @ApiResponse(responseCode = "201", description = "Supplier created"),
-        @ApiResponse(responseCode = "400", description = "Invalid request body")
+        @ApiResponse(responseCode = "400", description = "Invalid request body", content = @Content(mediaType = "application/json", schema = @Schema(example = "{\"name\": \"must not be blank\"}")))
     })
     @PostMapping
     public ResponseEntity<EntityModel<Supplier>> create(@RequestBody @Valid SupplierRecordDto dto) {
@@ -82,8 +84,8 @@ public class SupplierController {
     @Operation(summary = "Update a supplier")
     @ApiResponses({
         @ApiResponse(responseCode = "200", description = "Supplier updated"),
-        @ApiResponse(responseCode = "400", description = "Invalid request body"),
-        @ApiResponse(responseCode = "404", description = "Supplier not found")
+        @ApiResponse(responseCode = "400", description = "Invalid request body", content = @Content(mediaType = "application/json", schema = @Schema(example = "{\"name\": \"must not be blank\"}"))),
+        @ApiResponse(responseCode = "404", description = "Supplier not found", content = @Content(mediaType = "application/json", schema = @Schema(example = "{\"error\": \"Could not find the supplier with ID: ...\"}")))
     })
     @PutMapping("/{id}")
     public ResponseEntity<EntityModel<Supplier>> update(@RequestBody @Valid SupplierRecordDto dto, @PathVariable UUID id) {
@@ -95,7 +97,7 @@ public class SupplierController {
     @Operation(summary = "Delete a supplier")
     @ApiResponses({
         @ApiResponse(responseCode = "204", description = "Supplier deleted"),
-        @ApiResponse(responseCode = "404", description = "Supplier not found")
+        @ApiResponse(responseCode = "404", description = "Supplier not found", content = @Content(mediaType = "application/json", schema = @Schema(example = "{\"error\": \"Could not find the supplier with ID: ...\"}")))
     })
     @DeleteMapping("/{id}")
     public ResponseEntity<?> delete(@PathVariable UUID id) {
