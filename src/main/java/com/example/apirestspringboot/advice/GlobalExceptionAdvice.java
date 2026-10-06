@@ -21,6 +21,12 @@ public class GlobalExceptionAdvice {
         return new ErrorResponse(ex.getMessage());
     }
 
+    @ExceptionHandler(AuthorByNameNotFoundException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    ErrorResponse authorByNameNotFoundHandler(AuthorByNameNotFoundException ex) {
+        return new ErrorResponse(ex.getMessage());
+    }
+
     @ExceptionHandler(BookNotFoundException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
     ErrorResponse bookNotFoundHandler(BookNotFoundException ex) {

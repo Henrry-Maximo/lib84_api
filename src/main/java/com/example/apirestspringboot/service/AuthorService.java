@@ -2,6 +2,7 @@ package com.example.apirestspringboot.service;
 
 import com.example.apirestspringboot.dto.AuthorRecordDto;
 import com.example.apirestspringboot.entity.Author;
+import com.example.apirestspringboot.exception.AuthorByNameNotFoundException;
 import com.example.apirestspringboot.exception.AuthorNotFoundException;
 import com.example.apirestspringboot.repository.AuthorRepository;
 import org.springframework.beans.BeanUtils;
@@ -40,7 +41,7 @@ public class AuthorService {
     }
 
     public Author getByName(String name) {
-        return this.authorRepository.findByNameContainingIgnoreCase(name).orElseThrow(() -> new AuthorNotFoundException(null));
+        return this.authorRepository.findByNameContainingIgnoreCase(name).orElseThrow(() -> new AuthorByNameNotFoundException(name));
     }
 
     public void delete(Author author) {
