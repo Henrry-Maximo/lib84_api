@@ -16,7 +16,9 @@ public class LoanModelAssembler implements RepresentationModelAssembler<Loan, En
     @Override
     public EntityModel<Loan> toModel(Loan loan) {
         return EntityModel.of(loan,
-                linkTo(methodOn(LoanController.class).getById(loan.getId())).withRel("loan"),
-                linkTo(methodOn(LoanController.class).all(Pageable.unpaged())).withRel("loans"));
+                linkTo(methodOn(LoanController.class).getById(loan.getId())).withSelfRel(),
+                linkTo(methodOn(LoanController.class).all(Pageable.unpaged())).withRel("all-loans"),
+                linkTo(methodOn(LoanController.class).update(null, loan.getId())).withRel("update"),
+                linkTo(methodOn(LoanController.class).delete(loan.getId())).withRel("delete"));
     }
 }

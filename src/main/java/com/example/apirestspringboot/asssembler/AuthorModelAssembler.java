@@ -16,7 +16,9 @@ public class AuthorModelAssembler implements RepresentationModelAssembler<Author
     @Override
     public EntityModel<Author> toModel(Author author) {
         return EntityModel.of(author,
-                linkTo(methodOn(AuthorController.class).getById(author.getId())).withRel("author"),
-                linkTo(methodOn(AuthorController.class).all(Pageable.unpaged())).withRel("authors"));
+                linkTo(methodOn(AuthorController.class).getById(author.getId())).withSelfRel(),
+                linkTo(methodOn(AuthorController.class).all(Pageable.unpaged())).withRel("all-authors"),
+                linkTo(methodOn(AuthorController.class).update(null, author.getId())).withRel("update"),
+                linkTo(methodOn(AuthorController.class).delete(author.getId())).withRel("delete"));
     }
 }

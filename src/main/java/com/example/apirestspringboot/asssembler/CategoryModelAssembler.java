@@ -16,7 +16,9 @@ public class CategoryModelAssembler implements RepresentationModelAssembler<Cate
     @Override
     public EntityModel<Category> toModel(Category category) {
         return EntityModel.of(category,
-                linkTo(methodOn(CategoryController.class).getById(category.getId())).withRel("category"),
-                linkTo(methodOn(CategoryController.class).all(Pageable.unpaged())).withRel("categories"));
+                linkTo(methodOn(CategoryController.class).getById(category.getId())).withSelfRel(),
+                linkTo(methodOn(CategoryController.class).all(Pageable.unpaged())).withRel("all-categories"),
+                linkTo(methodOn(CategoryController.class).update(null, category.getId())).withRel("update"),
+                linkTo(methodOn(CategoryController.class).delete(category.getId())).withRel("delete"));
     }
 }
