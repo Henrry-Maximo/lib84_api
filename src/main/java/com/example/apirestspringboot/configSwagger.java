@@ -15,7 +15,7 @@ public class configSwagger {
     public OpenAPI customOpenAPI(@Value("${springdoc.version}") String appVersion) {
         return new OpenAPI()
                 .info(new Info()
-                        .title("LIB84 — Book Management API")
+                        .title("LIB84 — Book Management API 📕📗📘📙")
                         .version(appVersion)
                         .description("""
                                 REST API for managing a digital library system. \
