@@ -2,6 +2,7 @@ package com.example.apirestspringboot.service;
 
 import com.example.apirestspringboot.dto.LoanRecordDto;
 import com.example.apirestspringboot.entity.Loan;
+import com.example.apirestspringboot.exception.LoanNotFoundException;
 import com.example.apirestspringboot.exception.UserNotFoundException;
 import com.example.apirestspringboot.repository.BookRepository;
 import com.example.apirestspringboot.repository.LoanRepository;
@@ -16,7 +17,6 @@ import java.util.UUID;
 
 @Service
 public class LoanService {
-
     private final LoanRepository loanRepository;
     private final UserRepository userRepository;
     private final BookRepository bookRepository;
@@ -42,7 +42,7 @@ public class LoanService {
     }
 
     public Loan getById(UUID id) {
-        return this.loanRepository.findById(id).orElseThrow(() -> new RuntimeException("Loan not found: " + id));
+        return this.loanRepository.findById(id).orElseThrow(() -> new LoanNotFoundException(id));
     }
 
     public Loan update(Loan loan, LoanRecordDto dto) {
