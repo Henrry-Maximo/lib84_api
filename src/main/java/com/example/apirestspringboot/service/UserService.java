@@ -57,7 +57,6 @@ public class UserService {
 
         BeanUtils.copyProperties(dto, user, "password");
         if (dto.password() != null) user.setPassword(BCrypt.withDefaults().hashToString(12, dto.password().toCharArray()));
-        if (dto.role() != null) user.setRole(User.Role.valueOf(dto.role()));
 
         return this.userRepository.save(user);
     }
