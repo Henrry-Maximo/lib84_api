@@ -9,6 +9,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springdoc.core.annotations.ParameterObject;
@@ -27,12 +28,14 @@ import java.util.UUID;
 @RestController()
 @Tag(name = "Users", description = "User management, featuring options such as listing, searching, creating, updating, and deleting.")
 public class UserController {
-
     private final UserService userService;
     private final UserModelAssembler assembler;
     private final PagedResourcesAssembler<User> pagedResourcesAssembler;
 
-    public UserController(UserService userService, UserModelAssembler assembler, PagedResourcesAssembler<User> pagedResourcesAssembler) {
+    public UserController(
+            UserService userService,
+            UserModelAssembler assembler,
+            PagedResourcesAssembler<User> pagedResourcesAssembler) {
         this.userService = userService;
         this.assembler = assembler;
         this.pagedResourcesAssembler = pagedResourcesAssembler;
@@ -70,11 +73,21 @@ public class UserController {
     }
 
     @Operation(summary = "Search user by email")
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "User found"),
+        @ApiResponse(responseCode = "404", description = "User not found")
+    })
     @GetMapping("/users/search")
     public ResponseEntity<EntityModel<User>> getByEmail(@RequestParam String email) {
         return ResponseEntity.ok(assembler.toModel(userService.getByEmail(email)));
     }
 
+    @Operation(summary = "Create a user")
+    @ApiResponses({
+        @ApiResponse(responseCode = "201", description = "User created"),
+        @ApiResponse(responseCode = "400", description = "Invalid request body"),
+        @ApiResponse(responseCode = "409", description = "Email already exists")
+    })
     @PostMapping("/users/")
     public ResponseEntity<EntityModel<User>> create(@RequestBody @Valid UserRecordDto dto) {
         User userCreated = userService.create(dto);
@@ -82,6 +95,12 @@ public class UserController {
         return ResponseEntity.status(HttpStatus.CREATED).body(assembler.toModel(userCreated));
     }
 
+    @Operation(summary = "Update all user fields")
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "User updated"),
+        @ApiResponse(responseCode = "400", description = "Invalid request body"),
+        @ApiResponse(responseCode = "404", description = "User not found")
+    })
     @PutMapping("/users/{id}")
     public ResponseEntity<EntityModel<User>> updateAllFields(@RequestBody @Valid UserRecordDto userRecordDto, @PathVariable(value = "id") UUID id) {
         User user = this.userService.getById(id);
@@ -109,6 +128,11 @@ public class UserController {
          */
     }
 
+    @Operation(summary = "Partially update a user")
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "User updated"),
+        @ApiResponse(responseCode = "404", description = "User not found")
+    })
     @PatchMapping("/users/{id}")
     public ResponseEntity<EntityModel<User>> updateSameFields(@RequestBody @Valid UserPatchDto dto, @PathVariable UUID id) {
         User user = this.userService.getById(id);
@@ -127,6 +151,11 @@ public class UserController {
          */
     }
 
+    @Operation(summary = "Delete a user")
+    @ApiResponses({
+        @ApiResponse(responseCode = "204", description = "User deleted"),
+        @ApiResponse(responseCode = "404", description = "User not found")
+    })
     @DeleteMapping("/users/{id}")
     public ResponseEntity<?> delete(@PathVariable(value = "id") UUID id) {
         User user = this.userService.getById(id);

@@ -5,6 +5,8 @@ import com.example.apirestspringboot.dto.BookRecordDto;
 import com.example.apirestspringboot.entity.Book;
 import com.example.apirestspringboot.service.BookService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springdoc.core.annotations.ParameterObject;
@@ -25,54 +27,79 @@ import java.util.UUID;
 @RequestMapping("/books")
 @Tag(name = "Books", description = "Book management, featuring options such as listing, searching, creating, updating, and deleting.")
 public class BookController {
-
     private final BookService bookService;
     private final BookModelAssembler assembler;
     private final PagedResourcesAssembler<Book> pagedResourcesAssembler;
 
-    public BookController(BookService bookService, BookModelAssembler assembler, PagedResourcesAssembler<Book> pagedResourcesAssembler) {
+    public BookController(
+            BookService bookService,
+            BookModelAssembler assembler,
+            PagedResourcesAssembler<Book> pagedResourcesAssembler) {
         this.bookService = bookService;
         this.assembler = assembler;
         this.pagedResourcesAssembler = pagedResourcesAssembler;
     }
 
     @Operation(summary = "Get all books")
+    @ApiResponse(responseCode = "200", description = "Returned a paginated list of books")
     @GetMapping
     public ResponseEntity<PagedModel<EntityModel<Book>>> all(@ParameterObject @PageableDefault(size = 10, sort = "title") Pageable pageable) {
         Page<Book> books = this.bookService.getAll(pageable);
+
         return ResponseEntity.ok(pagedResourcesAssembler.toModel(books, assembler));
     }
 
     @Operation(summary = "Get a book by id")
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "Book found"),
+        @ApiResponse(responseCode = "404", description = "Book not found")
+    })
     @GetMapping("/{id}")
     public ResponseEntity<EntityModel<Book>> getById(@PathVariable UUID id) {
         return ResponseEntity.ok(assembler.toModel(bookService.getById(id)));
     }
 
     @Operation(summary = "Get books by category")
+    @ApiResponse(responseCode = "200", description = "Returned books for the given category")
     @GetMapping("/category/{categoryId}")
     public ResponseEntity<CollectionModel<EntityModel<Book>>> getByCategory(@PathVariable UUID categoryId) {
         CollectionModel<EntityModel<Book>> books = CollectionModel.of(bookService.getByCategory(categoryId).stream().map(assembler::toModel).toList());
+
         return ResponseEntity.ok(books);
     }
 
     @Operation(summary = "Create a book")
+    @ApiResponses({
+        @ApiResponse(responseCode = "201", description = "Book created"),
+        @ApiResponse(responseCode = "400", description = "Invalid request body")
+    })
     @PostMapping
     public ResponseEntity<EntityModel<Book>> create(@RequestBody @Valid BookRecordDto dto) {
         return ResponseEntity.status(HttpStatus.CREATED).body(assembler.toModel(bookService.create(dto)));
     }
 
     @Operation(summary = "Update a book")
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "Book updated"),
+        @ApiResponse(responseCode = "400", description = "Invalid request body"),
+        @ApiResponse(responseCode = "404", description = "Book not found")
+    })
     @PutMapping("/{id}")
     public ResponseEntity<EntityModel<Book>> update(@RequestBody @Valid BookRecordDto dto, @PathVariable UUID id) {
         Book book = bookService.getById(id);
+
         return ResponseEntity.ok(assembler.toModel(bookService.update(book, dto)));
     }
 
     @Operation(summary = "Delete a book")
+    @ApiResponses({
+        @ApiResponse(responseCode = "204", description = "Book deleted"),
+        @ApiResponse(responseCode = "404", description = "Book not found")
+    })
     @DeleteMapping("/{id}")
     public ResponseEntity<?> delete(@PathVariable UUID id) {
         bookService.delete(bookService.getById(id));
+
         return ResponseEntity.noContent().build();
     }
 }
