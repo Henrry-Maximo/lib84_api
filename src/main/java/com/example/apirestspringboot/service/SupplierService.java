@@ -2,6 +2,7 @@ package com.example.apirestspringboot.service;
 
 import com.example.apirestspringboot.dto.SupplierRecordDto;
 import com.example.apirestspringboot.entity.Supplier;
+import com.example.apirestspringboot.exception.SupplierByNameNotFoundException;
 import com.example.apirestspringboot.exception.SupplierNotFoundException;
 import com.example.apirestspringboot.repository.SupplierRepository;
 import org.springframework.beans.BeanUtils;
@@ -40,7 +41,7 @@ public class SupplierService {
     }
 
     public Supplier getByName(String name) {
-        return this.supplierRepository.findByNameContainingIgnoreCase(name).orElseThrow(() -> new SupplierNotFoundException(null));
+        return this.supplierRepository.findByNameContainingIgnoreCase(name).orElseThrow(() -> new SupplierByNameNotFoundException(name));
     }
 
     public void delete(Supplier supplier) {
