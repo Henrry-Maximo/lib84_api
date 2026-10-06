@@ -5,6 +5,7 @@ import com.example.apirestspringboot.dto.UserPatchDto;
 import com.example.apirestspringboot.dto.UserRecordDto;
 import com.example.apirestspringboot.entity.User;
 import com.example.apirestspringboot.exception.DuplicateEmailException;
+import com.example.apirestspringboot.exception.UserByEmailNotFoundException;
 import com.example.apirestspringboot.exception.UserNotFoundException;
 import com.example.apirestspringboot.repository.UserRepository;
 import org.springframework.beans.BeanUtils;
@@ -54,15 +55,17 @@ public class UserService {
         user.setRole(dto.role());
         */
 
-        BeanUtils.copyProperties(dto, user);
+        BeanUtils.copyProperties(dto, user, "password");
         if (dto.password() != null) user.setPassword(BCrypt.withDefaults().hashToString(12, dto.password().toCharArray()));
         if (dto.role() != null) user.setRole(User.Role.valueOf(dto.role()));
+
         return this.userRepository.save(user);
     }
 
     public User getByEmail(String email) {
         User user = this.userRepository.findByEmail(email);
-        if (user == null) throw new UserNotFoundException(null);
+        if (user == null) throw new UserByEmailNotFoundException(email);
+
         return user;
     }
 
