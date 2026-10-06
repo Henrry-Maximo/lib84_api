@@ -2,7 +2,9 @@ package com.example.apirestspringboot.service;
 
 import com.example.apirestspringboot.dto.CategoryRecordDto;
 import com.example.apirestspringboot.entity.Category;
+import com.example.apirestspringboot.exception.CategoryByNameNotFoundException;
 import com.example.apirestspringboot.exception.CategoryNotFoundException;
+import com.example.apirestspringboot.exception.DuplicateCategoryTitleException;
 import com.example.apirestspringboot.repository.CategoryRepository;
 import org.springframework.beans.BeanUtils;
 import org.springframework.data.domain.Page;
@@ -21,6 +23,9 @@ public class CategoryService {
     }
 
     public Category create(CategoryRecordDto dto) {
+        if (categoryRepository.existsByTitleIgnoreCase(dto.title())) {
+            throw new DuplicateCategoryTitleException(dto.title());
+        }
         var category = new Category();
         BeanUtils.copyProperties(dto, category);
         return this.categoryRepository.save(category);
@@ -40,7 +45,7 @@ public class CategoryService {
     }
 
     public Category getByTitle(String title) {
-        return this.categoryRepository.findByTitleContainingIgnoreCase(title).orElseThrow(() -> new CategoryNotFoundException(null));
+        return this.categoryRepository.findByTitleContainingIgnoreCase(title).orElseThrow(() -> new CategoryByNameNotFoundException(title));
     }
 
     public void delete(Category category) {
