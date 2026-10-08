@@ -4,8 +4,8 @@
 
 ![alt text](logo.png)
 
-> ✅ **Status:** Concluído - Part I
-> ❌ **Status:** Andamento - Part II
+- ✅ **Status:** Concluído - Part I
+- ❌ **Status:** Andamento - Part II
 
 ## Estrutura do Repositório
 
@@ -66,6 +66,16 @@
 - [x] Utilizar o Maven ou Gradle como gerenciador de dependências (Maven)
 - [x] Configurar o banco de dados H2 para persistência de dados
 - [x] Utilizar Spring Data JPA para ORM
+
+## Correções
+
+- [] tratar erros de resposta (500);
+- [] detalhar Swagger com texto, explicando o contexto;
+- [] exemplos de conteúdo;
+- [] exemplos de resposta;
+- [] fazer termos de serviço;
+- [] descrição: remover pagination/error handlingz, especificar 
+tipo de HATEOAS;
 
 ## Documentação de Negócio
 

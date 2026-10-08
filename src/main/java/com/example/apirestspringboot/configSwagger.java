@@ -15,13 +15,13 @@ public class configSwagger {
     public OpenAPI customOpenAPI(@Value("${springdoc.version}") String appVersion) {
         return new OpenAPI()
                 .info(new Info()
-                        .title("LIB84 — Book Management API 📕📗📘📙")
+                        .title("LIB84 API - Book Management")
                         .version(appVersion)
                         .description("""
-                                REST API for managing a digital library system. \
-                                Provides full CRUD operations for Books, Authors, Categories, \
-                                Suppliers, Users, Profiles and Loans, with pagination, \
-                                HATEOAS navigation and centralized error handling.
+                                REST API for managing a digital library system. \n
+                                Provides full CRUD operations for Books, Authors, Categories,
+                                Suppliers, Users, Profiles and Loans. \n
+                                O Hateos with pattern JSON HAL (Hypertext Application Language)
                                 """)
                         .termsOfService("https://swagger.io/terms/")
                         .license(new License().name("MIT").url("https://mit-license.org/"))
