@@ -66,6 +66,8 @@
 - [x] Utilizar o Maven ou Gradle como gerenciador de dependências (Maven)
 - [x] Configurar o banco de dados H2 para persistência de dados
 - [x] Utilizar Spring Data JPA para ORM
+- [] Adicionar rate-limiting para diferentes contextos
+- [] Adicionar idempotência nas operações, para impedir duplicação
 
 ## Correções
 

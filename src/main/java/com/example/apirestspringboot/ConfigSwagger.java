@@ -9,7 +9,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
-public class configSwagger {
+public class ConfigSwagger {
 
     @Bean
     public OpenAPI customOpenAPI(@Value("${springdoc.version}") String appVersion) {
