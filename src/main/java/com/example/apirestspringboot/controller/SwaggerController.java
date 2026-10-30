@@ -10,4 +10,5 @@ public class SwaggerController {
     public String index() {
         return "redirect:/swagger-ui/index.html";
     }
+
 }

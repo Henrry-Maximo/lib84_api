@@ -23,7 +23,7 @@ public class ConfigSwagger {
                                 Suppliers, Users, Profiles and Loans. \n
                                 O Hateos with pattern JSON HAL (Hypertext Application Language)
                                 """)
-                        .termsOfService("https://swagger.io/terms/")
+                        .termsOfService("/terms")
                         .license(new License().name("MIT").url("https://mit-license.org/"))
                         .contact(new Contact().name("Henrique Maximo").url("https://www.github.com/henrry-maximo")
                                 .email("henrrylimadasilva@gmail.com")));
