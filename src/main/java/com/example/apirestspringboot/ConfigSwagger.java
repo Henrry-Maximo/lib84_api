@@ -15,7 +15,7 @@ public class ConfigSwagger {
     public OpenAPI customOpenAPI(@Value("${springdoc.version}") String appVersion) {
         return new OpenAPI()
                 .info(new Info()
-                        .title("LIB84 APIRESTFUL - Books Management")
+                        .title("LIB84 API RESTful - Books Management")
                         .version(appVersion)
                         .description("""
                                 REST API for managing a digital library: books, authors, categories,
@@ -28,7 +28,7 @@ public class ConfigSwagger {
                                   suppliers by name, books by category, loans by user, profile by user id
                                 - Hypermedia responses with Spring HATEOAS in HAL format
                                       (`application/hal+json`), with links such as `self`, `update` and `delete`
-                                - Centralized error handling and appropriate HTTP status codess
+                                - Centralized error handling and appropriate HTTP status codes
                                 """)
                         .termsOfService("/terms")
                         .license(new License().name("MIT").url("https://mit-license.org/"))

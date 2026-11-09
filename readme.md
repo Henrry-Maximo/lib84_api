@@ -7,7 +7,9 @@
 - ✅ **Status:** Concluído - Part I
 - 🚧 **Status:** Andamento - Part II
 
-[![Swagger Docs](https://img.shields.io/badge/API%20Docs-Swagger-85EA2D?style=for-the-badge&logo=swagger)](https://lib84-api.onrender.com/swagger-ui/index.html#/)
+[![Swagger Docs](https://img.shields.io/badge/API%20Docs-Swagger-85EA2D?style=for-the-badge&logo=swagger)](https://lib84-api.onrender.com/docs)
+[![OpenAPI Spec](https://img.shields.io/badge/OpenAPI-JSON-6BA539?style=for-the-badge&logo=openapiinitiative&logoColor=white)](https://lib84-api.onrender.com/api-docs)
+[![Swagger UI](https://img.shields.io/badge/Swagger%20UI-Default-85EA2D?style=for-the-badge&logo=swagger&logoColor=black)](https://lib84-api.onrender.com/swagger-ui/index.html)
 
 ## Estrutura do Repositório
 

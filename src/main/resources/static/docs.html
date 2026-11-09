@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>LIB84 API Docs</title>
+    <link rel="icon" type="image/png" href="/logo.png" />
+    <link rel="stylesheet" href="/swagger-ui/swagger-ui.css" />
+    <link rel="stylesheet" href="/swagger-theme.css" />
+</head>
+<body>
+<header class="lib84-header">
+    <img src="/logo.png" alt="LIB84" />
+    <span>LIB84 API Docs</span>
+</header>
+
+<div id="swagger-ui"></div>
+
+<script src="/swagger-ui/swagger-ui-bundle.js"></script>
+<script>
+    window.onload = () => {
+        window.ui = SwaggerUIBundle({
+            url: "/api-docs",
+            dom_id: "#swagger-ui",
+            presets: [SwaggerUIBundle.presets.apis],
+            layout: "BaseLayout",
+            docExpansion: "list",
+            deepLinking: true,
+            defaultModelsExpandDepth: 1,
+            displayRequestDuration: true,
+            filter: true,
+            syntaxHighlight: { theme: "arta" },
+        });
+    };
+</script>
+</body>
+</html>
