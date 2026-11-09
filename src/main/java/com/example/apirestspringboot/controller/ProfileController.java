@@ -26,7 +26,7 @@ import java.util.UUID;
 
 @RestController
 @RequestMapping("/profiles")
-@Tag(name = "Profile", description = "Profile management, featuring options such as listing, searching, creating, updating, and deleting.")
+@Tag(name = "Profiles", description = "Profile management, featuring options such as listing, searching, creating, updating, and deleting.")
 public class ProfileController {
     private final ProfileService profileService;
     private final ProfileModelAssembler assembler;

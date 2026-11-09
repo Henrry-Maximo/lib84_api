@@ -5,7 +5,9 @@
 ![alt text](logo.png)
 
 - ✅ **Status:** Concluído - Part I
-- ❌ **Status:** Andamento - Part II
+- 🚧 **Status:** Andamento - Part II
+
+[![Swagger Docs](https://img.shields.io/badge/API%20Docs-Swagger-85EA2D?style=for-the-badge&logo=swagger)](https://lib84-api.onrender.com/swagger-ui/index.html#/)
 
 ## Estrutura do Repositório
 
@@ -19,6 +21,50 @@
 - **Gerenciamento de Dependências:** Maven. 
 - **Validação:** Bean Validation.
 - **Documentação:** Swagger
+
+## Como rodar
+
+### Pré-requisitos
+
+- Java 17 ou superior
+- Maven 3.9+ (ou use o wrapper `mvnw` incluído no projeto)
+
+Confira a versão do Java:
+
+```bash
+java -version
+```
+
+### Executando
+
+```bash
+# 1. Clone o repositório
+git clone https://github.com/Henrry-Maximo/lib84_api.git
+cd lib84_api
+
+# 2. Suba a aplicação
+mvn spring-boot:run
+./mvnw spring-boot:run        # Linux/macOS
+mvnw.cmd spring-boot:run      # Windows
+```
+
+A API sobe em `http://localhost:8080`.
+
+### Documentação e ferramentas
+
+| Recurso | URL |
+|---|---|
+| Swagger UI | http://localhost:8080/swagger-ui/index.html |
+| OpenAPI (JSON) | http://localhost:8080/api-docs |
+
+### Testando rapidamente
+
+```bash
+# Listar livros (paginado)
+curl "http://localhost:8080/books?page=0&size=10"
+```
+
+> O banco é o **H2 em memória**: os dados são recriados a cada vez que a aplicação reinicia.
 
 ## Conceitos
 
@@ -67,17 +113,17 @@
 - [x] Utilizar o Maven ou Gradle como gerenciador de dependências (Maven)
 - [x] Configurar o banco de dados H2 para persistência de dados
 - [x] Utilizar Spring Data JPA para ORM
-- [] Adicionar rate-limiting para diferentes contextos
-- [] Adicionar idempotência nas operações, para impedir duplicação
+- [ ] Adicionar rate-limiting para diferentes contextos
+- [ ] Adicionar idempotência nas operações, para impedir duplicação
 
 ## Correções
 
-- [] tratar erros de resposta (500);
-- [] detalhar Swagger com texto, explicando o contexto;
-- [] exemplos de conteúdo;
-- [] exemplos de resposta;
-- [] fazer termos de serviço;
-- [] descrição: remover pagination/error handlingz, especificar 
+- [ ] tratar erros de resposta (500);
+- [ ] detalhar Swagger com texto, explicando o contexto;
+- [ ] exemplos de conteúdo;
+- [ ] exemplos de resposta;
+- [ ] fazer termos de serviço;
+- [ ] descrição: remover pagination/error handling, especificar 
 tipo de HATEOAS;
 
 ## Documentação de Negócio
@@ -106,7 +152,7 @@ tipo de HATEOAS;
 - [x] O administrador deve poder registrar um fornecedor;
 - [x] O administrador deve poder registrar uma categoria;
 - [x] O administrador deve poder registrar um livro;
-- [x] O administrador deve poder registat um autor;
+- [x] O administrador deve poder registrar um autor;
 - [x] O administrador deve poder deletar um fornecedor;
 - [x] O administrador deve poder deletar uma categoria;
 - [x] O administrador deve poder deletar um livro;

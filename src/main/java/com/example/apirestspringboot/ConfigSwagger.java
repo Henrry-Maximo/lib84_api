@@ -15,13 +15,20 @@ public class ConfigSwagger {
     public OpenAPI customOpenAPI(@Value("${springdoc.version}") String appVersion) {
         return new OpenAPI()
                 .info(new Info()
-                        .title("LIB84 API - Book Management")
+                        .title("LIB84 APIRESTFUL - Books Management")
                         .version(appVersion)
                         .description("""
-                                REST API for managing a digital library system. \n
-                                Provides full CRUD operations for Books, Authors, Categories,
-                                Suppliers, Users, Profiles and Loans. \n
-                                O Hateos with pattern JSON HAL (Hypertext Application Language)
+                                REST API for managing a digital library: books, authors, categories,
+                                suppliers, users, profiles and loans.
+                                
+                                **Features**
+                                - Full CRUD for every resource, with Bean Validation on request bodies
+                                - Paginated listings (10 items per page by default) through `page` and `size`
+                                - Custom queries: users by email, authors by name, categories by title,
+                                  suppliers by name, books by category, loans by user, profile by user id
+                                - Hypermedia responses with Spring HATEOAS in HAL format
+                                      (`application/hal+json`), with links such as `self`, `update` and `delete`
+                                - Centralized error handling and appropriate HTTP status codess
                                 """)
                         .termsOfService("/terms")
                         .license(new License().name("MIT").url("https://mit-license.org/"))

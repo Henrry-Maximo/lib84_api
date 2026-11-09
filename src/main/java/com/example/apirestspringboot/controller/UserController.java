@@ -88,7 +88,7 @@ public class UserController {
         @ApiResponse(responseCode = "400", description = "Invalid request body", content = @Content(mediaType = "application/json", schema = @Schema(example = "{\"email\": \"must not be blank\"}"))),
         @ApiResponse(responseCode = "409", description = "Email already exists", content = @Content(mediaType = "application/json", schema = @Schema(example = "{\"error\": \"Could not register user with email already exists: ...\"}")))
     })
-    @PostMapping("/users/")
+    @PostMapping("/users")
     public ResponseEntity<EntityModel<User>> create(@RequestBody @Valid UserRecordDto dto) {
         User userCreated = userService.create(dto);
 
