@@ -6,7 +6,7 @@ function nav(page) {
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
   document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
   document.getElementById(`page-${page}`).classList.add('active');
-  document.querySel   ector(`[data-page="${page}"]`).classList.add('active');
+  document.querySelector(`[data-page="${page}"]`).classList.add('active');
   loaders[page]?.();
 }
 
