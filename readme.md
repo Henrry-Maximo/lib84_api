@@ -100,11 +100,6 @@ curl "http://localhost:8080/books?page=0&size=10"
 - [x] Incluir links relevantes nas respostas (self, update, delete, etc.)
 - [x] Garantir navegabilidade entre recursos da API
 - [x] Utilizar EntityModel, CollectionModel ou PagedModel quando aplicável
-- [ ] Idempotência
-- [ ] Autenticação com Chave de API
-- [ ] Rate Limiting
-- [ ] CORS (Cross-Origin Resource Sharing)
-- [ ] Versionamento da API (X-API-Version)
 - [x] Validações e Tratamento de Erros
 - [x] Documentação com Swagger/OpenAPI
 
@@ -115,18 +110,56 @@ curl "http://localhost:8080/books?page=0&size=10"
 - [x] Utilizar o Maven ou Gradle como gerenciador de dependências (Maven)
 - [x] Configurar o banco de dados H2 para persistência de dados
 - [x] Utilizar Spring Data JPA para ORM
-- [ ] Adicionar rate-limiting para diferentes contextos
-- [ ] Adicionar idempotência nas operações, para impedir duplicação
 
-## Correções
+### Correções da V1 (a V1 continua disponível)
 
-- [ ] tratar erros de resposta (500);
-- [ ] detalhar Swagger com texto, explicando o contexto;
-- [ ] exemplos de conteúdo;
-- [ ] exemplos de resposta;
-- [ ] fazer termos de serviço;
-- [ ] descrição: remover pagination/error handling, especificar 
-tipo de HATEOAS;
+- [x] Personalizar o visual do Swagger (CSS, logo, rota `/docs`)
+- [x] Termos de serviço da API via rota `GET /terms`
+- [x] Detalhar a descrição do Swagger com texto de contexto
+- [ ] Redirecionar a raiz (`/`) para o Swagger
+- [ ] Ajustar a descrição: remover "pagination" e "error handling" e especificar o tipo de HATEOAS (HAL)
+- [ ] Tratar erros de resposta 500 (handler global)
+- [ ] Corrigir cadastro de valores inválidos que retorna status quebrado (deve ser 400/422, não 500)
+- [ ] Adicionar exemplos de conteúdo (request) nos endpoints
+- [ ] Adicionar exemplos de resposta (response) nos endpoints
+- [ ] Marcar quais itens do checklist ainda estão pendentes (`- []` sem espaço não vira checkbox)
+
+### Versionamento (V1 e V2 coexistindo)
+
+- [ ] Definir a estratégia: header `X-API-Version` (V1 como padrão quando o header não vier)
+- [ ] Manter a V1 funcionando sem alteração de contrato
+- [ ] Criar a V2 com os recursos abaixo
+- [ ] Adotar versionamento semântico `MAJOR.MINOR.PATCH`
+  - MAJOR: mudança que quebra compatibilidade
+  - MINOR: novas funcionalidades
+  - PATCH: correção de bug
+- [ ] Documentar as duas versões no Swagger (dois grupos de documentação)
+
+### V2: segurança e controle de acesso
+
+- [ ] Autenticação com chave de API (header `X-API-Key`; 401 se ausente ou inválida)
+- [ ] CORS (Cross-Origin Resource Sharing): definir origens, métodos e headers permitidos
+
+### V2: rate limiting
+
+- [ ] Implementar rate limit com algoritmo **token bucket**
+- [ ] Limitar por IP, por header e por chave de API (limites diferentes por contexto)
+- [ ] Responder `429 Too Many Requests` com `Retry-After`
+- [ ] Expor headers informativos (limite, restante, reset)
+
+### V2: idempotência
+
+- [ ] Header `Idempotency-Key` nas operações que não são idempotentes por natureza (POST e, se necessário, PATCH)
+- [ ] Vincular a chave ao conteúdo do JSON (hash do corpo); mesma chave com corpo diferente → `422`
+- [ ] Mesma chave com o mesmo corpo → devolver a resposta já gravada, sem duplicar o registro
+- [ ] Definir uma janela de validade (TTL) para a chave
+- [ ] Documentar a idempotência dos métodos HTTP: GET, PUT e DELETE já são idempotentes; POST e PATCH precisam da chave
+- [ ] Endpoint de demonstração de idempotência (o seu "GET idempotent")
+
+### Entrega
+
+- [ ] Criar `CHANGELOG.md` com as modificações (V1 corrigida e V2)
+- [ ] Atualizar o README: checklist, roadmap, como rodar e links da documentação
 
 ## Documentação de Negócio
 
