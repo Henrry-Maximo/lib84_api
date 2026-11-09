@@ -3,24 +3,269 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-  <title>LIB84 - WEB</title>
-
+  <title>LIB84</title>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            base: '#0a0a0a', surface: '#111111', card: '#161616',
+            border: '#1e1e1e', muted: '#71717a', subtle: '#a1a1aa',
+            text: '#e4e4e7', blue: '#2563eb', 'blue-h': '#1d4ed8',
+          },
+          fontFamily: { mono: ['"JetBrains Mono"', 'monospace'] },
+        },
+      },
+    }
+  </script>
+  <style>
+    * { font-family: 'JetBrains Mono', monospace; }
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-thumb { background: #2563eb66; border-radius: 999px; }
+    ::-webkit-scrollbar-thumb:hover { background: #2563eb; }
+    .page { display: none; }
+    .page.active { display: block; }
+    .nav-link { transition: color .15s; }
+    .nav-link.active { color: #2563eb; border-bottom: 2px solid #2563eb; }
+  </style>
 </head>
-<body>
-  <div>
-    <header>
-      <h1>LIB84</h1>
-    </header>
+<body class="bg-base text-text min-h-screen flex flex-col">
 
-    <main>
+  <!-- Header -->
+  <header class="bg-surface border-b border-border px-6 py-3 flex items-center justify-between sticky top-0 z-30">
+    <span class="text-white font-semibold tracking-widest text-sm">📚 LIB84</span>
+    <nav class="flex gap-1 text-xs text-subtle overflow-x-auto">
+      <button onclick="nav('books')"      class="nav-link px-3 py-1.5 hover:text-text" data-page="books">Livros</button>
+      <button onclick="nav('authors')"    class="nav-link px-3 py-1.5 hover:text-text" data-page="authors">Autores</button>
+      <button onclick="nav('categories')" class="nav-link px-3 py-1.5 hover:text-text" data-page="categories">Categorias</button>
+      <button onclick="nav('suppliers')"  class="nav-link px-3 py-1.5 hover:text-text" data-page="suppliers">Fornecedores</button>
+      <button onclick="nav('users')"      class="nav-link px-3 py-1.5 hover:text-text" data-page="users">Usuários</button>
+      <button onclick="nav('loans')"      class="nav-link px-3 py-1.5 hover:text-text" data-page="loans">Empréstimos</button>
+    </nav>
+  </header>
 
-    </main>
-      
-    <footer>
-      <p>Feito com 💕, 2026</p>
-      <p>Dev, Henrry-maximo</p>
-    </footer>
+  <main class="flex-1 px-6 py-8 max-w-6xl mx-auto w-full">
+
+    <!-- LIVROS -->
+    <div id="page-books" class="page">
+      <div class="flex items-center justify-between mb-6">
+        <div>
+          <h2 class="text-white font-semibold text-lg">Livros</h2>
+          <p class="text-muted text-xs mt-0.5">Gerencie o acervo da biblioteca</p>
+        </div>
+        <button onclick="openModal('book-form')" class="bg-blue hover:bg-blue-h text-white text-xs px-4 py-2 rounded transition-colors">+ Novo Livro</button>
+      </div>
+      <div class="mb-4 flex gap-2">
+        <input id="search-books" type="text" placeholder="Buscar por categoria..." class="bg-surface border border-border text-text text-xs rounded px-3 py-2 w-64 focus:border-blue outline-none" />
+        <button onclick="searchByCategory()" class="bg-surface border border-border text-subtle hover:text-text text-xs px-3 py-2 rounded transition-colors">Buscar</button>
+        <button onclick="loadBooks()" class="text-xs text-muted hover:text-subtle px-2">Limpar</button>
+      </div>
+      <div id="books-list" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4"></div>
+      <div id="books-pagination" class="mt-6 flex gap-2 items-center justify-center text-xs text-muted"></div>
+    </div>
+
+    <!-- AUTORES -->
+    <div id="page-authors" class="page">
+      <div class="flex items-center justify-between mb-6">
+        <div>
+          <h2 class="text-white font-semibold text-lg">Autores</h2>
+          <p class="text-muted text-xs mt-0.5">Cadastro de autores do acervo</p>
+        </div>
+        <button onclick="openModal('author-form')" class="bg-blue hover:bg-blue-h text-white text-xs px-4 py-2 rounded transition-colors">+ Novo Autor</button>
+      </div>
+      <div class="mb-4 flex gap-2">
+        <input id="search-authors" type="text" placeholder="Buscar por nome..." class="bg-surface border border-border text-text text-xs rounded px-3 py-2 w-64 focus:border-blue outline-none" />
+        <button onclick="searchAuthor()" class="bg-surface border border-border text-subtle hover:text-text text-xs px-3 py-2 rounded transition-colors">Buscar</button>
+        <button onclick="loadAuthors()" class="text-xs text-muted hover:text-subtle px-2">Limpar</button>
+      </div>
+      <div id="authors-list" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4"></div>
+    </div>
+
+    <!-- CATEGORIAS -->
+    <div id="page-categories" class="page">
+      <div class="flex items-center justify-between mb-6">
+        <div>
+          <h2 class="text-white font-semibold text-lg">Categorias</h2>
+          <p class="text-muted text-xs mt-0.5">Categorias dos livros</p>
+        </div>
+        <button onclick="openModal('category-form')" class="bg-blue hover:bg-blue-h text-white text-xs px-4 py-2 rounded transition-colors">+ Nova Categoria</button>
+      </div>
+      <div id="categories-list" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4"></div>
+    </div>
+
+    <!-- FORNECEDORES -->
+    <div id="page-suppliers" class="page">
+      <div class="flex items-center justify-between mb-6">
+        <div>
+          <h2 class="text-white font-semibold text-lg">Fornecedores</h2>
+          <p class="text-muted text-xs mt-0.5">Fornecedores dos livros</p>
+        </div>
+        <button onclick="openModal('supplier-form')" class="bg-blue hover:bg-blue-h text-white text-xs px-4 py-2 rounded transition-colors">+ Novo Fornecedor</button>
+      </div>
+      <div id="suppliers-list" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4"></div>
+    </div>
+
+    <!-- USUÁRIOS -->
+    <div id="page-users" class="page">
+      <div class="flex items-center justify-between mb-6">
+        <div>
+          <h2 class="text-white font-semibold text-lg">Usuários</h2>
+          <p class="text-muted text-xs mt-0.5">Membros e administradores</p>
+        </div>
+        <button onclick="openModal('user-form')" class="bg-blue hover:bg-blue-h text-white text-xs px-4 py-2 rounded transition-colors">+ Novo Usuário</button>
+      </div>
+      <div class="mb-4 flex gap-2">
+        <input id="search-users" type="text" placeholder="Buscar por e-mail..." class="bg-surface border border-border text-text text-xs rounded px-3 py-2 w-64 focus:border-blue outline-none" />
+        <button onclick="searchUser()" class="bg-surface border border-border text-subtle hover:text-text text-xs px-3 py-2 rounded transition-colors">Buscar</button>
+        <button onclick="loadUsers()" class="text-xs text-muted hover:text-subtle px-2">Limpar</button>
+      </div>
+      <div id="users-list" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4"></div>
+    </div>
+
+    <!-- EMPRÉSTIMOS -->
+    <div id="page-loans" class="page">
+      <div class="flex items-center justify-between mb-6">
+        <div>
+          <h2 class="text-white font-semibold text-lg">Empréstimos</h2>
+          <p class="text-muted text-xs mt-0.5">Controle de empréstimos de livros</p>
+        </div>
+        <button onclick="openModal('loan-form')" class="bg-blue hover:bg-blue-h text-white text-xs px-4 py-2 rounded transition-colors">+ Novo Empréstimo</button>
+      </div>
+      <div id="loans-list" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4"></div>
+    </div>
+
+  </main>
+
+  <footer class="bg-surface border-t border-border text-center text-xs text-muted py-4">
+    <p>Feito com 💕, 2026 — Dev, Henrry-maximo</p>
+  </footer>
+
+  <!-- ── MODAIS ─────────────────────────────────────────────────────────── -->
+  <div id="modal-overlay" onclick="closeModal()" class="hidden fixed inset-0 bg-black/70 z-40"></div>
+
+  <!-- Modal: Livro -->
+  <div id="modal-book-form" class="hidden fixed z-50 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-surface border border-border rounded-xl p-6 w-full max-w-md shadow-2xl">
+    <h3 id="book-form-title" class="text-white font-semibold mb-4">Novo Livro</h3>
+    <input type="hidden" id="book-id">
+    <div class="space-y-3">
+      <div><label class="text-xs text-muted block mb-1">Título *</label><input id="book-title" type="text" class="input-field w-full"></div>
+      <div><label class="text-xs text-muted block mb-1">ISBN</label><input id="book-isbn" type="text" class="input-field w-full"></div>
+      <div><label class="text-xs text-muted block mb-1">Quantidade</label><input id="book-amount" type="number" class="input-field w-full"></div>
+      <div><label class="text-xs text-muted block mb-1">Data de Publicação</label><input id="book-date" type="date" class="input-field w-full"></div>
+      <div><label class="text-xs text-muted block mb-1">ID da Categoria *</label><input id="book-categoryId" type="text" placeholder="uuid" class="input-field w-full"></div>
+      <div><label class="text-xs text-muted block mb-1">ID do Fornecedor *</label><input id="book-supplierId" type="text" placeholder="uuid" class="input-field w-full"></div>
+      <div><label class="text-xs text-muted block mb-1">IDs dos Autores (separados por vírgula)</label><input id="book-authorIds" type="text" placeholder="uuid, uuid" class="input-field w-full"></div>
+    </div>
+    <div class="flex gap-2 mt-5">
+      <button onclick="saveBook()" class="flex-1 bg-blue hover:bg-blue-h text-white text-xs py-2 rounded transition-colors">Salvar</button>
+      <button onclick="closeModal()" class="flex-1 border border-border text-subtle hover:text-text text-xs py-2 rounded transition-colors">Cancelar</button>
+    </div>
+    <p id="book-error" class="text-red-400 text-xs mt-2 hidden"></p>
   </div>
+
+  <!-- Modal: Autor -->
+  <div id="modal-author-form" class="hidden fixed z-50 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-surface border border-border rounded-xl p-6 w-full max-w-md shadow-2xl">
+    <h3 id="author-form-title" class="text-white font-semibold mb-4">Novo Autor</h3>
+    <input type="hidden" id="author-id">
+    <div class="space-y-3">
+      <div><label class="text-xs text-muted block mb-1">Nome *</label><input id="author-name" type="text" class="input-field w-full"></div>
+      <div><label class="text-xs text-muted block mb-1">Biografia</label><textarea id="author-bio" rows="3" class="input-field w-full resize-none"></textarea></div>
+    </div>
+    <div class="flex gap-2 mt-5">
+      <button onclick="saveAuthor()" class="flex-1 bg-blue hover:bg-blue-h text-white text-xs py-2 rounded transition-colors">Salvar</button>
+      <button onclick="closeModal()" class="flex-1 border border-border text-subtle hover:text-text text-xs py-2 rounded transition-colors">Cancelar</button>
+    </div>
+    <p id="author-error" class="text-red-400 text-xs mt-2 hidden"></p>
+  </div>
+
+  <!-- Modal: Categoria -->
+  <div id="modal-category-form" class="hidden fixed z-50 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-surface border border-border rounded-xl p-6 w-full max-w-md shadow-2xl">
+    <h3 id="category-form-title" class="text-white font-semibold mb-4">Nova Categoria</h3>
+    <input type="hidden" id="category-id">
+    <div class="space-y-3">
+      <div><label class="text-xs text-muted block mb-1">Título *</label><input id="category-title" type="text" class="input-field w-full"></div>
+      <div><label class="text-xs text-muted block mb-1">Descrição</label><textarea id="category-desc" rows="3" class="input-field w-full resize-none"></textarea></div>
+    </div>
+    <div class="flex gap-2 mt-5">
+      <button onclick="saveCategory()" class="flex-1 bg-blue hover:bg-blue-h text-white text-xs py-2 rounded transition-colors">Salvar</button>
+      <button onclick="closeModal()" class="flex-1 border border-border text-subtle hover:text-text text-xs py-2 rounded transition-colors">Cancelar</button>
+    </div>
+    <p id="category-error" class="text-red-400 text-xs mt-2 hidden"></p>
+  </div>
+
+  <!-- Modal: Fornecedor -->
+  <div id="modal-supplier-form" class="hidden fixed z-50 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-surface border border-border rounded-xl p-6 w-full max-w-md shadow-2xl">
+    <h3 id="supplier-form-title" class="text-white font-semibold mb-4">Novo Fornecedor</h3>
+    <input type="hidden" id="supplier-id">
+    <div class="space-y-3">
+      <div><label class="text-xs text-muted block mb-1">Nome *</label><input id="supplier-name" type="text" class="input-field w-full"></div>
+      <div><label class="text-xs text-muted block mb-1">E-mail *</label><input id="supplier-email" type="email" class="input-field w-full"></div>
+      <div><label class="text-xs text-muted block mb-1">Telefone</label><input id="supplier-phone" type="text" class="input-field w-full"></div>
+      <div><label class="text-xs text-muted block mb-1">CNPJ</label><input id="supplier-cnpj" type="text" class="input-field w-full"></div>
+    </div>
+    <div class="flex gap-2 mt-5">
+      <button onclick="saveSupplier()" class="flex-1 bg-blue hover:bg-blue-h text-white text-xs py-2 rounded transition-colors">Salvar</button>
+      <button onclick="closeModal()" class="flex-1 border border-border text-subtle hover:text-text text-xs py-2 rounded transition-colors">Cancelar</button>
+    </div>
+    <p id="supplier-error" class="text-red-400 text-xs mt-2 hidden"></p>
+  </div>
+
+  <!-- Modal: Usuário -->
+  <div id="modal-user-form" class="hidden fixed z-50 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-surface border border-border rounded-xl p-6 w-full max-w-md shadow-2xl">
+    <h3 id="user-form-title" class="text-white font-semibold mb-4">Novo Usuário</h3>
+    <input type="hidden" id="user-id">
+    <div class="space-y-3">
+      <div><label class="text-xs text-muted block mb-1">E-mail *</label><input id="user-email" type="email" class="input-field w-full"></div>
+      <div><label class="text-xs text-muted block mb-1">Senha *</label><input id="user-password" type="password" class="input-field w-full"></div>
+    </div>
+    <div class="flex gap-2 mt-5">
+      <button onclick="saveUser()" class="flex-1 bg-blue hover:bg-blue-h text-white text-xs py-2 rounded transition-colors">Salvar</button>
+      <button onclick="closeModal()" class="flex-1 border border-border text-subtle hover:text-text text-xs py-2 rounded transition-colors">Cancelar</button>
+    </div>
+    <p id="user-error" class="text-red-400 text-xs mt-2 hidden"></p>
+  </div>
+
+  <!-- Modal: Empréstimo -->
+  <div id="modal-loan-form" class="hidden fixed z-50 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-surface border border-border rounded-xl p-6 w-full max-w-md shadow-2xl">
+    <h3 class="text-white font-semibold mb-4">Novo Empréstimo</h3>
+    <div class="space-y-3">
+      <div><label class="text-xs text-muted block mb-1">ID do Usuário *</label><input id="loan-userId" type="text" placeholder="uuid" class="input-field w-full"></div>
+      <div><label class="text-xs text-muted block mb-1">IDs dos Livros * (separados por vírgula)</label><input id="loan-bookIds" type="text" placeholder="uuid, uuid" class="input-field w-full"></div>
+      <div><label class="text-xs text-muted block mb-1">Data Prevista de Devolução</label><input id="loan-date" type="datetime-local" class="input-field w-full"></div>
+    </div>
+    <div class="flex gap-2 mt-5">
+      <button onclick="saveLoan()" class="flex-1 bg-blue hover:bg-blue-h text-white text-xs py-2 rounded transition-colors">Salvar</button>
+      <button onclick="closeModal()" class="flex-1 border border-border text-subtle hover:text-text text-xs py-2 rounded transition-colors">Cancelar</button>
+    </div>
+    <p id="loan-error" class="text-red-400 text-xs mt-2 hidden"></p>
+  </div>
+
+  <!-- Modal: Confirmar deleção -->
+  <div id="modal-confirm" class="hidden fixed z-50 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-surface border border-border rounded-xl p-6 w-full max-w-sm shadow-2xl">
+    <h3 class="text-white font-semibold mb-2">Confirmar exclusão</h3>
+    <p class="text-subtle text-xs mb-5">Essa ação não pode ser desfeita.</p>
+    <div class="flex gap-2">
+      <button id="confirm-yes" class="flex-1 bg-red-700 hover:bg-red-800 text-white text-xs py-2 rounded transition-colors">Excluir</button>
+      <button onclick="closeModal()" class="flex-1 border border-border text-subtle hover:text-text text-xs py-2 rounded transition-colors">Cancelar</button>
+    </div>
+  </div>
+
+  <style>
+    .input-field {
+      background: #161616;
+      border: 1px solid #1e1e1e;
+      color: #e4e4e7;
+      font-size: 12px;
+      border-radius: 6px;
+      padding: 6px 10px;
+      outline: none;
+      transition: border-color .15s;
+    }
+    .input-field:focus { border-color: #2563eb; }
+  </style>
+
+  <script src="script.js"></script>
 </body>
 </html>
