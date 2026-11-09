@@ -116,13 +116,12 @@ curl "http://localhost:8080/books?page=0&size=10"
 - [x] Personalizar o visual do Swagger (CSS, logo, rota `/docs`)
 - [x] Termos de serviço da API via rota `GET /terms`
 - [x] Detalhar a descrição do Swagger com texto de contexto
-- [ ] Redirecionar a raiz (`/`) para o Swagger
-- [ ] Ajustar a descrição: remover "pagination" e "error handling" e especificar o tipo de HATEOAS (HAL)
+- [x] Redirecionar a raiz (`/`) para o Swagger
+- [x] Ajustar a descrição: remover "pagination" e "error handling" e especificar o tipo de HATEOAS (HAL)
 - [ ] Tratar erros de resposta 500 (handler global)
 - [ ] Corrigir cadastro de valores inválidos que retorna status quebrado (deve ser 400/422, não 500)
 - [ ] Adicionar exemplos de conteúdo (request) nos endpoints
 - [ ] Adicionar exemplos de resposta (response) nos endpoints
-- [ ] Marcar quais itens do checklist ainda estão pendentes (`- []` sem espaço não vira checkbox)
 
 ### Versionamento (V1 e V2 coexistindo)
 
@@ -158,8 +157,8 @@ curl "http://localhost:8080/books?page=0&size=10"
 
 ### Entrega
 
-- [ ] Criar `CHANGELOG.md` com as modificações (V1 corrigida e V2)
-- [ ] Atualizar o README: checklist, roadmap, como rodar e links da documentação
+- [x] Criar `CHANGELOG.md` com as modificações (V1 corrigida e V2)
+- [x] Atualizar o README: checklist, roadmap, como rodar e links da documentação
 
 ## Documentação de Negócio
 
