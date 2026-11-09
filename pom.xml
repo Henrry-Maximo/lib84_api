@@ -9,7 +9,7 @@
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
     <groupId>com.example</groupId>
-    <artifactId>api-rest-spring-boot</artifactId>
+    <artifactId>lib84-api</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <name>api-rest-spring-boot</name>
     <description>api-rest-spring-boot</description>

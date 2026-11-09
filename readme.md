@@ -1,6 +1,6 @@
-# LIB84 - API RESTful em Java com Spring Boot
+# LIB84 - API RESTFUL em Java com Spring Boot
 
-- A API é para uso em sistemas de gestão de livros, desenvolvida utilizando a linguagem de programação Java com recursos do Spring Boot. Abaixo, segue status de desenvolvimento, stack e requisitos.
+- API de gestão de sistema bibliotecário, desenvolvida utilizando a linguagem de programação Java com recursos do Spring Boot, solicitado pela disciplina de Desenvolvimento de Web Services do Senac (TSI). Abaixo, segue status de desenvolvimento, stack e requisitos.
 
 ![alt text](logo.png)
 
@@ -9,7 +9,8 @@
 
 ## Estrutura do Repositório
 
-- **API-REST-SPRING-BOOT**: Armazena o código da API (backend);
+- **LIB84-API**: Armazena o código da API (backend);
+- **WEB**: Armazena o código da interface web (frontend); 
 
 ## Stack Ferramental
 
