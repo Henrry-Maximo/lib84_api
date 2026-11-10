@@ -1,6 +1,6 @@
 package com.example.apirestspringboot.controller;
 
-import com.example.apirestspringboot.asssembler.CategoryModelAssembler;
+import com.example.apirestspringboot.assembler.CategoryModelAssembler;
 import com.example.apirestspringboot.dto.CategoryRecordDto;
 import com.example.apirestspringboot.entity.Category;
 import com.example.apirestspringboot.service.CategoryService;

@@ -1,6 +1,6 @@
 package com.example.apirestspringboot.controller;
 
-import com.example.apirestspringboot.asssembler.ProfileModelAssembler;
+import com.example.apirestspringboot.assembler.ProfileModelAssembler;
 import com.example.apirestspringboot.dto.ProfileRecordDto;
 import com.example.apirestspringboot.entity.Profile;
 import com.example.apirestspringboot.service.ProfileService;

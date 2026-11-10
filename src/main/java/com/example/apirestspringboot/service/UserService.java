@@ -24,6 +24,7 @@ public class UserService {
 
     public User create(UserRecordDto dto) {
         var user = new User();
+        
         BeanUtils.copyProperties(dto, user);
         user.setRole(User.Role.MEMBER);
 

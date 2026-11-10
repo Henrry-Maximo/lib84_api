@@ -1,11 +1,12 @@
 package com.example.apirestspringboot.controller;
 
-import com.example.apirestspringboot.asssembler.AuthorModelAssembler;
+import com.example.apirestspringboot.assembler.AuthorModelAssembler;
 import com.example.apirestspringboot.dto.AuthorRecordDto;
 import com.example.apirestspringboot.entity.Author;
 import com.example.apirestspringboot.service.AuthorService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
@@ -46,33 +47,64 @@ public class AuthorController {
     @GetMapping
     public ResponseEntity<PagedModel<EntityModel<Author>>> all(@ParameterObject @PageableDefault(size = 10, sort = "name") Pageable pageable) {
         Page<Author> authors = this.authorService.getAll(pageable);
+
         return ResponseEntity.ok(pagedResourcesAssembler.toModel(authors, assembler));
     }
 
     @Operation(summary = "Get an author by id")
     @ApiResponses({
-        @ApiResponse(responseCode = "200", description = "Author found"),
-        @ApiResponse(responseCode = "404", description = "Author not found", content = @Content(mediaType = "application/json", schema = @Schema(example = "{\"error\": \"Could not find the author with ID: ...\"}")))
+            @ApiResponse(responseCode = "200", description = "Author found"),
+            @ApiResponse(responseCode = "404", description = "Author not found", content = @Content(mediaType = "application/json", schema = @Schema(example = "{\"error\": \"Could not find the author with ID: ...\"}")))
     })
     @GetMapping("/{id}")
-    public ResponseEntity<EntityModel<Author>> getById(@PathVariable UUID id) {
-        return ResponseEntity.ok(assembler.toModel(authorService.getById(id)));
+    public ResponseEntity<EntityModel<Author>> getById(@PathVariable @Schema(example = "3fa85f64-571...") UUID id) {
+        return ResponseEntity.ok(assembler.toModel(this.authorService.getById(id)));
     }
 
     @Operation(summary = "Search author by name")
     @ApiResponses({
-        @ApiResponse(responseCode = "200", description = "Author found"),
-        @ApiResponse(responseCode = "404", description = "Author not found", content = @Content(mediaType = "application/json", schema = @Schema(example = "{\"error\": \"Could not find the author with ID: ...\"}")))
+            @ApiResponse(responseCode = "200", description = "Author found"),
+            @ApiResponse(responseCode = "404", description = "Author not found", content = @Content(mediaType = "application/json", schema = @Schema(example = "{\"error\": \"Could not find the author with ID: ...\"}")))
     })
     @GetMapping("/search")
-    public ResponseEntity<EntityModel<Author>> getByName(@RequestParam String name) {
+    public ResponseEntity<EntityModel<Author>> getByName(@RequestParam @Schema(example = "Johndoe") String name) {
         return ResponseEntity.ok(assembler.toModel(authorService.getByName(name)));
     }
 
     @Operation(summary = "Create an author")
     @ApiResponses({
-        @ApiResponse(responseCode = "201", description = "Author created"),
-        @ApiResponse(responseCode = "400", description = "Invalid request body", content = @Content(mediaType = "application/json", schema = @Schema(example = "{\"name\": \"must not be blank\"}")))
+            @ApiResponse(responseCode = "201", description = "Author created"),
+            @ApiResponse(
+                    responseCode = "400",
+                    description = "Invalid request body",
+                    content = @Content(
+                            mediaType = "application/json",
+                            examples = {
+                                    @ExampleObject(
+                                            name = "Validation error",
+                                            summary = "Request body contains invalid field values",
+                                            value = """
+                                                    {
+                                                        "error": [
+                                                            "must not be blank",
+                                                            "name must have between 2 and 155 characters"
+                                                        ]
+                                                    }
+                                                    """
+                                    ),
+                                    @ExampleObject(
+                                            name = "Malformed JSON",
+                                            summary = "Request body contains invalid JSON syntax",
+                                            value = """
+                                                    {
+                                                        "error": "Invalid JSON request body. Check the JSON syntax and field types."
+                                                    }
+                                                    """
+                                    )
+                            }
+                    )
+            ),
+            @ApiResponse(responseCode = "409", description = "Author already exists.", content = @Content(mediaType = "application/json", schema = @Schema(example = "{\"error\": \"author 'george orwell' already exists.\"}")))
     })
     @PostMapping
     public ResponseEntity<EntityModel<Author>> create(@RequestBody @Valid AuthorRecordDto dto) {
@@ -81,23 +113,23 @@ public class AuthorController {
 
     @Operation(summary = "Update an author")
     @ApiResponses({
-        @ApiResponse(responseCode = "200", description = "Author updated"),
-        @ApiResponse(responseCode = "400", description = "Invalid request body", content = @Content(mediaType = "application/json", schema = @Schema(example = "{\"name\": \"must not be blank\"}"))),
-        @ApiResponse(responseCode = "404", description = "Author not found", content = @Content(mediaType = "application/json", schema = @Schema(example = "{\"error\": \"Could not find the author with ID: ...\"}")))
+            @ApiResponse(responseCode = "200", description = "Author updated"),
+            @ApiResponse(responseCode = "400", description = "Invalid request body", content = @Content(mediaType = "application/json", schema = @Schema(example = "{\"name\": \"must not be blank\"}"))),
+            @ApiResponse(responseCode = "404", description = "Author not found", content = @Content(mediaType = "application/json", schema = @Schema(example = "{\"error\": \"Could not find the author with ID: ...\"}")))
     })
     @PutMapping("/{id}")
-    public ResponseEntity<EntityModel<Author>> update(@RequestBody @Valid AuthorRecordDto dto, @PathVariable UUID id) {
+    public ResponseEntity<EntityModel<Author>> update(@RequestBody @Valid AuthorRecordDto dto, @PathVariable @Schema(example = "3fa85f64-571...") UUID id) {
         Author author = authorService.getById(id);
         return ResponseEntity.ok(assembler.toModel(authorService.update(author, dto)));
     }
 
     @Operation(summary = "Delete an author")
     @ApiResponses({
-        @ApiResponse(responseCode = "204", description = "Author deleted"),
-        @ApiResponse(responseCode = "404", description = "Author not found", content = @Content(mediaType = "application/json", schema = @Schema(example = "{\"error\": \"Could not find the author with ID: ...\"}")))
+            @ApiResponse(responseCode = "204", description = "Author deleted"),
+            @ApiResponse(responseCode = "404", description = "Author not found", content = @Content(mediaType = "application/json", schema = @Schema(example = "{\"error\": \"Could not find the author with ID: ...\"}")))
     })
     @DeleteMapping("/{id}")
-    public ResponseEntity<?> delete(@PathVariable UUID id) {
+    public ResponseEntity<?> delete(@PathVariable @Schema(example = "3fa85f64-571...") UUID id) {
         authorService.delete(authorService.getById(id));
         return ResponseEntity.noContent().build();
     }

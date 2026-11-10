@@ -1,6 +1,6 @@
 package com.example.apirestspringboot.controller;
 
-import com.example.apirestspringboot.asssembler.BookModelAssembler;
+import com.example.apirestspringboot.assembler.BookModelAssembler;
 import com.example.apirestspringboot.dto.BookRecordDto;
 import com.example.apirestspringboot.entity.Book;
 import com.example.apirestspringboot.service.BookService;

@@ -1,4 +1,4 @@
-package com.example.apirestspringboot.asssembler;
+package com.example.apirestspringboot.assembler;
 
 import com.example.apirestspringboot.controller.CategoryController;
 import com.example.apirestspringboot.entity.Category;

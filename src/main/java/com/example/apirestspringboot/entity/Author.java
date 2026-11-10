@@ -1,16 +1,16 @@
 package com.example.apirestspringboot.entity;
 
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import org.springframework.hateoas.RepresentationModel;
 
 import java.util.UUID;
 
-@Entity(name = "tb_authors")
+@Entity()
+@Table(name = "tb_authors")
 @JsonPropertyOrder({"id", "name", "biography", "_links"})
 public class Author extends RepresentationModel<Author> {
 
@@ -19,8 +19,11 @@ public class Author extends RepresentationModel<Author> {
     private UUID id;
 
     @NotBlank
-    @Column(unique = true)
+    @Column(nullable = false, unique = true, length = 155)
+    @Size(max = 155)
     private String name;
+
+    @Size(max = 255)
     private String biography;
 
     public UUID getId() {

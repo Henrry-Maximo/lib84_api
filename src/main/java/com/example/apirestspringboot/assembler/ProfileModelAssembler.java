@@ -1,4 +1,4 @@
-package com.example.apirestspringboot.asssembler;
+package com.example.apirestspringboot.assembler;
 
 import com.example.apirestspringboot.controller.ProfileController;
 import com.example.apirestspringboot.entity.Profile;

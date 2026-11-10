@@ -1,6 +1,6 @@
 package com.example.apirestspringboot.controller;
 
-import com.example.apirestspringboot.asssembler.SupplierModelAssembler;
+import com.example.apirestspringboot.assembler.SupplierModelAssembler;
 import com.example.apirestspringboot.dto.SupplierRecordDto;
 import com.example.apirestspringboot.entity.Supplier;
 import com.example.apirestspringboot.service.SupplierService;

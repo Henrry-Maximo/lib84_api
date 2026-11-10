@@ -3,12 +3,14 @@ package com.example.apirestspringboot.advice;
 import com.example.apirestspringboot.dto.ErrorResponse;
 import com.example.apirestspringboot.exception.*;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
+import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -24,6 +26,12 @@ public class GlobalExceptionAdvice {
     @ExceptionHandler(AuthorByNameNotFoundException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
     ErrorResponse authorByNameNotFoundHandler(AuthorByNameNotFoundException ex) {
+        return new ErrorResponse(ex.getMessage());
+    }
+
+    @ExceptionHandler(AuthorAlreadyExistsException.class)
+    @ResponseStatus(HttpStatus.CONFLICT)
+    ErrorResponse authorByNameNotFoundHandler(AuthorAlreadyExistsException ex) {
         return new ErrorResponse(ex.getMessage());
     }
 
@@ -96,9 +104,17 @@ public class GlobalExceptionAdvice {
     // captura falhas do @Valid para cada campo inválido
     @ExceptionHandler(MethodArgumentNotValidException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    Map<String, String> validationHandler(MethodArgumentNotValidException ex) {
+    Map<String, List<String>> validationHandler(MethodArgumentNotValidException ex) {
         return ex.getBindingResult().getFieldErrors().stream()
-                .collect(Collectors.toMap(FieldError::getField, f -> f.getDefaultMessage() != null ? f.getDefaultMessage() : "invalid value"));
+                .collect(Collectors.groupingBy(
+                        FieldError::getField,
+                        Collectors.mapping(
+                                f -> f.getDefaultMessage() != null
+                                        ? f.getDefaultMessage()
+                                        : "invalid value",
+                                Collectors.toList()
+                        )
+                ));
     }
 
     // captura erros semânticos
@@ -106,5 +122,11 @@ public class GlobalExceptionAdvice {
     @ResponseStatus(HttpStatus.UNPROCESSABLE_CONTENT)
     ErrorResponse illegalArgumentHandler(IllegalArgumentException ex) {
         return new ErrorResponse(ex.getMessage());
+    }
+
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    ErrorResponse httpMessageNotReadableHandler(HttpMessageNotReadableException ex) {
+        return new ErrorResponse("Invalid JSON request body. Check the JSON syntax and field types.");
     }
 }

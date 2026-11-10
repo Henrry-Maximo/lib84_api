@@ -1,6 +1,6 @@
 package com.example.apirestspringboot.controller;
 
-import com.example.apirestspringboot.asssembler.UserModelAssembler;
+import com.example.apirestspringboot.assembler.UserModelAssembler;
 import com.example.apirestspringboot.dto.UserPatchDto;
 import com.example.apirestspringboot.dto.UserRecordDto;
 import com.example.apirestspringboot.entity.User;

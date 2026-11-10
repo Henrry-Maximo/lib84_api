@@ -1,6 +1,6 @@
 package com.example.apirestspringboot.controller;
 
-import com.example.apirestspringboot.asssembler.LoanModelAssembler;
+import com.example.apirestspringboot.assembler.LoanModelAssembler;
 import com.example.apirestspringboot.dto.LoanRecordDto;
 import com.example.apirestspringboot.entity.Loan;
 import com.example.apirestspringboot.service.LoanService;

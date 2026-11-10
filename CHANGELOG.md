@@ -23,4 +23,7 @@ e este projeto adere ao [Versionamento Semântico](https://semver.org).
 - Correção de respostas de erros 500 nos endpoints
 - Correção nos endpoints de cadastro com valores inválidos para informar status corretos (400/422)
 
+## - 2026-11-10
+- Adição de rotas ordenadas alfabeticamente
+
 ## [2.0.0]
