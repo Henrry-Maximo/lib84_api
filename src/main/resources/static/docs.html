@@ -32,7 +32,18 @@
             syntaxHighlight: { theme: "arta" },
 
             tagsSorter: "alpha",        // ordem alfabética
-            operationsSorter: "alpha", // ordenadas pelo caminho
+            operationsSorter: (a, b) => {
+                const order = {
+                    get: 0,
+                    post: 1,
+                    put: 2,
+                    patch: 3,
+                    delete: 4
+                };
+
+                return (order[a.get("method")] ?? 99) -
+                    (order[b.get("method")] ?? 99);
+            },
         });
     };
 </script>

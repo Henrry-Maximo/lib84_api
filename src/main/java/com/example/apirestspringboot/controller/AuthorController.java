@@ -12,6 +12,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotBlank;
 import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -67,7 +68,8 @@ public class AuthorController {
             @ApiResponse(responseCode = "404", description = "Author not found", content = @Content(mediaType = "application/json", schema = @Schema(example = "{\"error\": \"Could not find the author with ID: ...\"}")))
     })
     @GetMapping("/search")
-    public ResponseEntity<EntityModel<Author>> getByName(@RequestParam @Schema(example = "Johndoe") String name) {
+    public ResponseEntity<EntityModel<Author>> getByName(@RequestParam @Schema(example = "Johndoe") @Valid @NotBlank String name) {
+
         return ResponseEntity.ok(assembler.toModel(authorService.getByName(name)));
     }
 
@@ -85,7 +87,7 @@ public class AuthorController {
                                             summary = "Request body contains invalid field values",
                                             value = """
                                                     {
-                                                        "error": [
+                                                        "name": [
                                                             "must not be blank",
                                                             "name must have between 2 and 155 characters"
                                                         ]
@@ -120,6 +122,7 @@ public class AuthorController {
     @PutMapping("/{id}")
     public ResponseEntity<EntityModel<Author>> update(@RequestBody @Valid AuthorRecordDto dto, @PathVariable @Schema(example = "3fa85f64-571...") UUID id) {
         Author author = authorService.getById(id);
+
         return ResponseEntity.ok(assembler.toModel(authorService.update(author, dto)));
     }
 
@@ -131,6 +134,7 @@ public class AuthorController {
     @DeleteMapping("/{id}")
     public ResponseEntity<?> delete(@PathVariable @Schema(example = "3fa85f64-571...") UUID id) {
         authorService.delete(authorService.getById(id));
+
         return ResponseEntity.noContent().build();
     }
 }

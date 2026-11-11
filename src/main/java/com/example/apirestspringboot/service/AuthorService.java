@@ -55,7 +55,7 @@ public class AuthorService {
     }
 
     public Author getByName(String name) {
-        return this.authorRepository.findByName(name).orElseThrow(() -> new AuthorByNameNotFoundException(name));
+        return this.authorRepository.findByName(name.toLowerCase(Locale.ROOT)).orElseThrow(() -> new AuthorByNameNotFoundException(name));
     }
 
     public void delete(Author author) {
