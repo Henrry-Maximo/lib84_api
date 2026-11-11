@@ -1,34 +1,39 @@
-# Changelog
-
 Todas as mudanças notáveis deste projeto serão documentadas neste arquivo.
-O formato é baseado em [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/),
-e este projeto adere ao [Versionamento Semântico](https://semver.org).
 
-## [1.0.0]
+O formato é baseado em
+[Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/),
+e este projeto adere ao
+[Versionamento Semântico](https://semver.org).
 
-## - 2026-11-09
-
-### Added
-- Adição de exemplos de conteúdo (request) nos endpoints
-- Adição de exemplos de resposta (response) nos endpoints
-- Adição de endpoint com informações sobre o termos de serviço da API
-- Adição de descrição detalhada no Swagger sobre o contexto da API
+## [Unreleased]
 
 ### Changed
-- A interface swagger customizada com a personalidade da aplicação e tema
+
+- Padronização das operações CRUD da entidade Author.
+- Normalização dos nomes de autores antes da validação e persistência.
+- Atualização dos exemplos de respostas no Swagger.
 
 ### Fixed
-- Correção de redirecionamento padrão para documentação customizada da API 
-- Correção de descrição estabelecida no Swagger para aprensentação da API, removendo paginação e especifidade de tipo quanto ao Hateoas
-- Correção de respostas de erros 500 nos endpoints
 
-## - 2026-11-10
+- Correção da validação de parâmetros nas consultas de autores.
+- Correção da verificação de nomes duplicados durante a atualização de autores.
+- Aprimoramento do tratamento global de erros de validação.
+
+## [1.0.0] - 2026-11-09
 
 ### Added
-- Adição de rotas ordenadas alfabeticamente
-- Adição de rotas ordenadas de acordo com o método (1.GET, 2.POST, 3.PUT, 5.DELETE)
+
+- Adição de exemplos de conteúdo (request) nos endpoints.
+- Adição de exemplos de resposta (response) nos endpoints.
+- Adição de endpoint com informações sobre os termos de serviço da API.
+- Adição de descrição detalhada no Swagger sobre o contexto da API.
+
+### Changed
+
+- Personalização da interface Swagger com identidade visual da aplicação.
 
 ### Fixed
-- Correção nos endpoints de cadastro com valores inválidos para informar status corretos (400/422)
 
-## [2.0.0]
+- Correção do redirecionamento padrão para a documentação customizada da API.
+- Correção da descrição do Swagger, removendo informações sobre paginação e especificando o formato HATEOAS (HAL).
+- Correção do tratamento de erros nos endpoints.
