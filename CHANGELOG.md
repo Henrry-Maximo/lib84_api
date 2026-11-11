@@ -21,9 +21,14 @@ e este projeto adere ao [Versionamento Semântico](https://semver.org).
 - Correção de redirecionamento padrão para documentação customizada da API 
 - Correção de descrição estabelecida no Swagger para aprensentação da API, removendo paginação e especifidade de tipo quanto ao Hateoas
 - Correção de respostas de erros 500 nos endpoints
-- Correção nos endpoints de cadastro com valores inválidos para informar status corretos (400/422)
 
 ## - 2026-11-10
+
+### Added
 - Adição de rotas ordenadas alfabeticamente
+- Adição de rotas ordenadas de acordo com o método (1.GET, 2.POST, 3.PUT, 5.DELETE)
+
+### Fixed
+- Correção nos endpoints de cadastro com valores inválidos para informar status corretos (400/422)
 
 ## [2.0.0]

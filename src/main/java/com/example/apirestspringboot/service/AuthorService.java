@@ -6,10 +6,11 @@ import com.example.apirestspringboot.exception.AuthorAlreadyExistsException;
 import com.example.apirestspringboot.exception.AuthorByNameNotFoundException;
 import com.example.apirestspringboot.exception.AuthorNotFoundException;
 import com.example.apirestspringboot.repository.AuthorRepository;
-import org.springframework.beans.BeanUtils;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Locale;
 import java.util.UUID;
@@ -23,8 +24,9 @@ public class AuthorService {
         this.authorRepository = authorRepository;
     }
 
+    @Transactional
     public Author create(AuthorRecordDto dto) {
-        var name = dto.name();
+        var name = normalizeName(dto.name());
 
         var authorAlreadyExists = this.authorRepository.existsByName(name);
 
@@ -34,7 +36,6 @@ public class AuthorService {
 
         var author = new Author();
 
-        // BeanUtils.copyProperties(dto, author);
         author.setName(name);
         author.setBiography(dto.biography());
 
@@ -46,19 +47,44 @@ public class AuthorService {
     }
 
     public Author getById(UUID id) {
-        return this.authorRepository.findById(id).orElseThrow(() -> new AuthorNotFoundException(id));
+        return this.authorRepository.findById(id)
+                .orElseThrow(() -> new AuthorNotFoundException(id));
     }
 
-    public Author update(Author author, AuthorRecordDto dto) {
-        BeanUtils.copyProperties(dto, author);
+    @Transactional
+    public Author update(UUID id, AuthorRecordDto dto) {
+        var author = this.getById(id);
+
+        var name = normalizeName(dto.name());
+
+        var authorAlreadyExists = !author.getName().equals(name)
+                && this.authorRepository.existsByName(name);
+
+        if (authorAlreadyExists) {
+            throw new AuthorAlreadyExistsException(name);
+        }
+
+        author.setName(name);
+        author.setBiography(dto.biography());
+
         return this.authorRepository.save(author);
     }
 
     public Author getByName(String name) {
-        return this.authorRepository.findByName(name.toLowerCase(Locale.ROOT)).orElseThrow(() -> new AuthorByNameNotFoundException(name));
+        var normalizedName = normalizeName(name);
+
+        return this.authorRepository.findByName(normalizedName)
+                .orElseThrow(() -> new AuthorByNameNotFoundException(normalizedName));
     }
 
-    public void delete(Author author) {
-        this.authorRepository.deleteById(author.getId());
+    @Transactional
+    public void delete(UUID id) {
+        var author = this.getById(id);
+
+        this.authorRepository.delete(author);
+    }
+
+    private String normalizeName(String name) {
+        return name.trim().toLowerCase(Locale.ROOT);
     }
 }

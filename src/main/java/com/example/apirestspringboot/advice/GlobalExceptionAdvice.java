@@ -14,6 +14,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import org.springframework.web.method.annotation.HandlerMethodValidationException;
+import org.springframework.web.bind.annotation.RequestParam;
+
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.Objects;
+
 @RestControllerAdvice
 public class GlobalExceptionAdvice {
 
@@ -128,5 +135,39 @@ public class GlobalExceptionAdvice {
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     ErrorResponse httpMessageNotReadableHandler(HttpMessageNotReadableException ex) {
         return new ErrorResponse("Invalid JSON request body. Check the JSON syntax and field types.");
+    }
+
+    // Captura falhas de validação em parâmetros dos métodos
+    @ExceptionHandler(HandlerMethodValidationException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    Map<String, List<String>> handlerMethodValidation(
+            HandlerMethodValidationException ex
+    ) {
+        var errors = new LinkedHashMap<String, List<String>>();
+
+        for (var result : ex.getParameterValidationResults()) {
+
+            var parameter = result.getMethodParameter();
+
+            var requestParam = parameter.getParameterAnnotation(RequestParam.class);
+
+            var field = requestParam != null && !requestParam.name().isBlank()
+                    ? requestParam.name()
+                    : Objects.requireNonNullElse(
+                    parameter.getParameterName(),
+                    "parameter"
+            );
+
+            var messages = result.getResolvableErrors().stream()
+                    .map(error -> error.getDefaultMessage() != null
+                            ? error.getDefaultMessage()
+                            : "invalid value")
+                    .toList();
+
+            errors.computeIfAbsent(field, key -> new ArrayList<>())
+                    .addAll(messages);
+        }
+
+        return errors;
     }
 }
