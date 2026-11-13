@@ -29,14 +29,77 @@ body,
 .lib84-header {
     display: flex;
     align-items: center;
+    gap: 12px;
+    padding: 12px 24px;
     background: #111111;
     border-bottom: 1px solid #1e1e1e;
     font-family: 'JetBrains Mono', monospace;
-}
-.lib84-header img { height: 52px; }
-.lib84-header span { color: #ffffff; font-weight: 600; font-size: 16px; }
 
-/* ---- Info block ---- */
+    position: relative;
+    overflow: hidden;
+}
+/* Camada escura sobre o vídeo para manter o texto legível */
+.lib84-header::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: rgba(17, 17, 17, 0.72); /* opacidade conforme a claridade do vídeo */
+    z-index: 1;
+    pointer-events: none;
+}
+
+.lib84-header .bg-video {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover; /* vídeo preencher toda a área sem distorcer */
+    z-index: 0;
+    pointer-events: none;
+
+    transition: opacity 0.6s ease-in-out; /* transição */
+}
+
+.lib84-header img,
+.lib84-header span {
+    position: relative;
+    z-index: 2;
+}
+
+.lib84-header img {
+    height: 52px;
+}
+
+.lib84-header span {
+    color: #ffffff;
+    font-weight: 600;
+    font-size: 16px;
+}
+
+.information-container,
+.swagger-ui .information-container {
+    position: relative;
+    background-color: #0b0b0b !important;
+}
+
+.information-container::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background-image: url('/logo.png');
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: 650px;
+    opacity: 0.05;
+    pointer-events: none;
+    z-index: 0;
+}
+
+.information-container > * {
+    position: relative;
+    z-index: 1;
+}
+
 .swagger-ui .info .title,
 .swagger-ui .info h1,
 .swagger-ui .info h2,
@@ -54,11 +117,12 @@ body,
 }
 
 .swagger-ui .info a {
-    color: #3b82f6 !important;
+    color: #58a6ff !important;
+    text-decoration: none;
 }
 
 .swagger-ui .info a:hover {
-    color: #60a5fa !important;
+    text-decoration: underline;
 }
 
 .swagger-ui .markdown code,
@@ -68,7 +132,6 @@ body,
     border-radius: 4px;
 }
 
-/* ---- Servers / scheme container (the white box) ---- */
 .swagger-ui .scheme-container {
     background: #111111 !important;
     box-shadow: none !important;
@@ -80,7 +143,6 @@ body,
     color: #a1a1aa !important;
 }
 
-/* ---- Filter input ---- */
 .swagger-ui .filter-container .operation-filter-input {
     background: #1a1a1a !important;
     border: 1px solid #2563eb44 !important;
@@ -93,7 +155,6 @@ body,
     outline: none;
 }
 
-/* ---- Tags (section headers) ---- */
 .swagger-ui .opblock-tag {
     color: #ffffff !important;
     border-bottom: 1px solid #1e1e1e !important;
@@ -107,7 +168,6 @@ body,
     color: #71717a !important;
 }
 
-/* ---- Operation blocks ---- */
 .swagger-ui .opblock {
     background: #111111 !important;
     border: 1px solid #1e1e1e !important;
@@ -139,7 +199,6 @@ body,
     background: #0f0f0f !important;
 }
 
-/* ---- HTTP method badges ---- */
 .swagger-ui .opblock.opblock-get { border-left: 3px solid #3b82f6 !important; }
 .swagger-ui .opblock.opblock-post { border-left: 3px solid #22c55e !important; }
 .swagger-ui .opblock.opblock-put { border-left: 3px solid #f97316 !important; }
@@ -159,7 +218,6 @@ body,
     min-width: 70px !important;
 }
 
-/* ---- Sections inside an expanded block ---- */
 .swagger-ui .opblock-section-header {
     background: #161616 !important;
     border-bottom: 1px solid #1e1e1e !important;
@@ -171,7 +229,6 @@ body,
     color: #a1a1aa !important;
 }
 
-/* ---- Tables (parameters) ---- */
 .swagger-ui table thead tr th,
 .swagger-ui table thead tr td {
     color: #71717a !important;
@@ -192,7 +249,6 @@ body,
 .swagger-ui .tab li { color: #a1a1aa !important; }
 .swagger-ui .tab li.active { color: #ffffff !important; }
 
-/* ---- Inputs and textareas ---- */
 .swagger-ui input[type=text],
 .swagger-ui input[type=email],
 .swagger-ui input[type=password],
@@ -211,7 +267,6 @@ body,
     outline: none !important;
 }
 
-/* ---- Buttons ---- */
 .swagger-ui .btn {
     font-family: 'JetBrains Mono', monospace !important;
     border-radius: 6px !important;
@@ -244,7 +299,6 @@ body,
 .swagger-ui .btn.authorize:hover { background: #2563eb1a !important; }
 .swagger-ui .btn.authorize svg { fill: #3b82f6 !important; }
 
-/* ---- Authorize modal ---- */
 .swagger-ui .dialog-ux .modal-ux {
     background: #111111 !important;
     border: 1px solid #1e1e1e !important;
@@ -265,7 +319,6 @@ body,
     color: #a1a1aa !important;
 }
 
-/* ---- Response codes ---- */
 .swagger-ui .responses-inner h4,
 .swagger-ui .responses-inner h5 {
     color: #a1a1aa !important;
@@ -274,7 +327,6 @@ body,
 .swagger-ui .response-col_status { color: #e4e4e7 !important; }
 .swagger-ui .response-col_description { color: #71717a !important; }
 
-/* ---- Code and example blocks ---- */
 .swagger-ui .highlight-code,
 .swagger-ui .microlight {
     background: #0f0f0f !important;
@@ -282,7 +334,6 @@ body,
     border-radius: 6px !important;
 }
 
-/* ---- Models section ---- */
 .swagger-ui section.models {
     background: #111111 !important;
     border: 1px solid #1e1e1e !important;
@@ -298,7 +349,6 @@ body,
 .swagger-ui .model { color: #a1a1aa !important; }
 .swagger-ui .model-box { background: transparent !important; }
 
-/* ---- Scrollbar ---- */
 .swagger-ui *::-webkit-scrollbar {
     width: 6px;
     height: 6px;
@@ -317,7 +367,6 @@ body,
     background-color: #2563eb;
 }
 
-/* ---- Info text: font and line spacing ---- */
 .swagger-ui .info p,
 .swagger-ui .info li,
 .swagger-ui .info .markdown,
@@ -334,7 +383,6 @@ body,
     font-family: 'JetBrains Mono', monospace !important;
 }
 
-/* ---- Schemas: remove light backgrounds ---- */
 .swagger-ui section.models .model-container,
 .swagger-ui section.models .model-container *,
 .swagger-ui section.models button,
@@ -363,14 +411,12 @@ body,
     font-family: 'JetBrains Mono', monospace !important;
 }
 
-/* "Expand all" and similar secondary labels */
 .swagger-ui .model-box-control + span,
 .swagger-ui .models-control,
 .swagger-ui .model-jump-to-path {
     color: #71717a !important;
 }
 
-/* Black arrows -> white */
 .swagger-ui .model-toggle:after,
 .swagger-ui .models-control svg,
 .swagger-ui section.models h4 svg,

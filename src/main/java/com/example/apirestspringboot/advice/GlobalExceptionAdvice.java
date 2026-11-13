@@ -134,7 +134,7 @@ public class GlobalExceptionAdvice {
     @ExceptionHandler(HttpMessageNotReadableException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     ErrorResponse httpMessageNotReadableHandler(HttpMessageNotReadableException ex) {
-        return new ErrorResponse("Invalid JSON request body. Check the JSON syntax and field types.");
+        return new ErrorResponse("invalid JSON request body. Check the JSON syntax and field types.");
     }
 
     // Captura falhas de validação em parâmetros dos métodos

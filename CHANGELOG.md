@@ -7,6 +7,11 @@ e este projeto adere ao
 
 ## [Unreleased]
 
+### Added
+- Adiciona informações de precedência das operações quanto a cadastro no Swagger
+- Adiciona vídeo (biblioteca) no header do Swagger
+- Adiciona logo ao fundo da documentação do Swagger
+
 ### Changed
 
 - Padronização das operações CRUD da entidade Author.

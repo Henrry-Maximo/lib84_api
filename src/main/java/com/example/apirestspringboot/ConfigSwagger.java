@@ -15,20 +15,28 @@ public class ConfigSwagger {
     public OpenAPI customOpenAPI(@Value("${springdoc.version}") String appVersion) {
         return new OpenAPI()
                 .info(new Info()
-                        .title("LIB84 API RESTful - Books Management")
+                        .title("LIB84 API RESTful - Books & Loans Management")
                         .version(appVersion)
                         .description("""
                                 REST API for managing a digital library: books, authors, categories,
                                 suppliers, users, profiles and loans.
                                 
-                                **Features**
-                                - Full CRUD for every resource, with Bean Validation on request bodies
-                                - Paginated listings (10 items per page by default) through `page` and `size`
-                                - Custom queries: users by email, authors by name, categories by title,
-                                  suppliers by name, books by category, loans by user, profile by user id
-                                - Hypermedia responses with Spring HATEOAS in HAL format
-                                      (`application/hal+json`), with links such as `self`, `update` and `delete`
-                                - Centralized error handling and appropriate HTTP status codes
+                                ## Getting Started
+                                
+                                To avoid relational dependency conflicts, follow this sequence when populating the database:
+                                
+                                1. **Create Profiles & Users** — Set up access profiles and register library members.
+                                2. **Create Authors, Categories & Suppliers** — Register the core catalog metadata.
+                                3. **Create Books** — Add books linking them to existing authors, categories, and suppliers.
+                                4. **Create Loans** — Register book loans associating registered users with available books.
+                                
+                                ## Features
+                                
+                                * **Full CRUD Operations:** Complete endpoints for every resource, protected with **Bean Validation** on all request bodies.
+                                * **Pagination & Sorting:** Standardized paginated listings (defaulting to `10` items per page) via `page` and `size` query parameters.
+                                * **Custom Search Queries:** Dedicated filters to query users by email, authors by name, categories by title, suppliers by name, books by category, loans by user, and profiles by user ID.
+                                * **Hypermedia-Driven (HATEOAS):** Responses formatted in **HAL (`application/hal+json`)**, providing dynamic navigation links such as `self`, `update`, and `delete`.
+                                * **Standardized Error Handling:** Centralized exception handling returning clear, structured error payloads with appropriate HTTP status codes.
                                 """)
                         .termsOfService("/terms")
                         .license(new License().name("MIT").url("https://mit-license.org/"))

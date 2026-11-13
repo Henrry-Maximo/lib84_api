@@ -10,6 +10,9 @@
 </head>
 <body>
 <header class="lib84-header">
+    <video autoplay muted loop playsinline class="bg-video">
+        <source src="library.mp4" type="video/mp4">
+    </video>
     <img src="/logo.png" alt="LIB84" />
     <span>LIB84 API Docs</span>
 </header>
@@ -17,6 +20,7 @@
 <div id="swagger-ui"></div>
 
 <script src="/swagger-ui/swagger-ui-bundle.js"></script>
+<script src="transition.js"></script>
 <script>
     window.onload = () => {
         window.ui = SwaggerUIBundle({

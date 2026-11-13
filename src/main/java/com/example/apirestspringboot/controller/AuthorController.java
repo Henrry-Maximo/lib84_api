@@ -138,7 +138,7 @@ public class AuthorController {
                                             summary = "Request body contains invalid JSON syntax",
                                             value = """
                                                     {
-                                                        "error": "Invalid JSON request body. Check the JSON syntax and field types."
+                                                        "error": "invalid JSON request body. Check the JSON syntax and field types."
                                                     }
                                                     """
                                     )
@@ -181,7 +181,7 @@ public class AuthorController {
                                             summary = "Request body contains invalid JSON syntax",
                                             value = """
                                                     {
-                                                        "error": "Invalid JSON request body. Check the JSON syntax and field types."
+                                                        "error": "invalid JSON request body. Check the JSON syntax and field types."
                                                     }
                                                     """
                                     )
@@ -196,7 +196,7 @@ public class AuthorController {
                             schema = @Schema(
                                     example = """
                                             {
-                                                "error": "Could not find the author with ID: 3fa85f64-5717-4562-b3fc-2c963f66afa6"
+                                                "error": "could not find the author with ID: 3fa85f64-5717-4562-b3fc-2c963f66afa6"
                                             }
                                             """
                             )
@@ -243,7 +243,7 @@ public class AuthorController {
                             schema = @Schema(
                                     example = """
                                             {
-                                                "error": "Could not find the author with ID: 3fa85f64-5717-4562-b3fc-2c963f66afa6"
+                                                "error": "could not find the author with ID: 3fa85f64-5717-4562-b3fc-2c963f66afa6"
                                             }
                                             """
                             )
