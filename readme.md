@@ -119,10 +119,10 @@ curl "http://localhost:8080/books?page=0&size=10"
 - [x] Redirecionar a raiz (`/`) para o Swagger
 - [x] Ajustar a descrição: remover "pagination" e "error handling" e especificar o tipo de HATEOAS (HAL)
 - [x] Rotas ordenadas de forma alfabética
-- [ ] Tratar erros de resposta 500 (handler global)
-- [ ] Corrigir cadastro de valores inválidos que retorna status quebrado (deve ser 400/422, não 500)
+- [x] Tratar erros de resposta 500 (handler global)
+- [x] Corrigir cadastro de valores inválidos que retorna status quebrado (deve ser 400/422, não 500)
 - [x] Adicionar exemplos de conteúdo (request) nos endpoints
-- [ ] Adicionar exemplos de resposta (response) nos endpoints
+- [x] Adicionar exemplos de resposta (response) nos endpoints
 
 ### Versionamento (V1 e V2 coexistindo)
 
