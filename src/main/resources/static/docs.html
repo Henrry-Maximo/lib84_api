@@ -24,7 +24,11 @@
 <script>
     window.onload = () => {
         window.ui = SwaggerUIBundle({
-            url: "/api-docs",
+            urls: [
+                { name: "V1 - Stable",         url: "/api-docs/v1" },
+                { name: "V2 - In Development", url: "/api-docs/v2" }
+            ],
+            "urls.primaryName": "V1 - Stable",
             dom_id: "#swagger-ui",
             presets: [SwaggerUIBundle.presets.apis],
             layout: "BaseLayout",
