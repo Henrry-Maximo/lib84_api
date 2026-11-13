@@ -1,72 +1,73 @@
+# Changelog
+
 Todas as mudanças notáveis deste projeto serão documentadas neste arquivo.
 
-O formato é baseado em
-[Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/),
-e este projeto adere ao
-[Versionamento Semântico](https://semver.org).
+O formato é baseado em [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/), e este projeto adere ao [Versionamento Semântico](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [1.0.0] - 2026-11-13
+
 ### Added
-- Adiciona `AuthorHasBooksException` para impedir exclusão de autor vinculado a livros (HTTP 409)
-- Adiciona `existsByAuthors_Id` no `BookRepository` para verificação de integridade referencial
-- Adiciona handler genérico para exceções não previstas (HTTP 500) com log completo no servidor
-- Adiciona handler para `DataIntegrityViolationException` (HTTP 409) com identificação de violações UNIQUE e de chave estrangeira
-- Adiciona handler para `NoSuchElementException` (HTTP 404)
-- Adiciona infraestrutura de versionamento por header `X-API-Version` (`ApiVersionInterceptor`, `@ApiVersion`)
-- Adiciona `ApiVersionConfig` registrando o interceptor para todos os endpoints de negócio
-- Adiciona informações de precedência das operações quanto a cadastro no Swagger
-- Adiciona vídeo (biblioteca) no header do Swagger
-- Adiciona logo ao fundo da documentação do Swagger
-- Adiciona gif animado na documentação do Swagger
-- Adiciona `BooksNotFoundException` para quando um ou mais livros não são encontrados em empréstimos
+
+- Adicionada a exceção `AuthorHasBooksException` para impedir a exclusão de autores associados a livros (HTTP 409).
+- Adicionado o método `existsByAuthors_Id` ao `BookRepository` para verificar relacionamentos entre autores e livros.
+- Adicionado handler genérico para exceções não previstas (HTTP 500), com registro de detalhes nos logs do servidor.
+- Adicionado handler para `DataIntegrityViolationException`, contemplando violações de restrições UNIQUE e de integridade referencial (HTTP 409).
+- Adicionado handler para `NoSuchElementException` (HTTP 404).
+- Adicionada infraestrutura de validação do cabeçalho `X-API-Version`, com V1 como versão padrão.
+- Adicionada a anotação `@ApiVersion` e o `ApiVersionConfig` para identificação e validação das versões da API.
+- Adicionada a exceção `BooksNotFoundException` para tratar situações em que livros solicitados não são encontrados durante operações de empréstimo.
+- Adicionada ordenação das operações HTTP na documentação Swagger (GET, POST, PUT, PATCH e DELETE).
+- Adicionado vídeo com temática de biblioteca ao cabeçalho do Swagger.
+- Adicionada logo ao fundo da documentação Swagger.
+- Adicionado GIF animado à documentação Swagger.
 
 ### Changed
-- Grupos do Swagger (`v1` e `v2`) agora filtram endpoints pela anotação `@ApiVersion` em vez de prefixo de URL
-- Padronização das operações CRUD da entidade Author
-- Normalização dos nomes de autores antes da validação e persistência
-- Padronização das operações CRUD da entidade Book
-- Padronização das operações CRUD da entidade Category
-- Padronização das operações CRUD da entidade Loan
-- Padronização das operações CRUD da entidade Profile
-- Padronização das operações CRUD da entidade Supplier
-- Padronização das operações CRUD da entidade User
-- Atualização dos exemplos de respostas no Swagger para todos os endpoints
-- Mensagens de erro das exceptions alinhadas ao padrão `"could not find the [entity] with [field]: '[value]'."`
-- Entidades corrigidas: `@Entity(name=...)` substituído por `@Entity` + `@Table(name=...)`, adicionados `@Schema`, `@Size` e `length` nas colunas
-- DTOs corrigidos: campos obrigatórios com `@NotNull`/`@NotBlank` e mensagens explícitas
-- Services refatorados: removido `BeanUtils`, `orElseThrow` sem argumento substituído por `if (isEmpty())` explícito, `delete`/`update` passaram a receber `UUID`
-- Controllers refatorados: `@ApiResponse` com `@ExampleObject` multilinha, `@Schema` nos `@PathVariable`, `@NotBlank` nos `@RequestParam`, `ResponseEntity<Void>` no delete
+
+- Atualizados os grupos de documentação Swagger (V1 e V2) para filtrar endpoints por meio da anotação `@ApiVersion`.
+- Padronizadas as operações CRUD das entidades Author, Book, Category, Loan, Profile, Supplier e User.
+- Padronizada a normalização dos nomes de autores antes da validação e persistência.
+- Atualizados os exemplos de respostas no Swagger para os endpoints.
+- Padronizadas as mensagens das exceções de recursos não encontrados e registros duplicados.
+- Corrigido o mapeamento JPA das entidades, substituindo `@Entity(name = "...")` por `@Entity` e `@Table(name = "...")`.
+- Alinhados os limites de validação dos DTOs e os tamanhos das colunas das entidades.
+- Atualizada a estrutura das entidades com exemplos de documentação (`@Schema`) e ordenação das propriedades JSON (`@JsonPropertyOrder`).
+- Padronizados os services com atribuições explícitas de propriedades, removendo o uso de `BeanUtils.copyProperties`.
+- Atualizadas as operações de atualização e exclusão para receber identificadores UUID diretamente nos services.
+- Padronizados os controllers com documentação detalhada de respostas HTTP, exemplos JSON e validações dos parâmetros de consulta.
+- Padronizadas as respostas de exclusão com `ResponseEntity<Void>`.
 
 ### Fixed
-- Correção de violação de integridade referencial ao excluir autor vinculado a livros (era 500, agora 409)
-- Correção da exposição de stack traces e detalhes internos nas respostas de erro (`server.error.*=never`)
-- Correção da validação de parâmetros nas consultas de autores
-- Correção da verificação de nomes duplicados durante a atualização de autores
-- Aprimoramento do tratamento global de erros de validação
-- Correção do `orElseThrow()` sem argumento nas services que causava 500 em vez de 404
-- Correção do campo `datePublication` no `BookRecordDto` que aceitava `null` e causava 500
-- Correção do campo `loanDateScheduled` no `LoanRecordDto` que aceitava `null` e causava 500
-- Correção das mensagens de erro das exceptions `CategoryByNameNotFoundException`, `SupplierByNameNotFoundException`, `UserByEmailNotFoundException` e `DuplicateEmailException`
-- Correção do `update` de Category que não verificava título duplicado
-- Correção do `getByUser` em `LoanService` que não validava existência do usuário
-- Correção do `getByUserId` em `ProfileService` que não validava existência do usuário
+
+- Corrigida a violação de integridade referencial ao excluir autores associados a livros, substituindo o erro 500 por 409 Conflict.
+- Corrigida a exposição de stack traces e detalhes internos nas respostas de erro, utilizando as configurações `server.error.*`.
+- Corrigida a validação de parâmetros nas operações de consulta.
+- Corrigida a verificação de nomes duplicados durante a atualização de autores.
+- Aprimorado o tratamento global de erros de validação, incluindo múltiplas mensagens por campo e JSON malformado.
+- Corrigidas ocorrências de `orElseThrow()` sem exceção personalizada nos services, evitando respostas 500 para recursos inexistentes.
+- Corrigida a validação do campo `datePublication` no `BookRecordDto`, que aceitava valores nulos indevidamente.
+- Corrigida a validação do campo `loanDateScheduled` no `LoanRecordDto`, que aceitava valores nulos indevidamente.
+- Corrigidas as mensagens das exceções `CategoryByNameNotFoundException`, `SupplierByNameNotFoundException`, `UserByEmailNotFoundException` e `DuplicateEmailException`.
+- Corrigida a atualização de categorias, que não verificava a duplicidade do título.
+- Corrigido o método `getByUser` em `LoanService`, que não verificava previamente a existência do usuário.
+- Corrigido o método `getByUserId` em `ProfileService`, que não verificava previamente a existência do usuário.
 
 ## [1.0.0] - 2026-11-09
 
 ### Added
 
-- Adição de exemplos de conteúdo (request) nos endpoints.
-- Adição de exemplos de resposta (response) nos endpoints.
-- Adição de endpoint com informações sobre os termos de serviço da API.
-- Adição de descrição detalhada no Swagger sobre o contexto da API.
+- Adicionados exemplos de requisições (request) aos endpoints.
+- Adicionados exemplos de respostas (response) aos endpoints.
+- Adicionado endpoint com informações sobre os termos de serviço da API.
+- Adicionada descrição detalhada ao Swagger, apresentando o contexto da aplicação.
 
 ### Changed
 
-- Personalização da interface Swagger com identidade visual da aplicação.
+- Personalizada a interface Swagger com a identidade visual da aplicação.
 
 ### Fixed
 
-- Correção do redirecionamento padrão para a documentação customizada da API.
-- Correção da descrição do Swagger, removendo informações sobre paginação e especificando o formato HATEOAS (HAL).
-- Correção do tratamento de erros nos endpoints.
+- Corrigido o redirecionamento da rota raiz para a documentação Swagger customizada.
+- Corrigida a descrição do Swagger, removendo referências a paginação e especificando o formato HATEOAS (HAL).
+- Corrigido o tratamento de erros nos endpoints.
