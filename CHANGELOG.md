@@ -11,18 +11,38 @@ e este projeto adere ao
 - Adiciona informações de precedência das operações quanto a cadastro no Swagger
 - Adiciona vídeo (biblioteca) no header do Swagger
 - Adiciona logo ao fundo da documentação do Swagger
+- Adiciona gif animado na documentação do Swagger
+- Adiciona `BooksNotFoundException` para quando um ou mais livros não são encontrados em empréstimos
 
 ### Changed
 
-- Padronização das operações CRUD da entidade Author.
-- Normalização dos nomes de autores antes da validação e persistência.
-- Atualização dos exemplos de respostas no Swagger.
+- Padronização das operações CRUD da entidade Author
+- Normalização dos nomes de autores antes da validação e persistência
+- Padronização das operações CRUD da entidade Book
+- Padronização das operações CRUD da entidade Category
+- Padronização das operações CRUD da entidade Loan
+- Padronização das operações CRUD da entidade Profile
+- Padronização das operações CRUD da entidade Supplier
+- Padronização das operações CRUD da entidade User
+- Atualização dos exemplos de respostas no Swagger para todos os endpoints
+- Mensagens de erro das exceptions alinhadas ao padrão `"could not find the [entity] with [field]: '[value]'."`
+- Entidades corrigidas: `@Entity(name=...)` substituído por `@Entity` + `@Table(name=...)`, adicionados `@Schema`, `@Size` e `length` nas colunas
+- DTOs corrigidos: campos obrigatórios com `@NotNull`/`@NotBlank` e mensagens explícitas
+- Services refatorados: removido `BeanUtils`, `orElseThrow` sem argumento substituído por `if (isEmpty())` explícito, `delete`/`update` passaram a receber `UUID`
+- Controllers refatorados: `@ApiResponse` com `@ExampleObject` multilinha, `@Schema` nos `@PathVariable`, `@NotBlank` nos `@RequestParam`, `ResponseEntity<Void>` no delete
 
 ### Fixed
 
-- Correção da validação de parâmetros nas consultas de autores.
-- Correção da verificação de nomes duplicados durante a atualização de autores.
-- Aprimoramento do tratamento global de erros de validação.
+- Correção da validação de parâmetros nas consultas de autores
+- Correção da verificação de nomes duplicados durante a atualização de autores
+- Aprimoramento do tratamento global de erros de validação
+- Correção do `orElseThrow()` sem argumento nas services que causava 500 em vez de 404
+- Correção do campo `datePublication` no `BookRecordDto` que aceitava `null` e causava 500
+- Correção do campo `loanDateScheduled` no `LoanRecordDto` que aceitava `null` e causava 500
+- Correção das mensagens de erro das exceptions `CategoryByNameNotFoundException`, `SupplierByNameNotFoundException`, `UserByEmailNotFoundException` e `DuplicateEmailException`
+- Correção do `update` de Category que não verificava título duplicado
+- Correção do `getByUser` em `LoanService` que não validava existência do usuário
+- Correção do `getByUserId` em `ProfileService` que não validava existência do usuário
 
 ## [1.0.0] - 2026-11-09
 
