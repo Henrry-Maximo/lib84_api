@@ -3,6 +3,7 @@ package com.example.apirestspringboot.entity;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.springframework.hateoas.RepresentationModel;
@@ -13,7 +14,8 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
 
-@Entity(name = "tb_users")
+@Entity
+@Table(name = "tb_users")
 @JsonPropertyOrder({"id", "email", "role", "createdAt", "loans", "_links"})
 public class User extends RepresentationModel<User> implements Serializable {
     public enum Role {
@@ -23,9 +25,11 @@ public class User extends RepresentationModel<User> implements Serializable {
 
     @Id
     @GeneratedValue(generator = "UUID")
+    @Schema(example = "3fa85f64-5717-4562-b3fc-2c963f66afa6")
     private UUID id;
 
-    @Column(unique = true)
+    @Column(unique = true, nullable = false)
+    @Schema(example = "johndoe@example.com")
     private String email;
 
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)

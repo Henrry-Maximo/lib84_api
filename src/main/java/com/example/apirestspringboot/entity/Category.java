@@ -1,27 +1,33 @@
 package com.example.apirestspringboot.entity;
 
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.Id;
+import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 import org.springframework.hateoas.RepresentationModel;
 
 import java.util.UUID;
 
-@Entity(name = "tb_categories")
+@Entity
+@Table(name = "tb_categories")
 @JsonPropertyOrder({"id", "title", "description", "_links"})
 public class Category extends RepresentationModel<Category> {
 
     @Id
     @GeneratedValue(generator = "UUID")
+    @Schema(example = "3ac59133-1c5f-4ae4-b0be-b657c68b4dc3")
     private UUID id;
 
     @NotBlank
-    @Column(unique = true)
+    @Size(max = 100)
+    @Column(nullable = false, unique = true, length = 100)
+    @Schema(example = "Engenharia de Software")
     private String title;
 
+    @Size(max = 500)
+    @Column(length = 500)
+    @Schema(example = "Livros sobre design de software e arquitetura")
     private String description;
 
     public UUID getId() {

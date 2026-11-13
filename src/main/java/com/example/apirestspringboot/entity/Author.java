@@ -21,7 +21,7 @@ public class Author extends RepresentationModel<Author> {
     private UUID id;
 
     @NotBlank
-    @Size(max = 155)
+    @Size(min = 3, max = 155)
     @Column(nullable = false, unique = true, length = 155)
     @Schema(example = "george orwell")
     private String name;

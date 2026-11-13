@@ -1,6 +1,9 @@
 package com.example.apirestspringboot.entity;
 
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import org.hibernate.annotations.CreationTimestamp;
 import org.springframework.hateoas.RepresentationModel;
@@ -10,17 +13,26 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
 
-@Entity(name = "tb_loans")
+@Entity
+@Table(name = "tb_loans")
+@JsonPropertyOrder({"id", "loanDate", "loanDateScheduled", "loanDateReturn", "user", "books", "_links"})
 public class Loan extends RepresentationModel<Loan> {
 
     @Id
     @GeneratedValue(generator = "UUID")
+    @Schema(example = "2df59133-1c5f-4ae4-b0be-b657c68b4dc3")
     private UUID id;
 
     @CreationTimestamp
+    @Schema(example = "2026-11-13T00:00:00")
     private LocalDateTime loanDate;
 
+    @NotNull
+    @Column(nullable = false)
+    @Schema(example = "2026-12-01T10:00:00")
     private LocalDateTime loanDateScheduled;
+
+    @Schema(example = "2026-12-15T10:00:00")
     private LocalDateTime loanDateReturn;
 
     @NotNull
@@ -28,6 +40,7 @@ public class Loan extends RepresentationModel<Loan> {
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
+    @NotEmpty
     @ManyToMany
     @JoinTable(
             name = "tb_loan_book",
