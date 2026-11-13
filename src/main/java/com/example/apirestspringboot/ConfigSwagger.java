@@ -4,12 +4,32 @@ import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.info.Contact;
 import io.swagger.v3.oas.models.info.Info;
 import io.swagger.v3.oas.models.info.License;
+import org.springdoc.core.models.GroupedOpenApi;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
 public class ConfigSwagger {
+
+    @Bean
+    public GroupedOpenApi v1() {
+        return GroupedOpenApi.builder()
+                .group("v1")
+                .displayName("V1 - Stable")
+                .pathsToMatch("/**")
+                .pathsToExclude("/v2/**")
+                .build();
+    }
+
+    @Bean
+    public GroupedOpenApi v2() {
+        return GroupedOpenApi.builder()
+                .group("v2")
+                .displayName("V2 - In Development")
+                .pathsToMatch("/v2/**")
+                .build();
+    }
 
     @Bean
     public OpenAPI customOpenAPI(@Value("${springdoc.version}") String appVersion) {
