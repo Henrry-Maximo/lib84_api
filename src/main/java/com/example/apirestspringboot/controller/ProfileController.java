@@ -6,6 +6,7 @@ import com.example.apirestspringboot.entity.Profile;
 import com.example.apirestspringboot.service.ProfileService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
@@ -50,30 +51,122 @@ public class ProfileController {
         return ResponseEntity.ok(pagedResourcesAssembler.toModel(profiles, assembler));
     }
 
-    @Operation(summary = "Get a profile by id")
+    @Operation(summary = "Get a profile by ID")
     @ApiResponses({
-        @ApiResponse(responseCode = "200", description = "Profile found"),
-        @ApiResponse(responseCode = "404", description = "Profile not found", content = @Content(mediaType = "application/json", schema = @Schema(example = "{\"error\": \"Could not find the profile with ID: ...\"}")))
+            @ApiResponse(responseCode = "200", description = "Profile found"),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "Profile not found",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(
+                                    example = """
+                                            {
+                                                "error": "could not find the profile with ID: 3fa85f64-5717-4562-b3fc-2c963f66afa6"
+                                            }
+                                            """
+                            )
+                    )
+            )
     })
     @GetMapping("/{id}")
-    public ResponseEntity<EntityModel<Profile>> getById(@PathVariable UUID id) {
+    public ResponseEntity<EntityModel<Profile>> getById(
+            @PathVariable
+            @Schema(example = "3fa85f64-5717-4562-b3fc-2c963f66afa6")
+            UUID id
+    ) {
         return ResponseEntity.ok(assembler.toModel(profileService.getById(id)));
     }
 
-    @Operation(summary = "Get profile by user id")
+    @Operation(summary = "Get profile by user ID")
     @ApiResponses({
-        @ApiResponse(responseCode = "200", description = "Profile found"),
-        @ApiResponse(responseCode = "404", description = "Profile not found for user", content = @Content(mediaType = "application/json", schema = @Schema(example = "{\"error\": \"Could not find the profile with ID: ...\"}")))
+            @ApiResponse(responseCode = "200", description = "Profile found"),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "User or profile not found",
+                    content = @Content(
+                            mediaType = "application/json",
+                            examples = {
+                                    @ExampleObject(
+                                            name = "User not found",
+                                            summary = "No user with the given ID",
+                                            value = """
+                                                    {
+                                                        "error": "could not find the user with ID: 3fa85f64-5717-4562-b3fc-2c963f66afa6"
+                                                    }
+                                                    """
+                                    ),
+                                    @ExampleObject(
+                                            name = "Profile not found",
+                                            summary = "User exists but has no profile",
+                                            value = """
+                                                    {
+                                                        "error": "could not find the profile with ID: 3fa85f64-5717-4562-b3fc-2c963f66afa6"
+                                                    }
+                                                    """
+                                    )
+                            }
+                    )
+            )
     })
     @GetMapping("/user/{userId}")
-    public ResponseEntity<EntityModel<Profile>> getByUserId(@PathVariable UUID userId) {
+    public ResponseEntity<EntityModel<Profile>> getByUserId(
+            @PathVariable
+            @Schema(example = "3fa85f64-5717-4562-b3fc-2c963f66afa6")
+            UUID userId
+    ) {
         return ResponseEntity.ok(assembler.toModel(profileService.getByUserId(userId)));
     }
 
     @Operation(summary = "Create a profile")
     @ApiResponses({
-        @ApiResponse(responseCode = "201", description = "Profile created"),
-        @ApiResponse(responseCode = "400", description = "Invalid request body", content = @Content(mediaType = "application/json", schema = @Schema(example = "{\"name\": \"must not be blank\"}")))
+            @ApiResponse(responseCode = "201", description = "Profile created"),
+            @ApiResponse(
+                    responseCode = "400",
+                    description = "Invalid request body",
+                    content = @Content(
+                            mediaType = "application/json",
+                            examples = {
+                                    @ExampleObject(
+                                            name = "Validation error",
+                                            summary = "Request body contains invalid field values",
+                                            value = """
+                                                    {
+                                                        "name": [
+                                                            "name is required"
+                                                        ],
+                                                        "userId": [
+                                                            "userId is required"
+                                                        ]
+                                                    }
+                                                    """
+                                    ),
+                                    @ExampleObject(
+                                            name = "Malformed JSON",
+                                            summary = "Request body contains invalid JSON syntax",
+                                            value = """
+                                                    {
+                                                        "error": "invalid JSON request body. Check the JSON syntax and field types."
+                                                    }
+                                                    """
+                                    )
+                            }
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "User not found",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(
+                                    example = """
+                                            {
+                                                "error": "could not find the user with ID: 3fa85f64-5717-4562-b3fc-2c963f66afa6"
+                                            }
+                                            """
+                            )
+                    )
+            )
     })
     @PostMapping
     public ResponseEntity<EntityModel<Profile>> create(@RequestBody @Valid ProfileRecordDto dto) {
@@ -82,25 +175,102 @@ public class ProfileController {
 
     @Operation(summary = "Update a profile")
     @ApiResponses({
-        @ApiResponse(responseCode = "200", description = "Profile updated"),
-        @ApiResponse(responseCode = "400", description = "Invalid request body", content = @Content(mediaType = "application/json", schema = @Schema(example = "{\"name\": \"must not be blank\"}"))),
-        @ApiResponse(responseCode = "404", description = "Profile not found", content = @Content(mediaType = "application/json", schema = @Schema(example = "{\"error\": \"Could not find the profile with ID: ...\"}")))
+            @ApiResponse(responseCode = "200", description = "Profile updated"),
+            @ApiResponse(
+                    responseCode = "400",
+                    description = "Invalid request body",
+                    content = @Content(
+                            mediaType = "application/json",
+                            examples = {
+                                    @ExampleObject(
+                                            name = "Validation error",
+                                            summary = "Request body contains invalid field values",
+                                            value = """
+                                                    {
+                                                        "name": [
+                                                            "name is required"
+                                                        ],
+                                                        "userId": [
+                                                            "userId is required"
+                                                        ]
+                                                    }
+                                                    """
+                                    ),
+                                    @ExampleObject(
+                                            name = "Malformed JSON",
+                                            summary = "Request body contains invalid JSON syntax",
+                                            value = """
+                                                    {
+                                                        "error": "invalid JSON request body. Check the JSON syntax and field types."
+                                                    }
+                                                    """
+                                    )
+                            }
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "Profile or user not found",
+                    content = @Content(
+                            mediaType = "application/json",
+                            examples = {
+                                    @ExampleObject(
+                                            name = "Profile not found",
+                                            summary = "Path ID not found",
+                                            value = """
+                                                    {
+                                                        "error": "could not find the profile with ID: 3fa85f64-5717-4562-b3fc-2c963f66afa6"
+                                                    }
+                                                    """
+                                    ),
+                                    @ExampleObject(
+                                            name = "User not found",
+                                            summary = "Request body userId not found",
+                                            value = """
+                                                    {
+                                                        "error": "could not find the user with ID: 3fa85f64-5717-4562-b3fc-2c963f66afa6"
+                                                    }
+                                                    """
+                                    )
+                            }
+                    )
+            )
     })
     @PutMapping("/{id}")
-    public ResponseEntity<EntityModel<Profile>> update(@RequestBody @Valid ProfileRecordDto dto, @PathVariable UUID id) {
-        Profile profile = profileService.getById(id);
-
-        return ResponseEntity.ok(assembler.toModel(profileService.update(profile, dto)));
+    public ResponseEntity<EntityModel<Profile>> update(
+            @RequestBody @Valid ProfileRecordDto dto,
+            @PathVariable
+            @Schema(example = "3fa85f64-5717-4562-b3fc-2c963f66afa6")
+            UUID id
+    ) {
+        return ResponseEntity.ok(assembler.toModel(profileService.update(id, dto)));
     }
 
     @Operation(summary = "Delete a profile")
     @ApiResponses({
-        @ApiResponse(responseCode = "204", description = "Profile deleted"),
-        @ApiResponse(responseCode = "404", description = "Profile not found", content = @Content(mediaType = "application/json", schema = @Schema(example = "{\"error\": \"Could not find the profile with ID: ...\"}")))
+            @ApiResponse(responseCode = "204", description = "Profile deleted"),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "Profile not found",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(
+                                    example = """
+                                            {
+                                                "error": "could not find the profile with ID: 3fa85f64-5717-4562-b3fc-2c963f66afa6"
+                                            }
+                                            """
+                            )
+                    )
+            )
     })
     @DeleteMapping("/{id}")
-    public ResponseEntity<?> delete(@PathVariable UUID id) {
-        profileService.delete(profileService.getById(id));
+    public ResponseEntity<Void> delete(
+            @PathVariable
+            @Schema(example = "3fa85f64-5717-4562-b3fc-2c963f66afa6")
+            UUID id
+    ) {
+        profileService.delete(id);
 
         return ResponseEntity.noContent().build();
     }

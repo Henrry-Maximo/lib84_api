@@ -66,7 +66,7 @@ public class AuthorController {
     @ApiResponses({
             @ApiResponse(
                     responseCode = "200",
-                    description = "Author found"
+                    description = "Returned author for the given name"
             ),
             @ApiResponse(
                     responseCode = "400",
@@ -108,7 +108,7 @@ public class AuthorController {
             String name
     ) {
         return ResponseEntity.ok(
-                assembler.toModel(authorService.getByName(name))
+                assembler.toModel(this.authorService.getByName(name))
         );
     }
 

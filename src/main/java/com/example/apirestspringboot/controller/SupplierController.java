@@ -6,11 +6,13 @@ import com.example.apirestspringboot.entity.Supplier;
 import com.example.apirestspringboot.service.SupplierService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotBlank;
 import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -51,30 +53,113 @@ public class SupplierController {
         return ResponseEntity.ok(pagedResourcesAssembler.toModel(suppliers, assembler));
     }
 
-    @Operation(summary = "Get a supplier by id")
+    @Operation(summary = "Get a supplier by ID")
     @ApiResponses({
-        @ApiResponse(responseCode = "200", description = "Supplier found"),
-        @ApiResponse(responseCode = "404", description = "Supplier not found", content = @Content(mediaType = "application/json", schema = @Schema(example = "{\"error\": \"Could not find the supplier with ID: ...\"}")))
+            @ApiResponse(responseCode = "200", description = "Supplier found"),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "Supplier not found",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(
+                                    example = """
+                                            {
+                                                "error": "could not find the supplier with ID: 3fa85f64-5717-4562-b3fc-2c963f66afa6"
+                                            }
+                                            """
+                            )
+                    )
+            )
     })
     @GetMapping("/{id}")
-    public ResponseEntity<EntityModel<Supplier>> getById(@PathVariable UUID id) {
+    public ResponseEntity<EntityModel<Supplier>> getById(
+            @PathVariable
+            @Schema(example = "3fa85f64-5717-4562-b3fc-2c963f66afa6")
+            UUID id
+    ) {
         return ResponseEntity.ok(assembler.toModel(supplierService.getById(id)));
     }
 
     @Operation(summary = "Search supplier by name")
     @ApiResponses({
-        @ApiResponse(responseCode = "200", description = "Supplier found"),
-        @ApiResponse(responseCode = "404", description = "Supplier not found", content = @Content(mediaType = "application/json", schema = @Schema(example = "{\"error\": \"Could not find the supplier with ID: ...\"}")))
+            @ApiResponse(responseCode = "200", description = "Supplier found"),
+            @ApiResponse(
+                    responseCode = "400",
+                    description = "Invalid search parameter",
+                    content = @Content(
+                            mediaType = "application/json",
+                            examples = @ExampleObject(
+                                    name = "Invalid name",
+                                    value = """
+                                            {
+                                                "name": [
+                                                    "name must not be blank"
+                                                ]
+                                            }
+                                            """
+                            )
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "Supplier not found",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(
+                                    example = """
+                                            {
+                                                "error": "could not find the supplier with name: 'editora exemplo ltda'."
+                                            }
+                                            """
+                            )
+                    )
+            )
     })
     @GetMapping("/search")
-    public ResponseEntity<EntityModel<Supplier>> getByName(@RequestParam String name) {
+    public ResponseEntity<EntityModel<Supplier>> getByName(
+            @RequestParam(name = "name")
+            @NotBlank(message = "name must not be blank")
+            @Schema(example = "Editora Exemplo Ltda")
+            String name
+    ) {
         return ResponseEntity.ok(assembler.toModel(supplierService.getByName(name)));
     }
 
     @Operation(summary = "Create a supplier")
     @ApiResponses({
-        @ApiResponse(responseCode = "201", description = "Supplier created"),
-        @ApiResponse(responseCode = "400", description = "Invalid request body", content = @Content(mediaType = "application/json", schema = @Schema(example = "{\"name\": \"must not be blank\"}")))
+            @ApiResponse(responseCode = "201", description = "Supplier created"),
+            @ApiResponse(
+                    responseCode = "400",
+                    description = "Invalid request body",
+                    content = @Content(
+                            mediaType = "application/json",
+                            examples = {
+                                    @ExampleObject(
+                                            name = "Validation error",
+                                            summary = "Request body contains invalid field values",
+                                            value = """
+                                                    {
+                                                        "name": [
+                                                            "name is required"
+                                                        ],
+                                                        "email": [
+                                                            "email is required"
+                                                        ]
+                                                    }
+                                                    """
+                                    ),
+                                    @ExampleObject(
+                                            name = "Malformed JSON",
+                                            summary = "Request body contains invalid JSON syntax",
+                                            value = """
+                                                    {
+                                                        "error": "invalid JSON request body. Check the JSON syntax and field types."
+                                                    }
+                                                    """
+                                    )
+                            }
+                    )
+            )
     })
     @PostMapping
     public ResponseEntity<EntityModel<Supplier>> create(@RequestBody @Valid SupplierRecordDto dto) {
@@ -83,25 +168,89 @@ public class SupplierController {
 
     @Operation(summary = "Update a supplier")
     @ApiResponses({
-        @ApiResponse(responseCode = "200", description = "Supplier updated"),
-        @ApiResponse(responseCode = "400", description = "Invalid request body", content = @Content(mediaType = "application/json", schema = @Schema(example = "{\"name\": \"must not be blank\"}"))),
-        @ApiResponse(responseCode = "404", description = "Supplier not found", content = @Content(mediaType = "application/json", schema = @Schema(example = "{\"error\": \"Could not find the supplier with ID: ...\"}")))
+            @ApiResponse(responseCode = "200", description = "Supplier updated"),
+            @ApiResponse(
+                    responseCode = "400",
+                    description = "Invalid request body",
+                    content = @Content(
+                            mediaType = "application/json",
+                            examples = {
+                                    @ExampleObject(
+                                            name = "Validation error",
+                                            summary = "Request body contains invalid field values",
+                                            value = """
+                                                    {
+                                                        "name": [
+                                                            "name is required"
+                                                        ],
+                                                        "email": [
+                                                            "email is required"
+                                                        ]
+                                                    }
+                                                    """
+                                    ),
+                                    @ExampleObject(
+                                            name = "Malformed JSON",
+                                            summary = "Request body contains invalid JSON syntax",
+                                            value = """
+                                                    {
+                                                        "error": "invalid JSON request body. Check the JSON syntax and field types."
+                                                    }
+                                                    """
+                                    )
+                            }
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "Supplier not found",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(
+                                    example = """
+                                            {
+                                                "error": "could not find the supplier with ID: 3fa85f64-5717-4562-b3fc-2c963f66afa6"
+                                            }
+                                            """
+                            )
+                    )
+            )
     })
     @PutMapping("/{id}")
-    public ResponseEntity<EntityModel<Supplier>> update(@RequestBody @Valid SupplierRecordDto dto, @PathVariable UUID id) {
-        Supplier supplier = supplierService.getById(id);
-
-        return ResponseEntity.ok(assembler.toModel(supplierService.update(supplier, dto)));
+    public ResponseEntity<EntityModel<Supplier>> update(
+            @RequestBody @Valid SupplierRecordDto dto,
+            @PathVariable
+            @Schema(example = "3fa85f64-5717-4562-b3fc-2c963f66afa6")
+            UUID id
+    ) {
+        return ResponseEntity.ok(assembler.toModel(supplierService.update(id, dto)));
     }
 
     @Operation(summary = "Delete a supplier")
     @ApiResponses({
-        @ApiResponse(responseCode = "204", description = "Supplier deleted"),
-        @ApiResponse(responseCode = "404", description = "Supplier not found", content = @Content(mediaType = "application/json", schema = @Schema(example = "{\"error\": \"Could not find the supplier with ID: ...\"}")))
+            @ApiResponse(responseCode = "204", description = "Supplier deleted"),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "Supplier not found",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(
+                                    example = """
+                                            {
+                                                "error": "could not find the supplier with ID: 3fa85f64-5717-4562-b3fc-2c963f66afa6"
+                                            }
+                                            """
+                            )
+                    )
+            )
     })
     @DeleteMapping("/{id}")
-    public ResponseEntity<?> delete(@PathVariable UUID id) {
-        supplierService.delete(supplierService.getById(id));
+    public ResponseEntity<Void> delete(
+            @PathVariable
+            @Schema(example = "3fa85f64-5717-4562-b3fc-2c963f66afa6")
+            UUID id
+    ) {
+        supplierService.delete(id);
 
         return ResponseEntity.noContent().build();
     }

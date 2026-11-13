@@ -6,11 +6,13 @@ import com.example.apirestspringboot.entity.Book;
 import com.example.apirestspringboot.service.BookService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotBlank;
 import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -51,43 +53,98 @@ public class BookController {
         return ResponseEntity.ok(pagedResourcesAssembler.toModel(books, assembler));
     }
 
-    @Operation(summary = "Get a book by id")
+    @Operation(summary = "Get an book by ID")
     @ApiResponses({
-        @ApiResponse(responseCode = "200", description = "Book found"),
-        @ApiResponse(responseCode = "404", description = "Book not found", content = @Content(mediaType = "application/json", schema = @Schema(example = "{\"error\": \"Could not find the book with ID: ...\"}")))
+            @ApiResponse(responseCode = "200", description = "Book found"),
+            @ApiResponse(responseCode = "404", description = "Book not found", content = @Content(mediaType = "application/json", schema = @Schema(example = "{\"error\": \"could not find the book with ID: ...\"}")))
     })
     @GetMapping("/{id}")
-    public ResponseEntity<EntityModel<Book>> getById(@PathVariable UUID id) {
-        return ResponseEntity.ok(assembler.toModel(bookService.getById(id)));
+    public ResponseEntity<EntityModel<Book>> getById(@PathVariable @Schema(example = "3fa85f64-5717-4562-b3fc-2c963f66afa6") UUID id) {
+        return ResponseEntity.ok(assembler.toModel(this.bookService.getById(id)));
     }
 
-    @Operation(summary = "Get books by category")
-    @ApiResponse(responseCode = "200", description = "Returned books for the given category")
+    @Operation(summary = "Search book by ID category")
+    @ApiResponses({
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Returned books for the given category"
+            ),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "Category not found",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(
+                                    example = """
+                                            {
+                                                "error": "could not find the category with ID: '3fa85f64-5717-4562-b3fc-2c963f66afa6'."
+                                            }
+                                            """
+                            )
+                    )
+            )
+    })
     @GetMapping("/category/{categoryId}")
-    public ResponseEntity<CollectionModel<EntityModel<Book>>> getByCategory(@PathVariable UUID categoryId) {
-        CollectionModel<EntityModel<Book>> books = CollectionModel.of(bookService.getByCategory(categoryId).stream().map(assembler::toModel).toList());
+    public ResponseEntity<CollectionModel<EntityModel<Book>>> getByCategory(@PathVariable @Schema(example = "3fa85f64-5717-4562-b3fc-2c963f66afa6") UUID categoryId) {
+        CollectionModel<EntityModel<Book>> books = CollectionModel.of(this.bookService.getByCategory(categoryId).stream().map(assembler::toModel).toList());
 
         return ResponseEntity.ok(books);
     }
 
     @Operation(summary = "Create a book")
     @ApiResponses({
-        @ApiResponse(responseCode = "201", description = "Book created"),
-        @ApiResponse(responseCode = "400", description = "Invalid request body", content = @Content(mediaType = "application/json", schema = @Schema(example = "{\"title\": \"must not be blank\"}")))
+            @ApiResponse(responseCode = "201", description = "Book created"),
+            @ApiResponse(responseCode = "400", description = "Invalid request body", content = @Content(mediaType = "application/json", schema = @Schema(example = "{\"title\": [\"must not be blank\"], \"isbn\": [\"must not be blank\"], \"amount\": [\"must not be null\"], \"datePublication\": [\"must not be null\"], \"categoryId\": [\"must not be null\"], \"supplierId\": [\"must not be null\"], \"authorIds\": [\"must not be empty\"]}"))),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "Category not found",
+                    content = @Content(
+                            mediaType = "application/json",
+                            examples = {
+                                    @ExampleObject(
+                                            name = "Category not found",
+                                            summary = "Request body category id not found",
+                                            value = """
+                                                    {
+                                                        "error": "could not find the category with ID: '3fa85f64-5717-4562-b3fc-2c963f66afa6'."
+                                                    }
+                                                    """
+                                    ),
+                                    @ExampleObject(
+                                            name = "Supplier not found",
+                                            summary = "Request body supplier id not found",
+                                            value = """
+                                                    {
+                                                        "error": "could not find the supplier with ID: '3fa85f64-5717-4562-b3fc-2c963f66afa6'."
+                                                    }
+                                                    """
+                                    ),
+                                    @ExampleObject(
+                                            name = "Authors not found",
+                                            summary = "Request body authors id not found",
+                                            value = """
+                                                    {
+                                                        "error": "could not find the authors with ID: ['3fa85f64-5717-4562-b3fc-2c963f66afa6']."
+                                                    }
+                                                    """
+                                    )
+                            }
+                    )
+            )
     })
     @PostMapping
     public ResponseEntity<EntityModel<Book>> create(@RequestBody @Valid BookRecordDto dto) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(assembler.toModel(bookService.create(dto)));
+        return ResponseEntity.status(HttpStatus.CREATED).body(assembler.toModel(this.bookService.create(dto)));
     }
 
-    @Operation(summary = "Update a book")
+    @Operation(summary = "Update an book")
     @ApiResponses({
-        @ApiResponse(responseCode = "200", description = "Book updated"),
-        @ApiResponse(responseCode = "400", description = "Invalid request body", content = @Content(mediaType = "application/json", schema = @Schema(example = "{\"title\": \"must not be blank\"}"))),
-        @ApiResponse(responseCode = "404", description = "Book not found", content = @Content(mediaType = "application/json", schema = @Schema(example = "{\"error\": \"Could not find the book with ID: ...\"}")))
+            @ApiResponse(responseCode = "200", description = "Book updated"),
+            @ApiResponse(responseCode = "400", description = "Invalid request body", content = @Content(mediaType = "application/json", schema = @Schema(example = "{\"title\": [\"title is required\"], \"isbn\": [\"isbn is required\"], \"amount\": [\"amount is required\"], \"datePublication\": [\"datePublication is required\"], \"categoryId\": [\"categoryId is required\"], \"supplierId\": [\"supplierId is required\"], \"authorIds\": [\"authorId/authorsId is required\"]}"))),
+            @ApiResponse(responseCode = "404", description = "Book not found", content = @Content(mediaType = "application/json", schema = @Schema(example = "{\"error\": \"could not find the book with ID: ...\"}")))
     })
     @PutMapping("/{id}")
-    public ResponseEntity<EntityModel<Book>> update(@RequestBody @Valid BookRecordDto dto, @PathVariable UUID id) {
+    public ResponseEntity<EntityModel<Book>> update(@RequestBody @Valid BookRecordDto dto, @PathVariable @Schema(example = "3fa85f64-5717-4562-b3fc-2c963f66afa6") UUID id) {
         Book book = bookService.getById(id);
 
         return ResponseEntity.ok(assembler.toModel(bookService.update(book, dto)));
@@ -95,12 +152,32 @@ public class BookController {
 
     @Operation(summary = "Delete a book")
     @ApiResponses({
-        @ApiResponse(responseCode = "204", description = "Book deleted"),
-        @ApiResponse(responseCode = "404", description = "Book not found", content = @Content(mediaType = "application/json", schema = @Schema(example = "{\"error\": \"Could not find the book with ID: ...\"}")))
+            @ApiResponse(
+                    responseCode = "204",
+                    description = "Book deleted"
+            ),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "Book not found",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(
+                                    example = """
+                                            {
+                                                "error": "could not find the book with ID: 3fa85f64-5717-4562-b3fc-2c963f66afa6"
+                                            }
+                                            """
+                            )
+                    )
+            )
     })
     @DeleteMapping("/{id}")
-    public ResponseEntity<?> delete(@PathVariable UUID id) {
-        bookService.delete(bookService.getById(id));
+    public ResponseEntity<Void> delete(
+            @PathVariable
+            @Schema(example = "3fa85f64-5717-4562-b3fc-2c963f66afa6")
+            UUID id
+    ) {
+        bookService.delete(id);
 
         return ResponseEntity.noContent().build();
     }

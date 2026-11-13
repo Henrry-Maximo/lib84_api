@@ -1,5 +1,7 @@
 package com.example.apirestspringboot.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -11,6 +13,8 @@ import java.util.Map;
 @RestController
 @Tag(name = "Terms", description = "Route dedicated for explain operation of lib apirestful.")
 public class TermsController {
+    @Operation(summary = "Get terms of service")
+    @ApiResponse(responseCode = "200", description = "Returned terms of service")
     @GetMapping("/terms")
     public Map<String, Object> terms() {
         Map<String, Object> response = new LinkedHashMap<>();

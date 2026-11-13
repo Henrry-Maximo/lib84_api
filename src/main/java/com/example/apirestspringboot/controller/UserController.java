@@ -7,11 +7,14 @@ import com.example.apirestspringboot.entity.User;
 import com.example.apirestspringboot.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
 import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -25,7 +28,8 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.UUID;
 
-@RestController()
+@RestController
+@RequestMapping("/users")
 @Tag(name = "Users", description = "User management, featuring options such as listing, searching, creating, updating, and deleting.")
 public class UserController {
     private final UserService userService;
@@ -42,134 +46,256 @@ public class UserController {
     }
 
     @Operation(summary = "Get all users")
-    @ApiResponse(responseCode = "200", description = "Returned a paginated list of all visible users")
-    @GetMapping("/users")
-    public ResponseEntity<PagedModel<EntityModel<User>>> all(@ParameterObject @PageableDefault(size = 10, page = 0, sort = "email") Pageable pageable) {
+    @ApiResponse(responseCode = "200", description = "Returned a paginated list of all users")
+    @GetMapping
+    public ResponseEntity<PagedModel<EntityModel<User>>> all(@ParameterObject @PageableDefault(size = 10, sort = "email") Pageable pageable) {
         Page<User> users = this.userService.getAll(pageable);
-        PagedModel<EntityModel<User>> pagedModel = pagedResourcesAssembler.toModel(users, this.assembler);
 
-        return ResponseEntity.ok(pagedModel);
+        return ResponseEntity.ok(pagedResourcesAssembler.toModel(users, assembler));
     }
 
-    @Operation(summary = "Get a user by your id")
-    @ApiResponse(responseCode = "200", description = "Returned a object visible user", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = User.class))})
-    @GetMapping("/users/{id}")
-    public ResponseEntity<EntityModel<User>> getUserById(@PathVariable(value = "id") UUID id) {
-        User user = this.userService.getById(id);
-
-        EntityModel<User> entityModel = assembler.toModel(user);
-        return ResponseEntity.ok(entityModel);
-
-        /*
-        if (user.isEmpty()) {
-           return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found.");
-        }
-        user.get().add(linkTo(methodOn(UserController.class).all()).withSelfRel());
-        return ResponseEntity.status(HttpStatus.OK).body(user.get());
-
-        return user.<ResponseEntity<Object>>map(value -> ResponseEntity.status(HttpStatus.OK).body(value)).orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found."));
-        return this.userRepository.findById(id).orElseThrow(() -> new UserNotFoundException(id));
-         */
+    @Operation(summary = "Get a user by ID")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "User found"),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "User not found",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(
+                                    example = """
+                                            {
+                                                "error": "could not find the user with ID: 3fa85f64-5717-4562-b3fc-2c963f66afa6"
+                                            }
+                                            """
+                            )
+                    )
+            )
+    })
+    @GetMapping("/{id}")
+    public ResponseEntity<EntityModel<User>> getById(
+            @PathVariable
+            @Schema(example = "3fa85f64-5717-4562-b3fc-2c963f66afa6")
+            UUID id
+    ) {
+        return ResponseEntity.ok(assembler.toModel(userService.getById(id)));
     }
 
     @Operation(summary = "Search user by email")
     @ApiResponses({
-        @ApiResponse(responseCode = "200", description = "User found"),
-        @ApiResponse(responseCode = "404", description = "User not found", content = @Content(mediaType = "application/json", schema = @Schema(example = "{\"error\": \"Could not find the user with ID: ...\"}")))
+            @ApiResponse(responseCode = "200", description = "User found"),
+            @ApiResponse(
+                    responseCode = "400",
+                    description = "Invalid search parameter",
+                    content = @Content(
+                            mediaType = "application/json",
+                            examples = @ExampleObject(
+                                    name = "Invalid email",
+                                    value = """
+                                            {
+                                                "email": [
+                                                    "email must not be blank"
+                                                ]
+                                            }
+                                            """
+                            )
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "User not found",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(
+                                    example = """
+                                            {
+                                                "error": "could not find the user with email: 'johndoe@example.com'."
+                                            }
+                                            """
+                            )
+                    )
+            )
     })
-    @GetMapping("/users/search")
-    public ResponseEntity<EntityModel<User>> getByEmail(@RequestParam String email) {
+    @GetMapping("/search")
+    public ResponseEntity<EntityModel<User>> getByEmail(
+            @RequestParam(name = "email")
+            @NotBlank(message = "email must not be blank")
+            @Email(message = "email must be a valid address")
+            @Schema(example = "johndoe@example.com")
+            String email
+    ) {
         return ResponseEntity.ok(assembler.toModel(userService.getByEmail(email)));
     }
 
     @Operation(summary = "Create a user")
     @ApiResponses({
-        @ApiResponse(responseCode = "201", description = "User created"),
-        @ApiResponse(responseCode = "400", description = "Invalid request body", content = @Content(mediaType = "application/json", schema = @Schema(example = "{\"email\": \"must not be blank\"}"))),
-        @ApiResponse(responseCode = "409", description = "Email already exists", content = @Content(mediaType = "application/json", schema = @Schema(example = "{\"error\": \"Could not register user with email already exists: ...\"}")))
+            @ApiResponse(responseCode = "201", description = "User created"),
+            @ApiResponse(
+                    responseCode = "400",
+                    description = "Invalid request body",
+                    content = @Content(
+                            mediaType = "application/json",
+                            examples = {
+                                    @ExampleObject(
+                                            name = "Validation error",
+                                            summary = "Request body contains invalid field values",
+                                            value = """
+                                                    {
+                                                        "email": [
+                                                            "email is required"
+                                                        ],
+                                                        "password": [
+                                                            "password is required"
+                                                        ]
+                                                    }
+                                                    """
+                                    ),
+                                    @ExampleObject(
+                                            name = "Malformed JSON",
+                                            summary = "Request body contains invalid JSON syntax",
+                                            value = """
+                                                    {
+                                                        "error": "invalid JSON request body. Check the JSON syntax and field types."
+                                                    }
+                                                    """
+                                    )
+                            }
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "409",
+                    description = "Email already exists",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(
+                                    example = """
+                                            {
+                                                "error": "email 'johndoe@example.com' already exists."
+                                            }
+                                            """
+                            )
+                    )
+            )
     })
-    @PostMapping("/users")
+    @PostMapping
     public ResponseEntity<EntityModel<User>> create(@RequestBody @Valid UserRecordDto dto) {
-        User userCreated = userService.create(dto);
-
-        return ResponseEntity.status(HttpStatus.CREATED).body(assembler.toModel(userCreated));
+        return ResponseEntity.status(HttpStatus.CREATED).body(assembler.toModel(userService.create(dto)));
     }
 
     @Operation(summary = "Update all user fields")
     @ApiResponses({
-        @ApiResponse(responseCode = "200", description = "User updated"),
-        @ApiResponse(responseCode = "400", description = "Invalid request body", content = @Content(mediaType = "application/json", schema = @Schema(example = "{\"email\": \"must not be blank\"}"))),
-        @ApiResponse(responseCode = "404", description = "User not found", content = @Content(mediaType = "application/json", schema = @Schema(example = "{\"error\": \"Could not find the user with ID: ...\"}")))
+            @ApiResponse(responseCode = "200", description = "User updated"),
+            @ApiResponse(
+                    responseCode = "400",
+                    description = "Invalid request body",
+                    content = @Content(
+                            mediaType = "application/json",
+                            examples = {
+                                    @ExampleObject(
+                                            name = "Validation error",
+                                            summary = "Request body contains invalid field values",
+                                            value = """
+                                                    {
+                                                        "email": [
+                                                            "email is required"
+                                                        ],
+                                                        "password": [
+                                                            "password is required"
+                                                        ]
+                                                    }
+                                                    """
+                                    ),
+                                    @ExampleObject(
+                                            name = "Malformed JSON",
+                                            summary = "Request body contains invalid JSON syntax",
+                                            value = """
+                                                    {
+                                                        "error": "invalid JSON request body. Check the JSON syntax and field types."
+                                                    }
+                                                    """
+                                    )
+                            }
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "User not found",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(
+                                    example = """
+                                            {
+                                                "error": "could not find the user with ID: 3fa85f64-5717-4562-b3fc-2c963f66afa6"
+                                            }
+                                            """
+                            )
+                    )
+            )
     })
-    @PutMapping("/users/{id}")
-    public ResponseEntity<EntityModel<User>> updateAllFields(@RequestBody @Valid UserRecordDto userRecordDto, @PathVariable(value = "id") UUID id) {
-        User user = this.userService.getById(id);
-
-        User updated = this.userService.update(user, userRecordDto);
-
-        // EntityModel<User> entityModel = assembler.toModel(user);
-        return ResponseEntity.ok(assembler.toModel(updated));
-
-        /*
-        if (user.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found.");
-        }
-
-        var userEntity = user.get();
-
-        BeanUtils.copyProperties(userRecordDto, userEntity);
-        return this.userRepository.findById(id).map(user -> {
-           user.setEmail(newUser.getEmail());
-           user.setPassword(newUser.getPassword());
-           user.setRole(newUser.getRole());
-
-           return this.userRepository.save(user);
-        });
-         */
+    @PutMapping("/{id}")
+    public ResponseEntity<EntityModel<User>> update(
+            @RequestBody @Valid UserRecordDto dto,
+            @PathVariable
+            @Schema(example = "3fa85f64-5717-4562-b3fc-2c963f66afa6")
+            UUID id
+    ) {
+        return ResponseEntity.ok(assembler.toModel(userService.update(id, dto)));
     }
 
     @Operation(summary = "Partially update a user")
     @ApiResponses({
-        @ApiResponse(responseCode = "200", description = "User updated"),
-        @ApiResponse(responseCode = "404", description = "User not found", content = @Content(mediaType = "application/json", schema = @Schema(example = "{\"error\": \"Could not find the user with ID: ...\"}")))
+            @ApiResponse(responseCode = "200", description = "User updated"),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "User not found",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(
+                                    example = """
+                                            {
+                                                "error": "could not find the user with ID: 3fa85f64-5717-4562-b3fc-2c963f66afa6"
+                                            }
+                                            """
+                            )
+                    )
+            )
     })
-    @PatchMapping("/users/{id}")
-    public ResponseEntity<EntityModel<User>> updateSameFields(@RequestBody @Valid UserPatchDto dto, @PathVariable UUID id) {
-        User user = this.userService.getById(id);
-        User updated = this.userService.updateSameFields(user, dto);
-
-        return ResponseEntity.ok(assembler.toModel(updated));
-
-        /*
-        return this.userRepository.findById(id).map(user -> {
-            user.setEmail(newUser.getEmail());
-            user.setPassword(newUser.getPassword());
-            user.setRole(newUser.getRole());
-
-            return this.userRepository.save(user);
-        });
-         */
+    @PatchMapping("/{id}")
+    public ResponseEntity<EntityModel<User>> updateSameFields(
+            @RequestBody @Valid UserPatchDto dto,
+            @PathVariable
+            @Schema(example = "3fa85f64-5717-4562-b3fc-2c963f66afa6")
+            UUID id
+    ) {
+        return ResponseEntity.ok(assembler.toModel(userService.updateSameFields(id, dto)));
     }
 
     @Operation(summary = "Delete a user")
     @ApiResponses({
-        @ApiResponse(responseCode = "204", description = "User deleted"),
-        @ApiResponse(responseCode = "404", description = "User not found", content = @Content(mediaType = "application/json", schema = @Schema(example = "{\"error\": \"Could not find the user with ID: ...\"}")))
+            @ApiResponse(responseCode = "204", description = "User deleted"),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "User not found",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(
+                                    example = """
+                                            {
+                                                "error": "could not find the user with ID: 3fa85f64-5717-4562-b3fc-2c963f66afa6"
+                                            }
+                                            """
+                            )
+                    )
+            )
     })
-    @DeleteMapping("/users/{id}")
-    public ResponseEntity<?> delete(@PathVariable(value = "id") UUID id) {
-        User user = this.userService.getById(id);
-
-        this.userService.delete(user);
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> delete(
+            @PathVariable
+            @Schema(example = "3fa85f64-5717-4562-b3fc-2c963f66afa6")
+            UUID id
+    ) {
+        userService.delete(id);
 
         return ResponseEntity.noContent().build();
-
-        // return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
-
-        // próprio delete do JPA, passando a entidade
-        // this.userRepository.delete(user.get());
-        // return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User deleted successfully.");
-
-        // this.userRepository.deleteById(id);
     }
 }
