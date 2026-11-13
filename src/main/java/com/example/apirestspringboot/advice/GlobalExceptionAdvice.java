@@ -2,6 +2,9 @@ package com.example.apirestspringboot.advice;
 
 import com.example.apirestspringboot.dto.ErrorResponse;
 import com.example.apirestspringboot.exception.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.validation.FieldError;
@@ -12,6 +15,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import java.util.List;
 import java.util.Map;
+import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
 
 import org.springframework.web.method.annotation.HandlerMethodValidationException;
@@ -24,9 +28,17 @@ import java.util.Objects;
 @RestControllerAdvice
 public class GlobalExceptionAdvice {
 
+    private static final Logger log = LoggerFactory.getLogger(GlobalExceptionAdvice.class);
+
     @ExceptionHandler(AuthorNotFoundException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
     ErrorResponse authorNotFoundHandler(AuthorNotFoundException ex) {
+        return new ErrorResponse(ex.getMessage());
+    }
+
+    @ExceptionHandler(AuthorHasBooksException.class)
+    @ResponseStatus(HttpStatus.CONFLICT)
+    ErrorResponse authorHasBooksHandler(AuthorHasBooksException ex) {
         return new ErrorResponse(ex.getMessage());
     }
 
@@ -153,6 +165,35 @@ public class GlobalExceptionAdvice {
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     ErrorResponse httpMessageNotReadableHandler(HttpMessageNotReadableException ex) {
         return new ErrorResponse("invalid JSON request body. Check the JSON syntax and field types.");
+    }
+
+    @ExceptionHandler(NoSuchElementException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    ErrorResponse noSuchElementHandler(NoSuchElementException ex) {
+        return new ErrorResponse("the requested resource was not found.");
+    }
+
+    @ExceptionHandler(DataIntegrityViolationException.class)
+    @ResponseStatus(HttpStatus.CONFLICT)
+    ErrorResponse dataIntegrityViolationHandler(DataIntegrityViolationException ex) {
+        var cause = ex.getMostSpecificCause().getMessage();
+        if (cause != null) {
+            var lower = cause.toLowerCase();
+            if (lower.contains("unique") || lower.contains("duplicate")) {
+                return new ErrorResponse("a record with the same unique value already exists.");
+            }
+            if (lower.contains("foreign key") || lower.contains("referential") || lower.contains("integrity")) {
+                return new ErrorResponse("operation violates a referential integrity constraint.");
+            }
+        }
+        return new ErrorResponse("data integrity violation.");
+    }
+
+    @ExceptionHandler(Exception.class)
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    ErrorResponse genericHandler(Exception ex) {
+        log.error("Unexpected error", ex);
+        return new ErrorResponse("an unexpected error occurred. Please try again later.");
     }
 
     // captura falhas de validação em parâmetros dos métodos

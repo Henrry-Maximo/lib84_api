@@ -248,6 +248,20 @@ public class AuthorController {
                                             """
                             )
                     )
+            ),
+            @ApiResponse(
+                    responseCode = "409",
+                    description = "Author is associated with one or more books",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(
+                                    example = """
+                                            {
+                                                "error": "author with ID: 3fa85f64-5717-4562-b3fc-2c963f66afa6 cannot be deleted because it is associated with one or more books."
+                                            }
+                                            """
+                            )
+                    )
             )
     })
     @DeleteMapping("/{id}")

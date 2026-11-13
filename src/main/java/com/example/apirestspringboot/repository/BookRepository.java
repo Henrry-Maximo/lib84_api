@@ -8,4 +8,5 @@ import java.util.UUID;
 
 public interface BookRepository extends JpaRepository<Book, UUID> {
     List<Book> findByCategoryId(UUID categoryId);
+    boolean existsByAuthors_Id(UUID authorId);
 }

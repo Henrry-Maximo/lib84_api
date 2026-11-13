@@ -4,8 +4,10 @@ import com.example.apirestspringboot.dto.AuthorRecordDto;
 import com.example.apirestspringboot.entity.Author;
 import com.example.apirestspringboot.exception.AuthorAlreadyExistsException;
 import com.example.apirestspringboot.exception.AuthorByNameNotFoundException;
+import com.example.apirestspringboot.exception.AuthorHasBooksException;
 import com.example.apirestspringboot.exception.AuthorNotFoundException;
 import com.example.apirestspringboot.repository.AuthorRepository;
+import com.example.apirestspringboot.repository.BookRepository;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -19,9 +21,11 @@ import java.util.UUID;
 public class AuthorService {
 
     private final AuthorRepository authorRepository;
+    private final BookRepository bookRepository;
 
-    public AuthorService(AuthorRepository authorRepository) {
+    public AuthorService(AuthorRepository authorRepository, BookRepository bookRepository) {
         this.authorRepository = authorRepository;
+        this.bookRepository = bookRepository;
     }
 
     @Transactional
@@ -80,6 +84,10 @@ public class AuthorService {
     @Transactional
     public void delete(UUID id) {
         var author = this.getById(id);
+
+        if (this.bookRepository.existsByAuthors_Id(id)) {
+            throw new AuthorHasBooksException(id);
+        }
 
         this.authorRepository.delete(author);
     }

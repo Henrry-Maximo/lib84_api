@@ -1,33 +1,68 @@
 package com.example.apirestspringboot;
 
+import com.example.apirestspringboot.versioning.ApiVersion;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.info.Contact;
 import io.swagger.v3.oas.models.info.Info;
 import io.swagger.v3.oas.models.info.License;
+import org.springdoc.core.customizers.OpenApiCustomizer;
 import org.springdoc.core.models.GroupedOpenApi;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.web.method.HandlerMethod;
+import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping;
+
+import java.util.Arrays;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Configuration
 public class ConfigSwagger {
 
+    /**
+     * Collects all paths whose handler is annotated with @ApiVersion containing the given version,
+     * or (for V1) has no @ApiVersion annotation at all.
+     */
+    private OpenApiCustomizer versionFilter(RequestMappingHandlerMapping mapping, int version) {
+        return openApi -> {
+            Set<String> includedPaths = mapping.getHandlerMethods().entrySet().stream()
+                    .filter(entry -> {
+                        HandlerMethod hm = entry.getValue();
+                        ApiVersion classAnn = hm.getBeanType().getAnnotation(ApiVersion.class);
+                        ApiVersion methodAnn = hm.getMethodAnnotation(ApiVersion.class);
+                        int[] versions;
+                        if (methodAnn != null) versions = methodAnn.value();
+                        else if (classAnn != null) versions = classAnn.value();
+                        else versions = new int[]{1}; // unannotated = V1
+                        return Arrays.stream(versions).anyMatch(v -> v == version);
+                    })
+                    .flatMap(entry -> entry.getKey().getPatternValues().stream())
+                    .collect(Collectors.toSet());
+
+            if (openApi.getPaths() != null) {
+                openApi.getPaths().entrySet().removeIf(e -> !includedPaths.contains(e.getKey()));
+            }
+        };
+    }
+
     @Bean
-    public GroupedOpenApi v1() {
+    public GroupedOpenApi v1(RequestMappingHandlerMapping requestMappingHandlerMapping) {
         return GroupedOpenApi.builder()
                 .group("v1")
                 .displayName("V1 - Stable")
                 .pathsToMatch("/**")
-                .pathsToExclude("/v2/**")
+                .addOpenApiCustomizer(versionFilter(requestMappingHandlerMapping, 1))
                 .build();
     }
 
     @Bean
-    public GroupedOpenApi v2() {
+    public GroupedOpenApi v2(RequestMappingHandlerMapping requestMappingHandlerMapping) {
         return GroupedOpenApi.builder()
                 .group("v2")
                 .displayName("V2 - In Development")
-                .pathsToMatch("/v2/**")
+                .pathsToMatch("/**")
+                .addOpenApiCustomizer(versionFilter(requestMappingHandlerMapping, 2))
                 .build();
     }
 

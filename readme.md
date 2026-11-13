@@ -62,8 +62,14 @@ A API sobe em `http://localhost:8080`.
 ### Testando rapidamente
 
 ```bash
-# Listar livros (paginado)
+# Listar livros (paginado) — V1 (padrão, sem header)
 curl "http://localhost:8080/books?page=0&size=10"
+
+# Listar livros — V1 explicitamente
+curl -H "X-API-Version: 1" "http://localhost:8080/books?page=0&size=10"
+
+# Requisição com versão inválida — retorna 400
+curl -H "X-API-Version: 99" "http://localhost:8080/books"
 ```
 
 > O banco é o **H2 em memória**: os dados são recriados a cada vez que a aplicação reinicia.
@@ -126,14 +132,24 @@ curl "http://localhost:8080/books?page=0&size=10"
 
 ### Versionamento (V1 e V2 coexistindo)
 
-- [ ] Definir a estratégia: header `X-API-Version` (V1 como padrão quando o header não vier)
-- [ ] Manter a V1 funcionando sem alteração de contrato
-- [ ] Criar a V2 com os recursos abaixo
+O versionamento é realizado pelo header HTTP `X-API-Version`.
+
+| Header | Comportamento |
+|---|---|
+| Ausente | Utiliza V1 (padrão) |
+| `X-API-Version: 1` | Utiliza V1 |
+| `X-API-Version: 2` | Utiliza V2 |
+| Valor não suportado | `400 Bad Request` |
+
+- [x] Definir a estratégia: header `X-API-Version` (V1 como padrão quando o header não vier)
+- [x] Manter a V1 funcionando sem alteração de contrato
+- [x] Infraestrutura de versionamento implementada (`ApiVersionInterceptor`, `@ApiVersion`)
+- [x] Documentar as duas versões no Swagger (dois grupos de documentação)
+- [ ] Criar endpoints de negócio da V2
 - [ ] Adotar versionamento semântico `MAJOR.MINOR.PATCH`
   - MAJOR: mudança que quebra compatibilidade
   - MINOR: novas funcionalidades
   - PATCH: correção de bug
-- [ ] Documentar as duas versões no Swagger (dois grupos de documentação)
 
 ### V2: segurança e controle de acesso
 
@@ -221,7 +237,7 @@ curl "http://localhost:8080/books?page=0&size=10"
 - [x] O usuário não deve poder se cadastrar com e-mail duplicado;
 - [x] Os usuários, por padrão, recebem o cargo (permissão) de "membro";
 - [x] O administrador pode visualizar todos os usuários;
-- [ ] O administrador não deve poder cadastrar categorias com o mesmo título;
+- [x] O administrador não deve poder cadastrar categorias com o mesmo título;
 - [ ] O administrador não deve poder cadastrar mais que 15 categorias;
 - [ ] O token de reset de senha deve expirar em 15 minutos e só pode ser usado uma vez;
 - [ ] O usuário que solicitou renovação de senha não pode cadastrar a mesma senha novamente;
