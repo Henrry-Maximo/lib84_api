@@ -10,15 +10,16 @@ import java.util.Set;
 import java.util.UUID;
 
 public record LoanRecordDto(
-        @Schema(example = "3fa85f64-57...")
+        @Schema(example = "3fa85f64-5717-4562-b3fc-2c963f66afa6")
         @NotNull(message = "userId is required")
         UUID userId,
 
-        @Schema(description = "IDs dos livros à serem emprestados")
+        @Schema(example = "[\"3fa85f64-5717-4562-b3fc-2c963f66afa6\"]")
         @NotEmpty(message = "bookIds must contain at least one book")
         Set<@NotNull UUID> bookIds,
 
         @Schema(example = "2026-12-01T10:00:00")
+        @NotNull(message = "loanDateScheduled is required")
         @FutureOrPresent(message = "loanDateScheduled must not be in the past")
         LocalDateTime loanDateScheduled
 ) {}

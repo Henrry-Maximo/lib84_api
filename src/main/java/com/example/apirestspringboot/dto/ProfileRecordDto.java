@@ -22,7 +22,7 @@ public record ProfileRecordDto(
         @Size(max = 255, message = "address must have at most 255 characters")
         String address,
 
-        @Schema(example = "3fa85f64-57...")
+        @Schema(example = "3fa85f64-5717-4562-b3fc-2c963f66afa6")
         @NotNull(message = "userId is required")
         UUID userId
 ) {}
