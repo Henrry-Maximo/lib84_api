@@ -15,6 +15,10 @@
     </video>
     <img src="/logo.png" alt="LIB84" />
     <span>LIB84 API Docs</span>
+    <select id="version-select" onchange="switchVersion(this.value)">
+        <option value="/api-docs/v1">V1 - Stable</option>
+        <option value="/api-docs/v2">V2 - In Development</option>
+    </select>
 </header>
 
 <div id="swagger-ui"></div>
@@ -24,11 +28,7 @@
 <script>
     window.onload = () => {
         window.ui = SwaggerUIBundle({
-            urls: [
-                { name: "V1 - Stable",         url: "/api-docs/v1" },
-                { name: "V2 - In Development", url: "/api-docs/v2" }
-            ],
-            "urls.primaryName": "V1 - Stable",
+            url: "/api-docs/v1",
             dom_id: "#swagger-ui",
             presets: [SwaggerUIBundle.presets.apis],
             layout: "BaseLayout",
@@ -54,6 +54,11 @@
             },
         });
     };
+
+    function switchVersion(url) {
+        window.ui.specActions.updateUrl(url);
+        window.ui.specActions.download(url);
+    }
 </script>
 </body>
 </html>

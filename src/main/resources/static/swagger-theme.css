@@ -67,6 +67,25 @@ body,
     z-index: 2;
 }
 
+#version-select {
+    position: relative;
+    z-index: 2;
+    margin-left: auto;
+    background: #1a1a1a;
+    border: 1px solid #2563eb;
+    color: #e4e4e7;
+    border-radius: 6px;
+    padding: 6px 10px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    cursor: pointer;
+    outline: none;
+}
+
+#version-select:hover {
+    border-color: #3b82f6;
+}
+
 .lib84-header img {
     height: 52px;
 }
