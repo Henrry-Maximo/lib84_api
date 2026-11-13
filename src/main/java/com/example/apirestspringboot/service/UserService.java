@@ -8,35 +8,34 @@ import com.example.apirestspringboot.exception.DuplicateEmailException;
 import com.example.apirestspringboot.exception.UserByEmailNotFoundException;
 import com.example.apirestspringboot.exception.UserNotFoundException;
 import com.example.apirestspringboot.repository.UserRepository;
-import org.springframework.beans.BeanUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.UUID;
 
 @Service
 public class UserService {
     private final UserRepository userRepository;
+
     public UserService(UserRepository userRepository) {
         this.userRepository = userRepository;
     }
 
+    @Transactional
     public User create(UserRecordDto dto) {
-        var user = new User();
-        
-        BeanUtils.copyProperties(dto, user);
-        user.setRole(User.Role.MEMBER);
-
-        var userAlreadyExists = this.userRepository.findByEmail(user.getEmail());
+        var userAlreadyExists = this.userRepository.findByEmail(dto.email());
 
         if (userAlreadyExists != null) {
-            throw new DuplicateEmailException(user.getEmail());
+            throw new DuplicateEmailException(dto.email());
         }
 
-        var passwordHash = BCrypt.withDefaults().hashToString(12, user.getPassword().toCharArray());
+        var user = new User();
 
-        user.setPassword(passwordHash);
+        user.setEmail(dto.email());
+        user.setPassword(BCrypt.withDefaults().hashToString(12, dto.password().toCharArray()));
+        user.setRole(User.Role.MEMBER);
 
         return this.userRepository.save(user);
     }
@@ -46,38 +45,50 @@ public class UserService {
     }
 
     public User getById(UUID id) {
-        return this.userRepository.findById(id).orElseThrow(() -> new UserNotFoundException(id));
-    }
+        var user = this.userRepository.findById(id);
 
-    public User update(User user, UserRecordDto dto) {
-        /*
-        user.setEmail(dto.email());
-        user.setPassword(dto.password());
-        user.setRole(dto.role());
-        */
+        if (user.isEmpty()) {
+            throw new UserNotFoundException(id);
+        }
 
-        BeanUtils.copyProperties(dto, user, "password");
-        if (dto.password() != null) user.setPassword(BCrypt.withDefaults().hashToString(12, dto.password().toCharArray()));
-
-        return this.userRepository.save(user);
+        return user.get();
     }
 
     public User getByEmail(String email) {
-        User user = this.userRepository.findByEmail(email);
-        if (user == null) throw new UserByEmailNotFoundException(email);
+        var user = this.userRepository.findByEmail(email);
+
+        if (user == null) {
+            throw new UserByEmailNotFoundException(email);
+        }
 
         return user;
     }
 
-    public void delete(User user) {
-        this.userRepository.deleteById(user.getId());
+    @Transactional
+    public User update(UUID id, UserRecordDto dto) {
+        var user = this.getById(id);
+
+        user.setEmail(dto.email());
+        user.setPassword(BCrypt.withDefaults().hashToString(12, dto.password().toCharArray()));
+
+        return this.userRepository.save(user);
     }
 
-    public User updateSameFields(User user, UserPatchDto dto) {
+    @Transactional
+    public User updateSameFields(UUID id, UserPatchDto dto) {
+        var user = this.getById(id);
+
         if (dto.email() != null) user.setEmail(dto.email());
         if (dto.password() != null) user.setPassword(BCrypt.withDefaults().hashToString(12, dto.password().toCharArray()));
         if (dto.role() != null) user.setRole(User.Role.valueOf(dto.role()));
 
         return this.userRepository.save(user);
+    }
+
+    @Transactional
+    public void delete(UUID id) {
+        var user = this.getById(id);
+
+        this.userRepository.delete(user);
     }
 }

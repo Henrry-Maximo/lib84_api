@@ -2,18 +2,18 @@ package com.example.apirestspringboot.service;
 
 import com.example.apirestspringboot.dto.BookRecordDto;
 import com.example.apirestspringboot.entity.Book;
-import com.example.apirestspringboot.exception.BookNotFoundException;
+import com.example.apirestspringboot.exception.*;
 import com.example.apirestspringboot.repository.AuthorRepository;
 import com.example.apirestspringboot.repository.BookRepository;
 import com.example.apirestspringboot.repository.CategoryRepository;
 import com.example.apirestspringboot.repository.SupplierRepository;
-import org.springframework.beans.BeanUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -33,13 +33,41 @@ public class BookService {
     }
 
     public Book create(BookRecordDto dto) {
-        var book = new Book();
-        BeanUtils.copyProperties(dto, book, "categoryId", "supplierId", "authorIds");
-        book.setCategory(categoryRepository.findById(dto.categoryId()).orElseThrow());
-        book.setSupplier(supplierRepository.findById(dto.supplierId()).orElseThrow());
-        if (dto.authorIds() != null) {
-            book.setAuthors(new HashSet<>(authorRepository.findAllById(dto.authorIds())));
+        var categoryId = dto.categoryId();
+        var supplierId = dto.supplierId();
+        var authorIds = dto.authorIds();
+
+        var category = this.categoryRepository.findById(categoryId);
+        if (category.isEmpty()) {
+            throw new CategoryNotFoundException(categoryId);
         }
+
+        var supplier = this.supplierRepository.findById(supplierId);
+        if (supplier.isEmpty()) {
+            throw new SupplierNotFoundException(supplierId);
+        }
+
+        var foundAuthors = this.authorRepository.findAllById(authorIds);
+        var uniqueAuthorIds = new HashSet<>(authorIds);
+
+        if (foundAuthors.size() != uniqueAuthorIds.size()) {
+            throw new AuthorsNotFoundException();
+        }
+
+        var book = new Book();
+
+        book.setTitle(dto.title());
+        book.setAmount(dto.amount());
+        book.setDatePublication(dto.datePublication());
+        book.setIsbn(dto.isbn());
+        book.setCategory(category.get());
+        book.setSupplier(supplier.get());
+        book.setAuthors(new HashSet<>(foundAuthors));
+
+        // BeanUtils.copyProperties(dto, book, "categoryId", "supplierId", "authorIds");
+        // book.setCategory(categoryRepository.findById(dto.categoryId()).orElseThrow(() -> new CategoryNotFoundException()));
+        // book.setSupplier(supplierRepository.findById(dto.supplierId()).orElseThrow(() -> new CategoryNotFoundException()));
+
         return this.bookRepository.save(book);
     }
 
@@ -48,24 +76,59 @@ public class BookService {
     }
 
     public Book getById(UUID id) {
-        return this.bookRepository.findById(id).orElseThrow(() -> new BookNotFoundException(id));
+        Optional<Book> book = this.bookRepository.findById(id);
+
+        if (book.isEmpty()) {
+            throw new BookNotFoundException(id);
+        }
+
+        return book.get();
     }
 
     public Book update(Book book, BookRecordDto dto) {
-        BeanUtils.copyProperties(dto, book, "categoryId", "supplierId", "authorIds");
-        book.setCategory(categoryRepository.findById(dto.categoryId()).orElseThrow());
-        book.setSupplier(supplierRepository.findById(dto.supplierId()).orElseThrow());
-        if (dto.authorIds() != null) {
-            book.setAuthors(new HashSet<>(authorRepository.findAllById(dto.authorIds())));
+        var categoryId = dto.categoryId();
+        var supplierId = dto.supplierId();
+        var authorIds = dto.authorIds();
+
+        var category = categoryRepository.findById(categoryId);
+        if (category.isEmpty()) {
+            throw new CategoryNotFoundException(categoryId);
         }
+
+        var supplier = supplierRepository.findById(supplierId);
+        if (supplier.isEmpty()) {
+            throw new SupplierNotFoundException(supplierId);
+        }
+
+        var foundAuthors = authorRepository.findAllById(authorIds);
+        if (foundAuthors.size() != new HashSet<>(authorIds).size()) {
+            throw new AuthorsNotFoundException();
+        }
+
+        book.setTitle(dto.title());
+        book.setIsbn(dto.isbn());
+        book.setAmount(dto.amount());
+        book.setDatePublication(dto.datePublication());
+        book.setCategory(category.get());
+        book.setSupplier(supplier.get());
+        book.setAuthors(new HashSet<>(foundAuthors));
+
         return this.bookRepository.save(book);
     }
 
     public List<Book> getByCategory(UUID categoryId) {
-        return this.bookRepository.findByCategoryId(categoryId);
+        List<Book> books = this.bookRepository.findByCategoryId(categoryId);
+
+        if (books.isEmpty()) {
+            throw new BooksNotFoundByCategoryIdException(categoryId);
+        }
+
+        return books;
     }
 
-    public void delete(Book book) {
-        this.bookRepository.deleteById(book.getId());
+    public void delete(UUID id) {
+        var book = this.getById(id);
+
+        this.bookRepository.delete(book);
     }
 }

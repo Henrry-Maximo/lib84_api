@@ -6,10 +6,10 @@ import com.example.apirestspringboot.exception.ProfileNotFoundException;
 import com.example.apirestspringboot.exception.UserNotFoundException;
 import com.example.apirestspringboot.repository.ProfileRepository;
 import com.example.apirestspringboot.repository.UserRepository;
-import org.springframework.beans.BeanUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.UUID;
 
@@ -23,11 +23,21 @@ public class ProfileService {
         this.userRepository = userRepository;
     }
 
+    @Transactional
     public Profile create(ProfileRecordDto dto) {
+        var userId = dto.userId();
+
+        var user = userRepository.findById(userId);
+        if (user.isEmpty()) {
+            throw new UserNotFoundException(userId);
+        }
+
         var profile = new Profile();
 
-        BeanUtils.copyProperties(dto, profile, "userId");
-        profile.setUser(userRepository.findById(dto.userId()).orElseThrow(() -> new UserNotFoundException(dto.userId())));
+        profile.setName(dto.name());
+        profile.setPhone(dto.phone());
+        profile.setAddress(dto.address());
+        profile.setUser(user.get());
 
         return this.profileRepository.save(profile);
     }
@@ -37,21 +47,54 @@ public class ProfileService {
     }
 
     public Profile getById(UUID id) {
-        return this.profileRepository.findById(id).orElseThrow(() -> new ProfileNotFoundException(id));
+        var profile = this.profileRepository.findById(id);
+
+        if (profile.isEmpty()) {
+            throw new ProfileNotFoundException(id);
+        }
+
+        return profile.get();
     }
 
-    public Profile update(Profile profile, ProfileRecordDto dto) {
-        BeanUtils.copyProperties(dto, profile, "userId"); // não atualizar userId
-        profile.setUser(userRepository.findById(dto.userId()).orElseThrow(() -> new UserNotFoundException(dto.userId())));
+    public Profile getByUserId(UUID userId) {
+        var user = userRepository.findById(userId);
+
+        if (user.isEmpty()) {
+            throw new UserNotFoundException(userId);
+        }
+
+        var profile = this.profileRepository.findByUserId(userId);
+
+        if (profile.isEmpty()) {
+            throw new ProfileNotFoundException(userId);
+        }
+
+        return profile.get();
+    }
+
+    @Transactional
+    public Profile update(UUID id, ProfileRecordDto dto) {
+        var profile = this.getById(id);
+
+        var userId = dto.userId();
+
+        var user = userRepository.findById(userId);
+        if (user.isEmpty()) {
+            throw new UserNotFoundException(userId);
+        }
+
+        profile.setName(dto.name());
+        profile.setPhone(dto.phone());
+        profile.setAddress(dto.address());
+        profile.setUser(user.get());
 
         return this.profileRepository.save(profile);
     }
 
-    public Profile getByUserId(UUID userId) {
-        return this.profileRepository.findByUserId(userId).orElseThrow(() -> new ProfileNotFoundException(userId));
-    }
+    @Transactional
+    public void delete(UUID id) {
+        var profile = this.getById(id);
 
-    public void delete(Profile profile) {
-        this.profileRepository.deleteById(profile.getId());
+        this.profileRepository.delete(profile);
     }
 }

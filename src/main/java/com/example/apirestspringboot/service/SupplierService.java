@@ -5,10 +5,10 @@ import com.example.apirestspringboot.entity.Supplier;
 import com.example.apirestspringboot.exception.SupplierByNameNotFoundException;
 import com.example.apirestspringboot.exception.SupplierNotFoundException;
 import com.example.apirestspringboot.repository.SupplierRepository;
-import org.springframework.beans.BeanUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.UUID;
 
@@ -21,9 +21,15 @@ public class SupplierService {
         this.supplierRepository = supplierRepository;
     }
 
+    @Transactional
     public Supplier create(SupplierRecordDto dto) {
         var supplier = new Supplier();
-        BeanUtils.copyProperties(dto, supplier);
+
+        supplier.setName(dto.name());
+        supplier.setEmail(dto.email());
+        supplier.setPhone(dto.phone());
+        supplier.setCnpj(dto.cnpj());
+
         return this.supplierRepository.save(supplier);
     }
 
@@ -32,19 +38,41 @@ public class SupplierService {
     }
 
     public Supplier getById(UUID id) {
-        return this.supplierRepository.findById(id).orElseThrow(() -> new SupplierNotFoundException(id));
-    }
+        var supplier = this.supplierRepository.findById(id);
 
-    public Supplier update(Supplier supplier, SupplierRecordDto dto) {
-        BeanUtils.copyProperties(dto, supplier);
-        return this.supplierRepository.save(supplier);
+        if (supplier.isEmpty()) {
+            throw new SupplierNotFoundException(id);
+        }
+
+        return supplier.get();
     }
 
     public Supplier getByName(String name) {
-        return this.supplierRepository.findByNameContainingIgnoreCase(name).orElseThrow(() -> new SupplierByNameNotFoundException(name));
+        var supplier = this.supplierRepository.findByNameContainingIgnoreCase(name);
+
+        if (supplier.isEmpty()) {
+            throw new SupplierByNameNotFoundException(name);
+        }
+
+        return supplier.get();
     }
 
-    public void delete(Supplier supplier) {
-        this.supplierRepository.deleteById(supplier.getId());
+    @Transactional
+    public Supplier update(UUID id, SupplierRecordDto dto) {
+        var supplier = this.getById(id);
+
+        supplier.setName(dto.name());
+        supplier.setEmail(dto.email());
+        supplier.setPhone(dto.phone());
+        supplier.setCnpj(dto.cnpj());
+
+        return this.supplierRepository.save(supplier);
+    }
+
+    @Transactional
+    public void delete(UUID id) {
+        var supplier = this.getById(id);
+
+        this.supplierRepository.delete(supplier);
     }
 }

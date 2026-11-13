@@ -6,10 +6,10 @@ import com.example.apirestspringboot.exception.CategoryByNameNotFoundException;
 import com.example.apirestspringboot.exception.CategoryNotFoundException;
 import com.example.apirestspringboot.exception.DuplicateCategoryTitleException;
 import com.example.apirestspringboot.repository.CategoryRepository;
-import org.springframework.beans.BeanUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.UUID;
 
@@ -22,12 +22,19 @@ public class CategoryService {
         this.categoryRepository = categoryRepository;
     }
 
+    @Transactional
     public Category create(CategoryRecordDto dto) {
-        if (categoryRepository.existsByTitleIgnoreCase(dto.title())) {
+        var titleAlreadyExists = categoryRepository.existsByTitleIgnoreCase(dto.title());
+
+        if (titleAlreadyExists) {
             throw new DuplicateCategoryTitleException(dto.title());
         }
+
         var category = new Category();
-        BeanUtils.copyProperties(dto, category);
+
+        category.setTitle(dto.title());
+        category.setDescription(dto.description());
+
         return this.categoryRepository.save(category);
     }
 
@@ -36,19 +43,46 @@ public class CategoryService {
     }
 
     public Category getById(UUID id) {
-        return this.categoryRepository.findById(id).orElseThrow(() -> new CategoryNotFoundException(id));
-    }
+        var category = this.categoryRepository.findById(id);
 
-    public Category update(Category category, CategoryRecordDto dto) {
-        BeanUtils.copyProperties(dto, category);
-        return this.categoryRepository.save(category);
+        if (category.isEmpty()) {
+            throw new CategoryNotFoundException(id);
+        }
+
+        return category.get();
     }
 
     public Category getByTitle(String title) {
-        return this.categoryRepository.findByTitleContainingIgnoreCase(title).orElseThrow(() -> new CategoryByNameNotFoundException(title));
+        var category = this.categoryRepository.findByTitleContainingIgnoreCase(title);
+
+        if (category.isEmpty()) {
+            throw new CategoryByNameNotFoundException(title);
+        }
+
+        return category.get();
     }
 
-    public void delete(Category category) {
-        this.categoryRepository.deleteById(category.getId());
+    @Transactional
+    public Category update(UUID id, CategoryRecordDto dto) {
+        var category = this.getById(id);
+
+        var titleAlreadyExists = !category.getTitle().equalsIgnoreCase(dto.title())
+                && categoryRepository.existsByTitleIgnoreCase(dto.title());
+
+        if (titleAlreadyExists) {
+            throw new DuplicateCategoryTitleException(dto.title());
+        }
+
+        category.setTitle(dto.title());
+        category.setDescription(dto.description());
+
+        return this.categoryRepository.save(category);
+    }
+
+    @Transactional
+    public void delete(UUID id) {
+        var category = this.getById(id);
+
+        this.categoryRepository.delete(category);
     }
 }

@@ -2,6 +2,7 @@ package com.example.apirestspringboot.service;
 
 import com.example.apirestspringboot.dto.LoanRecordDto;
 import com.example.apirestspringboot.entity.Loan;
+import com.example.apirestspringboot.exception.BooksNotFoundException;
 import com.example.apirestspringboot.exception.LoanNotFoundException;
 import com.example.apirestspringboot.exception.UserNotFoundException;
 import com.example.apirestspringboot.repository.BookRepository;
@@ -10,6 +11,7 @@ import com.example.apirestspringboot.repository.UserRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.HashSet;
 import java.util.List;
@@ -27,11 +29,25 @@ public class LoanService {
         this.bookRepository = bookRepository;
     }
 
+    @Transactional
     public Loan create(LoanRecordDto dto) {
+        var userId = dto.userId();
+        var bookIds = dto.bookIds();
+
+        var user = userRepository.findById(userId);
+        if (user.isEmpty()) {
+            throw new UserNotFoundException(userId);
+        }
+
+        var foundBooks = bookRepository.findAllById(bookIds);
+        if (foundBooks.size() != new HashSet<>(bookIds).size()) {
+            throw new BooksNotFoundException();
+        }
+
         var loan = new Loan();
 
-        loan.setUser(userRepository.findById(dto.userId()).orElseThrow(() -> new UserNotFoundException(dto.userId())));
-        loan.setBooks(new HashSet<>(bookRepository.findAllById(dto.bookIds())));
+        loan.setUser(user.get());
+        loan.setBooks(new HashSet<>(foundBooks));
         loan.setLoanDateScheduled(dto.loanDateScheduled());
 
         return this.loanRepository.save(loan);
@@ -42,22 +58,53 @@ public class LoanService {
     }
 
     public Loan getById(UUID id) {
-        return this.loanRepository.findById(id).orElseThrow(() -> new LoanNotFoundException(id));
+        var loan = this.loanRepository.findById(id);
+
+        if (loan.isEmpty()) {
+            throw new LoanNotFoundException(id);
+        }
+
+        return loan.get();
     }
 
-    public Loan update(Loan loan, LoanRecordDto dto) {
-        loan.setUser(userRepository.findById(dto.userId()).orElseThrow(() -> new UserNotFoundException(dto.userId())));
-        loan.setBooks(new HashSet<>(bookRepository.findAllById(dto.bookIds())));
+    public List<Loan> getByUser(UUID userId) {
+        var user = userRepository.findById(userId);
+
+        if (user.isEmpty()) {
+            throw new UserNotFoundException(userId);
+        }
+
+        return this.loanRepository.findByUserId(userId);
+    }
+
+    @Transactional
+    public Loan update(UUID id, LoanRecordDto dto) {
+        var loan = this.getById(id);
+
+        var userId = dto.userId();
+        var bookIds = dto.bookIds();
+
+        var user = userRepository.findById(userId);
+        if (user.isEmpty()) {
+            throw new UserNotFoundException(userId);
+        }
+
+        var foundBooks = bookRepository.findAllById(bookIds);
+        if (foundBooks.size() != new HashSet<>(bookIds).size()) {
+            throw new BooksNotFoundException();
+        }
+
+        loan.setUser(user.get());
+        loan.setBooks(new HashSet<>(foundBooks));
         loan.setLoanDateScheduled(dto.loanDateScheduled());
 
         return this.loanRepository.save(loan);
     }
 
-    public List<Loan> getByUser(UUID userId) {
-        return this.loanRepository.findByUserId(userId);
-    }
+    @Transactional
+    public void delete(UUID id) {
+        var loan = this.getById(id);
 
-    public void delete(Loan loan) {
-        this.loanRepository.deleteById(loan.getId());
+        this.loanRepository.delete(loan);
     }
 }

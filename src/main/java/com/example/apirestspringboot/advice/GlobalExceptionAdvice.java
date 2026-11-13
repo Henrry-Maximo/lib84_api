@@ -48,6 +48,24 @@ public class GlobalExceptionAdvice {
         return new ErrorResponse(ex.getMessage());
     }
 
+    @ExceptionHandler(BooksNotFoundByCategoryIdException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    ErrorResponse booksNotFoundByCategoryIdHandler(BooksNotFoundByCategoryIdException ex) {
+        return new ErrorResponse(ex.getMessage());
+    }
+
+    @ExceptionHandler(AuthorsNotFoundException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    ErrorResponse booksNotFoundByCategoryIdHandler(AuthorsNotFoundException ex) {
+        return new ErrorResponse(ex.getMessage());
+    }
+
+    @ExceptionHandler(BooksNotFoundException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    ErrorResponse booksNotFoundHandler(BooksNotFoundException ex) {
+        return new ErrorResponse(ex.getMessage());
+    }
+
     @ExceptionHandler(CategoryNotFoundException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
     ErrorResponse categoryNotFoundHandler(CategoryNotFoundException ex) {
@@ -137,7 +155,7 @@ public class GlobalExceptionAdvice {
         return new ErrorResponse("invalid JSON request body. Check the JSON syntax and field types.");
     }
 
-    // Captura falhas de validação em parâmetros dos métodos
+    // captura falhas de validação em parâmetros dos métodos
     @ExceptionHandler(HandlerMethodValidationException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     Map<String, List<String>> handlerMethodValidation(
