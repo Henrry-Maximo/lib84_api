@@ -18,8 +18,15 @@ public class ConfigSwagger {
                         .title("LIB84 API RESTful - Books & Loans Management")
                         .version(appVersion)
                         .description("""
-                                REST API for managing a digital library: books, authors, categories,
-                                suppliers, users, profiles and loans.
+                                Welcome to the LIB84 RESTful API, a digital library management server 
+                                powered by Spring Boot and compliant with the OpenAPI 3.0 specification. 
+                                Designed around REST maturity best practices, this API delivers paginated 
+                                collections, strict Bean Validation, and HATEOAS hypermedia links in HAL 
+                                format. Feel free to explore the endpoints, test requests directly through 
+                                this interactive UI, or contribute to the project's continuous improvement 
+                                via its open-source repository.
+                                
+                                **Repository**: https://github.com/Henrry-Maximo/lib84_api
                                 
                                 ## Getting Started
                                 

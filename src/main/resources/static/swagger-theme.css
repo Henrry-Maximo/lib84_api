@@ -32,8 +32,9 @@ body,
     gap: 12px;
     padding: 12px 24px;
     background: #111111;
-    border-bottom: 1px solid #1e1e1e;
+    /*border-bottom: 1px solid #1e1e1e;*/
     font-family: 'JetBrains Mono', monospace;
+    border-bottom: 2px solid #1d4ed8;
 
     position: relative;
     overflow: hidden;
@@ -92,6 +93,25 @@ body,
     background-size: 650px;
     opacity: 0.05;
     pointer-events: none;
+    z-index: 0;
+}
+
+.swagger-ui .scheme-container {
+    position: relative;
+    background: transparent !important;
+    overflow: hidden;
+}
+
+.swagger-ui .scheme-container::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background-image: url('/books.webp'); /* Ajuste o caminho se necessário */
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: 650px;
+    opacity: 0.30; /* Controle a transparência apenas da imagem aqui */
+    pointer-events: none; /* Agora o bloqueio fica só na imagem, não nos botões */
     z-index: 0;
 }
 
