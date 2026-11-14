@@ -30,6 +30,12 @@ public class GlobalExceptionAdvice {
 
     private static final Logger log = LoggerFactory.getLogger(GlobalExceptionAdvice.class);
 
+    @ExceptionHandler(UserSessionCredentilsInvalidException.class)
+    @ResponseStatus(HttpStatus.UNAUTHORIZED)
+    ErrorResponse userSessionCredentilsInvalidHandler(UserSessionCredentilsInvalidException ex) {
+        return new ErrorResponse(ex.getMessage());
+    }
+
     @ExceptionHandler(AuthorNotFoundException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
     ErrorResponse authorNotFoundHandler(AuthorNotFoundException ex) {

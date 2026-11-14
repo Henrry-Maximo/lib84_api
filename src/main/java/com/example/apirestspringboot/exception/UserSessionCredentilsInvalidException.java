@@ -1,7 +1,7 @@
 package com.example.apirestspringboot.exception;
 
-    public class UserSessionCredentilsInvalid extends RuntimeException {
-    public UserSessionCredentilsInvalid() {
+    public class UserSessionCredentilsInvalidException extends RuntimeException {
+    public UserSessionCredentilsInvalidException() {
         super("credentials invalid.");
     }
 }
