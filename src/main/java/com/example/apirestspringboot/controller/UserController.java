@@ -39,7 +39,8 @@ public class UserController {
     public UserController(
             UserService userService,
             UserModelAssembler assembler,
-            PagedResourcesAssembler<User> pagedResourcesAssembler) {
+            PagedResourcesAssembler<User> pagedResourcesAssembler
+    ) {
         this.userService = userService;
         this.assembler = assembler;
         this.pagedResourcesAssembler = pagedResourcesAssembler;
