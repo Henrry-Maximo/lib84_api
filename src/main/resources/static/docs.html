@@ -16,8 +16,8 @@
     <img src="/logo.png" alt="LIB84" />
     <span>LIB84 API Docs</span>
     <select id="version-select" onchange="switchVersion(this.value)">
-        <option value="/api-docs/v1">V1 - Stable</option>
-        <option value="/api-docs/v2">V2 - In Development</option>
+        <option value="/api-docs/v1" data-version="1">V1 - Stable</option>
+        <option value="/api-docs/v2" data-version="2">V2 - In Development</option>
     </select>
 </header>
 
@@ -38,19 +38,18 @@
             displayRequestDuration: true,
             filter: true,
             syntaxHighlight: { theme: "arta" },
-
-            tagsSorter: "alpha",        // ordem alfabética
+            tagsSorter: "alpha",
             operationsSorter: (a, b) => {
-                const order = {
-                    get: 0,
-                    post: 1,
-                    put: 2,
-                    patch: 3,
-                    delete: 4
-                };
-
-                return (order[a.get("method")] ?? 99) -
-                    (order[b.get("method")] ?? 99);
+                const order = { get: 0, post: 1, put: 2, patch: 3, delete: 4 };
+                return (order[a.get("method")] ?? 99) - (order[b.get("method")] ?? 99);
+            },
+            // injects X-API-Version on every request based on the selected version
+            requestInterceptor: (req) => {
+                const select = document.getElementById("version-select");
+                const selected = select.options[select.selectedIndex];
+                const version = selected.getAttribute("data-version");
+                if (version) req.headers["X-API-Version"] = version;
+                return req;
             },
         });
     };
