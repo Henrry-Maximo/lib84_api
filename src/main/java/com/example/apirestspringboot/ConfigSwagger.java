@@ -1,10 +1,13 @@
 package com.example.apirestspringboot;
 
 import com.example.apirestspringboot.versioning.ApiVersion;
+import io.swagger.v3.oas.models.Components;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.info.Contact;
 import io.swagger.v3.oas.models.info.Info;
 import io.swagger.v3.oas.models.info.License;
+import io.swagger.v3.oas.models.security.SecurityRequirement;
+import io.swagger.v3.oas.models.security.SecurityScheme;
 import org.springdoc.core.customizers.OpenApiCustomizer;
 import org.springdoc.core.models.GroupedOpenApi;
 import org.springframework.beans.factory.annotation.Value;
@@ -20,10 +23,8 @@ import java.util.stream.Collectors;
 @Configuration
 public class ConfigSwagger {
 
-    /**
-     * Collects all paths whose handler is annotated with @ApiVersion containing the given version,
-     * or (for V1) has no @ApiVersion annotation at all.
-     */
+    private static final String BEARER_SCHEME = "bearerAuth";
+
     private OpenApiCustomizer versionFilter(RequestMappingHandlerMapping mapping, int version) {
         return openApi -> {
             Set<String> includedPaths = mapping.getHandlerMethods().entrySet().stream()
@@ -34,7 +35,7 @@ public class ConfigSwagger {
                         int[] versions;
                         if (methodAnn != null) versions = methodAnn.value();
                         else if (classAnn != null) versions = classAnn.value();
-                        else versions = new int[]{1}; // unannotated = V1
+                        else versions = new int[]{1};
                         return Arrays.stream(versions).anyMatch(v -> v == version);
                     })
                     .flatMap(entry -> entry.getKey().getPatternValues().stream())
@@ -42,6 +43,16 @@ public class ConfigSwagger {
 
             if (openApi.getPaths() != null) {
                 openApi.getPaths().entrySet().removeIf(e -> !includedPaths.contains(e.getKey()));
+            }
+
+            // remove tags that no longer have any operation after path filtering
+            if (openApi.getTags() != null && openApi.getPaths() != null) {
+                Set<String> usedTags = openApi.getPaths().values().stream()
+                        .flatMap(pathItem -> pathItem.readOperations().stream())
+                        .filter(op -> op.getTags() != null)
+                        .flatMap(op -> op.getTags().stream())
+                        .collect(Collectors.toSet());
+                openApi.getTags().removeIf(tag -> !usedTags.contains(tag.getName()));
             }
         };
     }
@@ -69,6 +80,16 @@ public class ConfigSwagger {
     @Bean
     public OpenAPI customOpenAPI(@Value("${springdoc.version}") String appVersion) {
         return new OpenAPI()
+                .addSecurityItem(new SecurityRequirement().addList(BEARER_SCHEME))
+                .components(new Components()
+                        .addSecuritySchemes(BEARER_SCHEME, new SecurityScheme()
+                                .name(BEARER_SCHEME)
+                                .type(SecurityScheme.Type.HTTP)
+                                .scheme("bearer")
+                                .bearerFormat("JWT")
+                                .description("Paste the JWT token obtained from POST /session (V2 only). Format: Bearer <token>")
+                        )
+                )
                 .info(new Info()
                         .title("LIB84 API RESTful - Books & Loans Management")
                         .version(appVersion)
@@ -105,5 +126,4 @@ public class ConfigSwagger {
                         .contact(new Contact().name("Henrique Maximo").url("https://www.github.com/henrry-maximo")
                                 .email("henrrylimadasilva@gmail.com")));
     }
-
 }
