@@ -5,7 +5,9 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Email;
 import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.validator.constraints.Length;
 import org.springframework.hateoas.RepresentationModel;
 
 import java.io.Serializable;
@@ -29,10 +31,11 @@ public class User extends RepresentationModel<User> implements Serializable {
     private UUID id;
 
     @Column(unique = true, nullable = false)
-    @Schema(example = "johndoe@example.com")
+    @Email(message = "johndoe@example.com")
     private String email;
 
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
+    @Length(min = 8, max = 72)
     private String password;
 
     @Enumerated(EnumType.STRING) // armazenar enum como string

@@ -251,7 +251,7 @@ O versionamento é realizado pelo header HTTP `X-API-Version`.
 
 ### Fluxograma
 
-![alt text](fluxo.png)
+![schema.png](schema.png)
 
 ### Relacionamento
 

@@ -120,6 +120,11 @@ body,
     border: 1px solid #1d4ed8;
 }
 
+.swagger-ui main {
+    background: linear-gradient(rgb(10, 10, 10) 0%, rgb(6, 13, 31) 5%, rgb(10, 10, 10) 100%);
+    min-height: 100vh;
+}
+
 .swagger-ui .scheme-container {
     position: relative;
     background: transparent !important;
