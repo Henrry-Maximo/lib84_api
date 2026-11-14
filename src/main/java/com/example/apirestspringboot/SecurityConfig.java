@@ -38,7 +38,6 @@ public class SecurityConfig {
             .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .httpBasic(AbstractHttpConfigurer::disable)
             .formLogin(AbstractHttpConfigurer::disable)
-            .headers(headers -> headers.frameOptions(f -> f.disable()).disable())
             .authorizeHttpRequests(auth -> auth.anyRequest().permitAll());
         return http.build();
     }
@@ -46,6 +45,9 @@ public class SecurityConfig {
     /**
      * V2 chain — matches all remaining requests (X-API-Version: 2).
      * Requires authentication except for the session endpoint and infra paths.
+     * Security response headers are kept intentionally: cache-control and related
+     * headers protect authenticated responses, and X-RateLimit-* headers will be
+     * added here when rate limiting is implemented.
      */
     @Bean
     @Order(2)
@@ -55,7 +57,6 @@ public class SecurityConfig {
             .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .httpBasic(AbstractHttpConfigurer::disable)
             .formLogin(AbstractHttpConfigurer::disable)
-            .headers(headers -> headers.frameOptions(f -> f.disable()).disable())
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers(PUBLIC_INFRA).permitAll()
                 .requestMatchers("/session").permitAll()
