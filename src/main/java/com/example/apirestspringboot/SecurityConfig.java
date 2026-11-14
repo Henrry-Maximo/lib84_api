@@ -38,6 +38,7 @@ public class SecurityConfig {
             .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .httpBasic(AbstractHttpConfigurer::disable)
             .formLogin(AbstractHttpConfigurer::disable)
+            .headers(headers -> headers.frameOptions(f -> f.disable()).disable())
             .authorizeHttpRequests(auth -> auth.anyRequest().permitAll());
         return http.build();
     }
@@ -54,6 +55,7 @@ public class SecurityConfig {
             .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .httpBasic(AbstractHttpConfigurer::disable)
             .formLogin(AbstractHttpConfigurer::disable)
+            .headers(headers -> headers.frameOptions(f -> f.disable()).disable())
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers(PUBLIC_INFRA).permitAll()
                 .requestMatchers("/session").permitAll()
