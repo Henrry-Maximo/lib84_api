@@ -35,6 +35,9 @@ public class SessionController {
             @ApiResponse(responseCode = "200", description = "Authentication successful",
                     content = @Content(mediaType = "application/json",
                             schema = @Schema(example = "{\"token\": \"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...\"}"))),
+            @ApiResponse(responseCode = "400", description = "Invalid request body",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(example = "{\"email\": [\"email is required\"], \"password\": [\"password is required\"]}"))),
             @ApiResponse(responseCode = "401", description = "Invalid credentials",
                     content = @Content(mediaType = "application/json",
                             schema = @Schema(example = "{\"error\": \"credentials invalid.\"}")))
