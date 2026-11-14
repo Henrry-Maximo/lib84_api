@@ -1,6 +1,5 @@
 package com.example.apirestspringboot.service;
 
-import at.favre.lib.crypto.bcrypt.BCrypt;
 import com.example.apirestspringboot.dto.UserPatchDto;
 import com.example.apirestspringboot.dto.UserRecordDto;
 import com.example.apirestspringboot.entity.User;
@@ -10,6 +9,7 @@ import com.example.apirestspringboot.exception.UserNotFoundException;
 import com.example.apirestspringboot.repository.UserRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -18,23 +18,24 @@ import java.util.UUID;
 @Service
 public class UserService {
     private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
 
-    public UserService(UserRepository userRepository) {
+    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
+        this.passwordEncoder = passwordEncoder;
     }
 
     @Transactional
     public User create(UserRecordDto dto) {
-        var userAlreadyExists = this.userRepository.findByEmail(dto.email());
+        var existing = this.userRepository.findByEmail(dto.email());
 
-        if (userAlreadyExists != null) {
+        if (existing.isPresent()) {
             throw new DuplicateEmailException(dto.email());
         }
 
         var user = new User();
-
         user.setEmail(dto.email());
-        user.setPassword(BCrypt.withDefaults().hashToString(12, dto.password().toCharArray()));
+        user.setPassword(passwordEncoder.encode(dto.password()));
         user.setRole(User.Role.MEMBER);
 
         return this.userRepository.save(user);
@@ -57,11 +58,11 @@ public class UserService {
     public User getByEmail(String email) {
         var user = this.userRepository.findByEmail(email);
 
-        if (user == null) {
+        if (user.isEmpty()) {
             throw new UserByEmailNotFoundException(email);
         }
 
-        return user;
+        return user.get();
     }
 
     @Transactional
@@ -69,7 +70,7 @@ public class UserService {
         var user = this.getById(id);
 
         user.setEmail(dto.email());
-        user.setPassword(BCrypt.withDefaults().hashToString(12, dto.password().toCharArray()));
+        user.setPassword(passwordEncoder.encode(dto.password()));
 
         return this.userRepository.save(user);
     }
@@ -79,7 +80,7 @@ public class UserService {
         var user = this.getById(id);
 
         if (dto.email() != null) user.setEmail(dto.email());
-        if (dto.password() != null) user.setPassword(BCrypt.withDefaults().hashToString(12, dto.password().toCharArray()));
+        if (dto.password() != null) user.setPassword(passwordEncoder.encode(dto.password()));
         if (dto.role() != null) user.setRole(User.Role.valueOf(dto.role()));
 
         return this.userRepository.save(user);
