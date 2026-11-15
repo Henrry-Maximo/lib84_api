@@ -4,7 +4,6 @@ import com.example.apirestspringboot.assembler.ProfileModelAssembler;
 import com.example.apirestspringboot.dto.ProfileV2RecordDto;
 import com.example.apirestspringboot.entity.Profile;
 import com.example.apirestspringboot.service.ProfileService;
-import com.example.apirestspringboot.versioning.ApiVersion;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.ExampleObject;
@@ -26,7 +25,6 @@ import java.util.UUID;
 
 @RestController
 @RequestMapping("/profiles")
-@ApiVersion(2)
 @Tag(name = "Profiles", description = "Profile for registar informations about user.")
 public class ProfileV2Controller {
 
@@ -67,6 +65,11 @@ public class ProfileV2Controller {
                     )
             ),
             @ApiResponse(
+                    responseCode = "401",
+                    description = "Missing or invalid JWT token",
+                    content = @Content
+            ),
+            @ApiResponse(
                     responseCode = "404",
                     description = "User not found",
                     content = @Content(
@@ -75,7 +78,7 @@ public class ProfileV2Controller {
                     )
             )
     })
-    @PostMapping(headers = "X-API-Version=2")
+    @PostMapping(version = "2")
     public ResponseEntity<EntityModel<Profile>> create(
             @RequestBody @Valid ProfileV2RecordDto dto,
             HttpServletRequest request

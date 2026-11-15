@@ -4,7 +4,6 @@ import com.example.apirestspringboot.assembler.ProfileModelAssembler;
 import com.example.apirestspringboot.dto.ProfileRecordDto;
 import com.example.apirestspringboot.entity.Profile;
 import com.example.apirestspringboot.service.ProfileService;
-import com.example.apirestspringboot.versioning.ApiVersion;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.ExampleObject;

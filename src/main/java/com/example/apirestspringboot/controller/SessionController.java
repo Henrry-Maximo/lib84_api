@@ -2,7 +2,6 @@ package com.example.apirestspringboot.controller;
 
 import com.example.apirestspringboot.dto.AuthUsersRecordDto;
 import com.example.apirestspringboot.service.AuthenticateService;
-import com.example.apirestspringboot.versioning.ApiVersion;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -21,7 +20,6 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/session")
-@ApiVersion(2)
 @Tag(name = "Session", description = "Authentication endpoint. Returns a JWT token on valid credentials.")
 public class SessionController {
 
@@ -44,7 +42,7 @@ public class SessionController {
                     content = @Content(mediaType = "application/json",
                             schema = @Schema(example = "{\"error\": \"credentials invalid.\"}")))
     })
-    @PostMapping(headers = "X-API-Version=2")
+    @PostMapping(version = "2")
     public ResponseEntity<Map<String, String>> session(@RequestBody @Valid AuthUsersRecordDto dto) {
         var token = this.authenticateService.execute(dto);
         return ResponseEntity.ok(Map.of("token", token));
