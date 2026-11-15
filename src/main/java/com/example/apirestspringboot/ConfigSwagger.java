@@ -1,44 +1,36 @@
 package com.example.apirestspringboot;
 
-import com.example.apirestspringboot.versioning.ApiVersion;
+import com.example.apirestspringboot.versioning.ApiVersionConfig;
 import io.swagger.v3.oas.models.Components;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.info.Contact;
 import io.swagger.v3.oas.models.info.Info;
 import io.swagger.v3.oas.models.info.License;
+import io.swagger.v3.oas.models.media.StringSchema;
 import io.swagger.v3.oas.models.security.SecurityRequirement;
 import io.swagger.v3.oas.models.security.SecurityScheme;
-import org.springdoc.core.customizers.OpenApiCustomizer;
 import org.springdoc.core.models.GroupedOpenApi;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.web.method.HandlerMethod;
-import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping;
+import org.springframework.core.annotation.AnnotatedElementUtils;
+import org.springframework.web.bind.annotation.RequestMapping;
 
-import java.util.Arrays;
-import java.util.Set;
-import java.util.stream.Collectors;
+import java.util.List;
 
 @Configuration
 public class ConfigSwagger {
 
     private static final String BEARER_SCHEME = "bearerAuth";
 
-    private static final String INTERNAL_ERROR_EXAMPLE = """
-            {
-                "timestamp": "2025-01-01T00:00:00Z",
-                "status": 500,
-                "error": "Internal Server Error",
-                "message": "an unexpected error occurred. Please try again later.",
-                "path": "/authors"
-            }
-            """;
-
-    private void add500ToAllOperations(OpenAPI openApi) {
+    private void add500ToAllOperations(io.swagger.v3.oas.models.OpenAPI openApi) {
         if (openApi.getPaths() == null) return;
-        var schema = new io.swagger.v3.oas.models.media.Schema<>();
-        schema.example(INTERNAL_ERROR_EXAMPLE);
+        var schema = new io.swagger.v3.oas.models.media.ObjectSchema()
+                .addProperty("timestamp", new io.swagger.v3.oas.models.media.StringSchema().example("2025-01-01T00:00:00Z"))
+                .addProperty("status", new io.swagger.v3.oas.models.media.IntegerSchema().example(500))
+                .addProperty("error", new io.swagger.v3.oas.models.media.StringSchema().example("Internal Server Error"))
+                .addProperty("message", new io.swagger.v3.oas.models.media.StringSchema().example("an unexpected error occurred. Please try again later."))
+                .addProperty("path", new io.swagger.v3.oas.models.media.StringSchema().example("/authors"));
         var mediaType = new io.swagger.v3.oas.models.media.MediaType().schema(schema);
         var content = new io.swagger.v3.oas.models.media.Content()
                 .addMediaType("application/json", mediaType);
@@ -54,45 +46,44 @@ public class ConfigSwagger {
         );
     }
 
-    private OpenApiCustomizer versionFilter(RequestMappingHandlerMapping mapping, int version) {
-        return openApi -> {
-            Set<String> includedPaths = mapping.getHandlerMethods().entrySet().stream()
-                    .filter(entry -> {
-                        HandlerMethod hm = entry.getValue();
-                        ApiVersion classAnn = hm.getBeanType().getAnnotation(ApiVersion.class);
-                        ApiVersion methodAnn = hm.getMethodAnnotation(ApiVersion.class);
-                        int[] versions;
-                        if (methodAnn != null) versions = methodAnn.value();
-                        else if (classAnn != null) versions = classAnn.value();
-                        else versions = new int[]{1};
-                        return Arrays.stream(versions).anyMatch(v -> v == version);
-                    })
-                    .flatMap(entry -> entry.getKey().getPatternValues().stream())
-                    .collect(Collectors.toSet());
-
-            if (openApi.getPaths() != null) {
-                openApi.getPaths().entrySet().removeIf(e -> !includedPaths.contains(e.getKey()));
-            }
-
-            // remove tags that no longer have any operation after path filtering
-            if (openApi.getTags() != null && openApi.getPaths() != null) {
-                Set<String> usedTags = openApi.getPaths().values().stream()
-                        .flatMap(pathItem -> pathItem.readOperations().stream())
-                        .filter(op -> op.getTags() != null)
-                        .flatMap(op -> op.getTags().stream())
-                        .collect(Collectors.toSet());
-                openApi.getTags().removeIf(tag -> !usedTags.contains(tag.getName()));
-            }
-        };
+    private static GroupedOpenApi versionGroup(String version) {
+        return GroupedOpenApi.builder()
+                .group("v" + version)
+                .displayName("V" + version + (version.equals("1") ? " - Stable" : " - In Development"))
+                .pathsToMatch("/**")
+                .addOpenApiMethodFilter(method -> {
+                    RequestMapping mapping = AnnotatedElementUtils.findMergedAnnotation(method, RequestMapping.class);
+                    return mapping == null || mapping.version().isEmpty() || mapping.version().equals(version);
+                })
+                .addOperationCustomizer((operation, handlerMethod) -> {
+                    if (operation.getParameters() != null) {
+                        operation.getParameters().stream()
+                                .filter(p -> ApiVersionConfig.HEADER.equals(p.getName()))
+                                .forEach(p -> p.schema(new StringSchema()._default(version)._enum(List.of(version))));
+                    }
+                    return operation;
+                })
+                .build();
     }
 
     @Bean
-    public GroupedOpenApi v1(RequestMappingHandlerMapping requestMappingHandlerMapping) {
+    public GroupedOpenApi v1() {
         return GroupedOpenApi.builder()
                 .group("v1")
                 .displayName("V1 - Stable")
                 .pathsToMatch("/**")
-                .addOpenApiCustomizer(versionFilter(requestMappingHandlerMapping, 1))
+                .addOpenApiMethodFilter(method -> {
+                    RequestMapping mapping = AnnotatedElementUtils.findMergedAnnotation(method, RequestMapping.class);
+                    return mapping == null || mapping.version().isEmpty() || mapping.version().equals("1");
+                })
+                .addOperationCustomizer((operation, handlerMethod) -> {
+                    if (operation.getParameters() != null) {
+                        operation.getParameters().stream()
+                                .filter(p -> ApiVersionConfig.HEADER.equals(p.getName()))
+                                .forEach(p -> p.schema(new StringSchema()._default("1")._enum(List.of("1"))));
+                    }
+                    return operation;
+                })
                 .addOpenApiCustomizer(openApi -> {
                     openApi.getComponents().setSecuritySchemes(null);
                     openApi.setSecurity(null);
@@ -103,22 +94,33 @@ public class ConfigSwagger {
     }
 
     @Bean
-    public GroupedOpenApi v2(RequestMappingHandlerMapping requestMappingHandlerMapping) {
+    public GroupedOpenApi v2() {
         return GroupedOpenApi.builder()
                 .group("v2")
                 .displayName("V2 - In Development")
                 .pathsToMatch("/**")
-                .addOpenApiCustomizer(versionFilter(requestMappingHandlerMapping, 2))
+                .addOpenApiMethodFilter(method -> {
+                    RequestMapping mapping = AnnotatedElementUtils.findMergedAnnotation(method, RequestMapping.class);
+                    return mapping == null || mapping.version().isEmpty() || mapping.version().equals("2");
+                })
+                .addOperationCustomizer((operation, handlerMethod) -> {
+                    if (operation.getParameters() != null) {
+                        operation.getParameters().stream()
+                                .filter(p -> ApiVersionConfig.HEADER.equals(p.getName()))
+                                .forEach(p -> p.schema(new StringSchema()._default("2")._enum(List.of("2"))));
+                    }
+                    return operation;
+                })
                 .addOpenApiCustomizer(openApi -> {
                     openApi.getInfo().setVersion("2.0.0");
                     add500ToAllOperations(openApi);
                     if (openApi.getPaths() != null) {
                         openApi.getPaths().forEach((path, item) ->
-                            item.readOperations().forEach(op -> {
-                                if (op.getSecurity() == null) {
-                                    op.addSecurityItem(new SecurityRequirement().addList(BEARER_SCHEME));
-                                }
-                            })
+                                item.readOperations().forEach(op -> {
+                                    if (op.getSecurity() == null) {
+                                        op.addSecurityItem(new SecurityRequirement().addList(BEARER_SCHEME));
+                                    }
+                                })
                         );
                     }
                 })
@@ -141,12 +143,12 @@ public class ConfigSwagger {
                         .title("LIB84 API RESTful - Books & Loans Management")
                         .version(appVersion)
                         .description("""
-                                Welcome to the LIB84 RESTful API, a digital library management server 
-                                powered by Spring Boot and compliant with the OpenAPI 3.0 specification. 
-                                Designed around REST maturity best practices, this API delivers paginated 
-                                collections, strict Bean Validation, and HATEOAS hypermedia links in HAL 
-                                format. Feel free to explore the endpoints, test requests directly through 
-                                this interactive UI, or contribute to the project's continuous improvement 
+                                Welcome to the LIB84 RESTful API, a digital library management server \
+                                powered by Spring Boot and compliant with the OpenAPI 3.0 specification. \
+                                Designed around REST maturity best practices, this API delivers paginated \
+                                collections, strict Bean Validation, and HATEOAS hypermedia links in HAL \
+                                format. Feel free to explore the endpoints, test requests directly through \
+                                this interactive UI, or contribute to the project's continuous improvement \
                                 via its open-source repository.
                                 
                                 **Repository**: https://github.com/Henrry-Maximo/lib84_api
