@@ -8,6 +8,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -23,6 +24,7 @@ import java.util.stream.Collectors;
 
 import org.springframework.web.method.annotation.HandlerMethodValidationException;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -243,5 +245,18 @@ public class GlobalExceptionAdvice {
         }
 
         return errors;
+    }
+
+    @ExceptionHandler(NoResourceFoundException.class)
+    public ResponseEntity<Object> handleNoResourceFound(NoResourceFoundException ex, HttpServletRequest request) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
+                Map.of(
+                        "timestamp", Instant.now().toString(),
+                        "status", 404,
+                        "error", "Not Found",
+                        "message", "Resource not found: " + ex.getResourcePath(),
+                        "path", request.getRequestURI()
+                )
+        );
     }
 }

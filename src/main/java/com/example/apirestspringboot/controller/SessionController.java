@@ -44,7 +44,7 @@ public class SessionController {
                     content = @Content(mediaType = "application/json",
                             schema = @Schema(example = "{\"error\": \"credentials invalid.\"}")))
     })
-    @PostMapping
+    @PostMapping(headers = "X-API-Version=2")
     public ResponseEntity<Map<String, String>> session(@RequestBody @Valid AuthUsersRecordDto dto) {
         var token = this.authenticateService.execute(dto);
         return ResponseEntity.ok(Map.of("token", token));

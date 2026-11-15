@@ -1,6 +1,7 @@
 package com.example.apirestspringboot.service;
 
 import com.example.apirestspringboot.dto.ProfileRecordDto;
+import com.example.apirestspringboot.dto.ProfileV2RecordDto;
 import com.example.apirestspringboot.entity.Profile;
 import com.example.apirestspringboot.exception.ProfileNotFoundException;
 import com.example.apirestspringboot.exception.UserNotFoundException;
@@ -21,6 +22,22 @@ public class ProfileService {
     public ProfileService(ProfileRepository profileRepository, UserRepository userRepository) {
         this.profileRepository = profileRepository;
         this.userRepository = userRepository;
+    }
+
+    @Transactional
+    public Profile create(ProfileV2RecordDto dto, UUID userId) {
+        var user = userRepository.findById(userId);
+        if (user.isEmpty()) {
+            throw new UserNotFoundException(userId);
+        }
+
+        var profile = new Profile();
+        profile.setName(dto.name());
+        profile.setPhone(dto.phone());
+        profile.setAddress(dto.address());
+        profile.setUser(user.get());
+
+        return this.profileRepository.save(profile);
     }
 
     @Transactional
