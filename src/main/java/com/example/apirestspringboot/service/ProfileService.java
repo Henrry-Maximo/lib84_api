@@ -108,6 +108,36 @@ public class ProfileService {
         return this.profileRepository.save(profile);
     }
 
+    // método da v2 para atualizar perfil do usuário autenticado
+    // extrai o userid do subject (payload) do JWT para identificar
+    @Transactional
+    public Profile update(UUID profileId, ProfileV2RecordDto dto, UUID userId) {
+        var profile = getById(profileId);
+
+        // verifica se id passado é igual ao id armazenado no payload do JWT (ambos devem ser do mesmo usuário, se não...)
+        if (!profile.getUser().getId().equals(userId)) {
+            throw new IllegalArgumentException("you are not allowed to update another user's profile.");
+        }
+
+        profile.setName(dto.name());
+        profile.setPhone(dto.phone());
+        profile.setAddress(dto.address());
+
+        return this.profileRepository.save(profile);
+    }
+
+    // método da v2 para o usuário deletar a própria conta
+    @Transactional
+    public void delete(UUID profileId, UUID userId) {
+        var profile = getById(profileId);
+
+        if (!profile.getUser().getId().equals(userId)) {
+            throw new IllegalArgumentException("you are not allowed to delete another user's profile.");
+        }
+
+        this.profileRepository.delete(profile);
+    }
+
     @Transactional
     public void delete(UUID id) {
         var profile = this.getById(id);
