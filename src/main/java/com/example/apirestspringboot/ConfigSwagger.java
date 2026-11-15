@@ -82,7 +82,7 @@ public class ConfigSwagger {
                     if (openApi.getPaths() != null) {
                         openApi.getPaths().forEach((path, item) ->
                             item.readOperations().forEach(op -> {
-                                if (op.getSecurity() == null && !path.equals("/session")) {
+                                if (op.getSecurity() == null) {
                                     op.addSecurityItem(new SecurityRequirement().addList(BEARER_SCHEME));
                                 }
                             })
