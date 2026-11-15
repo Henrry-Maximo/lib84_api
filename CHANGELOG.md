@@ -6,6 +6,45 @@ O formato é baseado em [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.
 
 ## [Unreleased]
 
+## [2.0.0] - 2026-11-15
+
+### Added
+
+- Adicionada infraestrutura de versionamento nativo via Spring Framework 7 (`configureApiVersioning`), substituindo o interceptor customizado anterior.
+- Adicionado suporte ao cabeçalho `X-API-Version` com versão padrão `1` quando o cabeçalho está ausente.
+- Adicionado atributo `version` nos mapeamentos dos controllers V2 (`@PostMapping(version = "2")`).
+- Adicionada autenticação JWT na V2: `POST /session` retorna token assinado com o `user_id` no subject.
+- Adicionado `SecurityFilter` para validação do token JWT e população do atributo `user_id` no request.
+- Adicionada chain de segurança V2 exigindo autenticação em todas as rotas, exceto infra e `/session`.
+- Adicionado `AuthenticationEntryPoint` retornando 401 com corpo JSON quando o token está ausente ou inválido.
+- Adicionado `POST /profiles` na V2 sem o campo `userId` no body — o ID do usuário é extraído do JWT.
+- Adicionado `ProfileV2RecordDto` sem o campo `userId`.
+- Adicionada documentação Swagger separada por versão usando `addOpenApiMethodFilter`, eliminando ambiguidade de paths entre V1 e V2.
+- Adicionado `addOperationCustomizer` para pré-preencher o header `X-API-Version` com o valor da versão no Swagger UI.
+- Adicionado esquema de segurança Bearer JWT no Swagger, aplicado automaticamente a todas as operações da V2.
+- Adicionado `AuthenticationEntryPoint` no grupo V2 do Swagger com resposta 401 documentada.
+- Adicionado exemplo de resposta 500 como objeto JSON tipado (`ObjectSchema`) em vez de string escapada.
+
+### Changed
+
+- Migrada a configuração de versionamento de interceptor customizado (`ApiVersionInterceptor`) para o mecanismo nativo do Spring Framework 7.
+- Atualizado `ConfigSwagger` para usar `addOpenApiMethodFilter` e `addOperationCustomizer` por grupo, removendo a reflexão manual sobre `RequestMappingHandlerMapping`.
+- Simplificado `SecurityConfig` para duas chains ordenadas: V2 (autenticada) e V1 (pública).
+- Atualizado `SessionController` para usar `@PostMapping(version = "2")` em vez de `headers = "X-API-Version=2"`.
+- Atualizado `ProfileV2Controller` para usar `@PostMapping(version = "2")` em vez de `headers = "X-API-Version=2"` e `@ApiVersion(2)`.
+
+### Removed
+
+- Removida a anotação customizada `@ApiVersion`.
+- Removido o `ApiVersionInterceptor`.
+- Removida a propriedade `spring.mvc.pathmatch.use-suffix-pattern=true` do `application.properties`, incompatível com Spring Boot 4.
+
+### Fixed
+
+- Corrigido bug intermitente no Swagger onde `GET /profiles` aparecia no grupo V2 e o `POST /profiles` exibia o DTO errado (com `userId`), causado por ambiguidade de paths entre controllers de versões diferentes.
+- Corrigido retorno 403 ao acessar rotas V2 sem token, que agora retorna 401 com corpo JSON.
+- Corrigido exemplo da resposta 500 no Swagger, que era exibido como string escapada em vez de objeto JSON.
+
 ## [1.0.0] - 2026-11-13
 
 ### Added
