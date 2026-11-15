@@ -1,6 +1,6 @@
-package com.example.apirestspringboot.controller;
+package com.example.apirestspringboot.controller.v2;
 
-import com.example.apirestspringboot.dto.AuthUsersRecordDto;
+import com.example.apirestspringboot.dto.v2.AuthUsersRecordDto;
 import com.example.apirestspringboot.service.AuthenticateService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -20,12 +20,12 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/session")
-@Tag(name = "Session", description = "Authentication endpoint. Returns a JWT token on valid credentials.")
-public class SessionController {
+@Tag(name = "Session", description = "Authentication endpoint. Returns a JWT token on valid credentials - version 2 (send API-Version: 2).")
+public class SessionV2Controller {
 
     private final AuthenticateService authenticateService;
 
-    public SessionController(AuthenticateService authenticateService) {
+    public SessionV2Controller(AuthenticateService authenticateService) {
         this.authenticateService = authenticateService;
     }
 

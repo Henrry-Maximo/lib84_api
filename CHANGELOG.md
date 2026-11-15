@@ -27,7 +27,7 @@ O formato é baseado em [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.
 
 - Atualizado `ConfigSwagger` para usar `addOpenApiMethodFilter` e `addOperationCustomizer` por grupo, removendo a reflexão manual sobre `RequestMappingHandlerMapping`.
 - Simplificado `SecurityConfig` para duas chains ordenadas: V2 (autenticada) e V1 (pública).
-- Atualizado `SessionController` para usar `@PostMapping(version = "2")` em vez de `headers = "X-API-Version=2"`.
+- Atualizado `SessionV2Controller` para usar `@PostMapping(version = "2")` em vez de `headers = "X-API-Version=2"`.
 - Atualizado `ProfileV2Controller` para usar `@PostMapping(version = "2")` em vez de `headers = "X-API-Version=2"` e `@ApiVersion(2)`.
 - Atualizado localização de Controllers/DTO da versão 2 para pasta denominada "v3", mais legibilidade em
 manutenção posteriores.

@@ -2,11 +2,8 @@ package com.example.apirestspringboot.service;
 
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
-import com.example.apirestspringboot.dto.AuthUsersRecordDto;
-import com.example.apirestspringboot.entity.User;
+import com.example.apirestspringboot.dto.v2.AuthUsersRecordDto;
 import com.example.apirestspringboot.exception.UserSessionCredentilsInvalidException;
-import com.example.apirestspringboot.repository.AuthorRepository;
-import com.example.apirestspringboot.repository.BookRepository;
 import com.example.apirestspringboot.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -14,8 +11,6 @@ import org.springframework.stereotype.Service;
 
 import java.time.Duration;
 import java.time.Instant;
-import java.util.Optional;
-import java.util.UUID;
 
 @Service
 public class AuthenticateService {

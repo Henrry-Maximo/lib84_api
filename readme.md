@@ -31,12 +31,6 @@
 - Java 17 ou superior
 - Maven 3.9+ (ou use o wrapper `mvnw` incluído no projeto)
 
-Confira a versão do Java:
-
-```bash
-java -version
-```
-
 ### Executando
 
 ```bash
@@ -50,14 +44,12 @@ mvn spring-boot:run
 mvnw.cmd spring-boot:run      # Windows
 ```
 
-A API sobe em `http://localhost:8080`.
+- A API sobe em `http://localhost:8080`.
 
 ### Documentação e ferramentas
 
-| Recurso | URL |
-|---|---|
-| Swagger UI | http://localhost:8080/swagger-ui/index.html |
-| OpenAPI (JSON) | http://localhost:8080/api-docs |
+- Swagger UI: http://localhost:8080/swagger-ui/index.html
+- OpenAPI (JSON): http://localhost:8080/api-docs
 
 ### Testando rapidamente
 
@@ -73,6 +65,7 @@ curl -H "X-API-Version: 99" "http://localhost:8080/books"
 ```
 
 > O banco é o **H2 em memória**: os dados são recriados a cada vez que a aplicação reinicia.
+> Alternativa: há o docker configurado, basta utilizar o comando: 'docker compose d -up', alterar valores em 'application.properties' para funcionar.
 
 ## Conceitos
 
@@ -80,6 +73,13 @@ curl -H "X-API-Version: 99" "http://localhost:8080/books"
 - REST;
 - Validação de dados;
 - Documentação API com Swagger;
+- Personalização do Swagger;
+- Paginação de consultas;
+- Autenticação via JWT;
+- Versionamento de API (versão 1/2);
+- Implementação do Hateaos HAL;
+- Ordenação e tratamento de erros global;
+- Docker (ambiente virtualizado);
 
 ## Solicitado
 
@@ -117,7 +117,7 @@ curl -H "X-API-Version: 99" "http://localhost:8080/books"
 - [x] Configurar o banco de dados H2 para persistência de dados
 - [x] Utilizar Spring Data JPA para ORM
 
-### Correções da V1 (a V1 continua disponível)
+### Correções da V1
 
 - [x] Personalizar o visual do Swagger (CSS, logo, rota `/docs`)
 - [x] Termos de serviço da API via rota `GET /terms`
@@ -130,9 +130,9 @@ curl -H "X-API-Version: 99" "http://localhost:8080/books"
 - [x] Adicionar exemplos de conteúdo (request) nos endpoints
 - [x] Adicionar exemplos de resposta (response) nos endpoints
 
-### Versionamento (V1 e V2 coexistindo)
+### Implementações da V2 (V1/V2 coexistindo)
 
-O versionamento é realizado pelo header HTTP `X-API-Version`.
+Obs.: o versionamento é realizado pelo header HTTP `X-API-Version`.
 
 | Header | Comportamento |
 |---|---|
@@ -145,26 +145,19 @@ O versionamento é realizado pelo header HTTP `X-API-Version`.
 - [x] Manter a V1 funcionando sem alteração de contrato
 - [x] Infraestrutura de versionamento implementada (`ApiVersionInterceptor`, `@ApiVersion`)
 - [x] Documentar as duas versões no Swagger (dois grupos de documentação)
+- [x] Autenticação com chave de API (header `X-API-Key`; 401 se ausente ou inválida)
+- [x] CORS (Cross-Origin Resource Sharing): definir origens, métodos e headers permitidos
+- [x] Criar `CHANGELOG.md` com as modificações (V1 corrigida e V2)
+- [x] Atualizar o README: checklist, roadmap, como rodar e links da documentação
 - [ ] Criar endpoints de negócio da V2
 - [ ] Adotar versionamento semântico `MAJOR.MINOR.PATCH`
   - MAJOR: mudança que quebra compatibilidade
   - MINOR: novas funcionalidades
   - PATCH: correção de bug
-
-### V2: segurança e controle de acesso
-
-- [ ] Autenticação com chave de API (header `X-API-Key`; 401 se ausente ou inválida)
-- [ ] CORS (Cross-Origin Resource Sharing): definir origens, métodos e headers permitidos
-
-### V2: rate limiting
-
 - [ ] Implementar rate limit com algoritmo **token bucket**
 - [ ] Limitar por IP, por header e por chave de API (limites diferentes por contexto)
 - [ ] Responder `429 Too Many Requests` com `Retry-After`
 - [ ] Expor headers informativos (limite, restante, reset)
-
-### V2: idempotência
-
 - [ ] Header `Idempotency-Key` nas operações que não são idempotentes por natureza (POST e, se necessário, PATCH)
 - [ ] Vincular a chave ao conteúdo do JSON (hash do corpo); mesma chave com corpo diferente → `422`
 - [ ] Mesma chave com o mesmo corpo → devolver a resposta já gravada, sem duplicar o registro
@@ -172,10 +165,6 @@ O versionamento é realizado pelo header HTTP `X-API-Version`.
 - [ ] Documentar a idempotência dos métodos HTTP: GET, PUT e DELETE já são idempotentes; POST e PATCH precisam da chave
 - [ ] Endpoint de demonstração de idempotência (o seu "GET idempotent")
 
-### Entrega
-
-- [x] Criar `CHANGELOG.md` com as modificações (V1 corrigida e V2)
-- [x] Atualizar o README: checklist, roadmap, como rodar e links da documentação
 
 ## Documentação de Negócio
 
@@ -194,8 +183,8 @@ O versionamento é realizado pelo header HTTP `X-API-Version`.
 ### Requisitos Funcionais (RF)
 
 - [x] O usuário deve poder se cadastrar;
-- [ ] O usuário deve poder se logar;
-- [ ] O usuário deve poder resetar a senha;
+- [x] O usuário deve poder se logar;
+- [x] O usuário deve poder resetar a senha;
 - [x] O usuário deve poder realizar um empréstimo;
 - [x] O usuário deve poder visualizar todos os livros;
 - [x] O usuário deve poder visualizar suas informações de perfil;
@@ -227,7 +216,7 @@ O versionamento é realizado pelo header HTTP `X-API-Version`.
 - [x] O sistema deve possuir tratamento centralizado de erros;
 - [x] O administrador não pode visualizar senhas dos usuários.
 - [x] Todas as rotas precisam estar documentadas utilizando o swagger;
-- [ ] O usuário deve ser identificado por um JWT (JSON Web Token) entre as requisições;
+- [x] O usuário deve ser identificado por um JWT (JSON Web Token) entre as requisições;
 - [ ] O sistema deve ter rate limiting;
 - [ ] O sistema deve implementar refresh token para renovação de autenticação;
 - [ ] Invalidar o JWT ao deletar a conta do usuário.
@@ -238,10 +227,9 @@ O versionamento é realizado pelo header HTTP `X-API-Version`.
 - [x] Os usuários, por padrão, recebem o cargo (permissão) de "membro";
 - [x] O administrador pode visualizar todos os usuários;
 - [x] O administrador não deve poder cadastrar categorias com o mesmo título;
-- [ ] O administrador não deve poder cadastrar mais que 15 categorias;
-- [ ] O token de reset de senha deve expirar em 15 minutos e só pode ser usado uma vez;
+- [x] O token de reset de senha deve expirar em 2 horas e só pode ser usado uma vez;
+- [x] O usuário não deve poder solicitar empréstimo para outro usuário;
 - [ ] O usuário que solicitou renovação de senha não pode cadastrar a mesma senha novamente;
-- [ ] O usuário não deve poder solicitar empréstimo para outro usuário;
 - [ ] O usuário só pode visualizar os próprios empréstimos;
 - [ ] O administrador não deve poder atualizar o livro com a mesma categoria já em uso pelo próprio livro;
 - [ ] O usuário não deve poder visualizar empréstimos de outros usuários;
