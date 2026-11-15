@@ -12,6 +12,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.time.Duration;
+import java.time.Instant;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -43,8 +45,12 @@ public class AuthenticateService {
         }
 
         Algorithm algorithm = Algorithm.HMAC256(this.secretKey);
-        // gerar o token após validações de email/password
-        var token = JWT.create().withIssuer("lib84").withSubject(user.get().getId().toString()).sign(algorithm);
+        // gerar o token após validações de email/password (2 horas até expirar)
+        var token = JWT.create()
+                .withIssuer("lib84")
+                .withExpiresAt(Instant.now().plus(Duration.ofHours(2)))
+                .withSubject(user.get().getId().toString()).sign(algorithm);
+
         return token;
     }
 }
