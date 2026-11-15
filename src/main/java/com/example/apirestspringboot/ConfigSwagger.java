@@ -25,6 +25,35 @@ public class ConfigSwagger {
 
     private static final String BEARER_SCHEME = "bearerAuth";
 
+    private static final String INTERNAL_ERROR_EXAMPLE = """
+            {
+                "timestamp": "2025-01-01T00:00:00Z",
+                "status": 500,
+                "error": "Internal Server Error",
+                "message": "an unexpected error occurred. Please try again later.",
+                "path": "/authors"
+            }
+            """;
+
+    private void add500ToAllOperations(OpenAPI openApi) {
+        if (openApi.getPaths() == null) return;
+        var schema = new io.swagger.v3.oas.models.media.Schema<>();
+        schema.example(INTERNAL_ERROR_EXAMPLE);
+        var mediaType = new io.swagger.v3.oas.models.media.MediaType().schema(schema);
+        var content = new io.swagger.v3.oas.models.media.Content()
+                .addMediaType("application/json", mediaType);
+        var response = new io.swagger.v3.oas.models.responses.ApiResponse()
+                .description("Unexpected internal server error")
+                .content(content);
+        openApi.getPaths().values().forEach(item ->
+                item.readOperations().forEach(op -> {
+                    if (op.getResponses() != null && !op.getResponses().containsKey("500")) {
+                        op.getResponses().addApiResponse("500", response);
+                    }
+                })
+        );
+    }
+
     private OpenApiCustomizer versionFilter(RequestMappingHandlerMapping mapping, int version) {
         return openApi -> {
             Set<String> includedPaths = mapping.getHandlerMethods().entrySet().stream()
@@ -67,6 +96,8 @@ public class ConfigSwagger {
                 .addOpenApiCustomizer(openApi -> {
                     openApi.getComponents().setSecuritySchemes(null);
                     openApi.setSecurity(null);
+                    openApi.getInfo().setVersion("1.0.0");
+                    add500ToAllOperations(openApi);
                 })
                 .build();
     }
@@ -79,6 +110,8 @@ public class ConfigSwagger {
                 .pathsToMatch("/**")
                 .addOpenApiCustomizer(versionFilter(requestMappingHandlerMapping, 2))
                 .addOpenApiCustomizer(openApi -> {
+                    openApi.getInfo().setVersion("2.0.0");
+                    add500ToAllOperations(openApi);
                     if (openApi.getPaths() != null) {
                         openApi.getPaths().forEach((path, item) ->
                             item.readOperations().forEach(op -> {
