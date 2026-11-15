@@ -1,7 +1,9 @@
 package com.example.apirestspringboot.advice;
 
 import com.example.apirestspringboot.dto.ErrorResponse;
+import com.example.apirestspringboot.dto.InternalErrorResponse;
 import com.example.apirestspringboot.exception.*;
+import jakarta.servlet.http.HttpServletRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -13,6 +15,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
@@ -197,9 +200,15 @@ public class GlobalExceptionAdvice {
 
     @ExceptionHandler(Exception.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-    ErrorResponse genericHandler(Exception ex) {
+    InternalErrorResponse genericHandler(Exception ex, HttpServletRequest request) {
         log.error("Unexpected error", ex);
-        return new ErrorResponse("an unexpected error occurred. Please try again later.");
+        return new InternalErrorResponse(
+                Instant.now(),
+                HttpStatus.INTERNAL_SERVER_ERROR.value(),
+                HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase(),
+                "an unexpected error occurred. Please try again later.",
+                request.getRequestURI()
+        );
     }
 
     // captura falhas de validação em parâmetros dos métodos
