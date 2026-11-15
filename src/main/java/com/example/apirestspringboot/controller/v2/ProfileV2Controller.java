@@ -1,7 +1,7 @@
-package com.example.apirestspringboot.controller;
+package com.example.apirestspringboot.controller.v2;
 
 import com.example.apirestspringboot.assembler.ProfileModelAssembler;
-import com.example.apirestspringboot.dto.ProfileV2RecordDto;
+import com.example.apirestspringboot.dto.v2.ProfileV2RecordDto;
 import com.example.apirestspringboot.entity.Profile;
 import com.example.apirestspringboot.service.ProfileService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -25,7 +25,7 @@ import java.util.UUID;
 
 @RestController
 @RequestMapping("/profiles")
-@Tag(name = "Profiles", description = "Profile for registar informations about user.")
+@Tag(name = "Profiles-v2", description = "Profile management, featuring options such as listing, searching, creating, updating, and deleting - version 2 (send API-Version: 2).")
 public class ProfileV2Controller {
 
     private final ProfileService profileService;
@@ -36,7 +36,7 @@ public class ProfileV2Controller {
         this.assembler = assembler;
     }
 
-    @Operation(summary = "Create a profile for the authenticated user")
+    @Operation(summary = "Create a profile for the authenticated user (v2)")
     @ApiResponses({
             @ApiResponse(responseCode = "201", description = "Profile created"),
             @ApiResponse(

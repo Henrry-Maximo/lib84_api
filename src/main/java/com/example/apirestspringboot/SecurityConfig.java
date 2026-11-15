@@ -21,6 +21,7 @@ public class SecurityConfig {
         this.securityFilter = securityFilter;
     }
 
+    // rotas que não devem estar bloqueadas
     private static final String[] PUBLIC_INFRA = {
         "/docs", "/docs.html",
         "/swagger-ui/**", "/swagger-ui.html",
@@ -30,6 +31,7 @@ public class SecurityConfig {
         "/", "/*.css", "/*.js", "/*.png", "/*.webp", "/*.gif", "/*.mp4"
     };
 
+    // manipulação da estrutura http (request) para bloquear rotas checando autenticação na v2
     @Bean
     @Order(1)
     SecurityFilterChain v2FilterChain(HttpSecurity http) throws Exception {

@@ -1,7 +1,7 @@
 package com.example.apirestspringboot.service;
 
 import com.example.apirestspringboot.dto.ProfileRecordDto;
-import com.example.apirestspringboot.dto.ProfileV2RecordDto;
+import com.example.apirestspringboot.dto.v2.ProfileV2RecordDto;
 import com.example.apirestspringboot.entity.Profile;
 import com.example.apirestspringboot.exception.ProfileNotFoundException;
 import com.example.apirestspringboot.exception.UserNotFoundException;
