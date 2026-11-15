@@ -64,6 +64,10 @@ public class ConfigSwagger {
                 .displayName("V1 - Stable")
                 .pathsToMatch("/**")
                 .addOpenApiCustomizer(versionFilter(requestMappingHandlerMapping, 1))
+                .addOpenApiCustomizer(openApi -> {
+                    openApi.getComponents().setSecuritySchemes(null);
+                    openApi.setSecurity(null);
+                })
                 .build();
     }
 
@@ -74,13 +78,23 @@ public class ConfigSwagger {
                 .displayName("V2 - In Development")
                 .pathsToMatch("/**")
                 .addOpenApiCustomizer(versionFilter(requestMappingHandlerMapping, 2))
+                .addOpenApiCustomizer(openApi -> {
+                    if (openApi.getPaths() != null) {
+                        openApi.getPaths().forEach((path, item) ->
+                            item.readOperations().forEach(op -> {
+                                if (op.getSecurity() == null && !path.equals("/session")) {
+                                    op.addSecurityItem(new SecurityRequirement().addList(BEARER_SCHEME));
+                                }
+                            })
+                        );
+                    }
+                })
                 .build();
     }
 
     @Bean
     public OpenAPI customOpenAPI(@Value("${springdoc.version}") String appVersion) {
         return new OpenAPI()
-                .addSecurityItem(new SecurityRequirement().addList(BEARER_SCHEME))
                 .components(new Components()
                         .addSecuritySchemes(BEARER_SCHEME, new SecurityScheme()
                                 .name(BEARER_SCHEME)

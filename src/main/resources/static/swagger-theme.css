@@ -460,6 +460,10 @@ body,
     font-family: 'JetBrains Mono', monospace !important;
 }
 
+.swagger-ui .authorization__btn {
+    color: greenyellow;
+}
+
 .swagger-ui .model-box-control + span,
 .swagger-ui .models-control,
 .swagger-ui .model-jump-to-path {
