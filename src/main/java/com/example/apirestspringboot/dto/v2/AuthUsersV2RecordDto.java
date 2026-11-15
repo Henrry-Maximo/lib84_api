@@ -6,7 +6,7 @@ import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 
-public record AuthUsersRecordDto(
+public record AuthUsersV2RecordDto(
         @Schema(example = "johndoe@example.com", description = "User email (must be unique)")
         @NotBlank(message = "email is required")
         @Email(message = "email must be a valid address")

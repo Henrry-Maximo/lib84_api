@@ -45,7 +45,7 @@ public class LoanController {
 
     @Operation(summary = "Get all loans")
     @ApiResponse(responseCode = "200", description = "Returned a paginated list of loans")
-    @GetMapping
+    @GetMapping(version = "1")
     public ResponseEntity<PagedModel<EntityModel<Loan>>> all(@ParameterObject @PageableDefault(size = 10, sort = "loanDate") Pageable pageable) {
         Page<Loan> loans = this.loanService.getAll(pageable);
 
@@ -70,7 +70,7 @@ public class LoanController {
                     )
             )
     })
-    @GetMapping("/{id}")
+    @GetMapping(path = "/{id}", version = "1")
     public ResponseEntity<EntityModel<Loan>> getById(
             @PathVariable
             @Schema(example = "3fa85f64-5717-4562-b3fc-2c963f66afa6")
@@ -97,7 +97,7 @@ public class LoanController {
                     )
             )
     })
-    @GetMapping("/user/{userId}")
+    @GetMapping(path = "/user/{userId}", version = "1")
     public ResponseEntity<CollectionModel<EntityModel<Loan>>> getByUser(
             @PathVariable
             @Schema(example = "3fa85f64-5717-4562-b3fc-2c963f66afa6")
@@ -176,7 +176,7 @@ public class LoanController {
                     )
             )
     })
-    @PostMapping
+    @PostMapping(version = "1")
     public ResponseEntity<EntityModel<Loan>> create(@RequestBody @Valid LoanRecordDto dto) {
         return ResponseEntity.status(HttpStatus.CREATED).body(assembler.toModel(loanService.create(dto)));
     }
@@ -256,7 +256,7 @@ public class LoanController {
                     )
             )
     })
-    @PutMapping("/{id}")
+    @PutMapping(path = "/{id}", version = "1")
     public ResponseEntity<EntityModel<Loan>> update(
             @RequestBody @Valid LoanRecordDto dto,
             @PathVariable
@@ -284,7 +284,7 @@ public class LoanController {
                     )
             )
     })
-    @DeleteMapping("/{id}")
+    @DeleteMapping(path = "/{id}", version = "1")
     public ResponseEntity<Void> delete(
             @PathVariable
             @Schema(example = "3fa85f64-5717-4562-b3fc-2c963f66afa6")

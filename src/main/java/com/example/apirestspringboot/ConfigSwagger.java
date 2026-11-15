@@ -23,6 +23,10 @@ public class ConfigSwagger {
 
     private static final String BEARER_SCHEME = "bearerAuth";
 
+    /**
+     * Injects a standard 500 response into every operation that does not already declare one.
+     * Centralizes the error contract so individual controllers don't need to repeat it.
+     */
     private void add500ToAllOperations(io.swagger.v3.oas.models.OpenAPI openApi) {
         if (openApi.getPaths() == null) return;
         var schema = new io.swagger.v3.oas.models.media.ObjectSchema()
@@ -46,26 +50,19 @@ public class ConfigSwagger {
         );
     }
 
-    private static GroupedOpenApi versionGroup(String version) {
-        return GroupedOpenApi.builder()
-                .group("v" + version)
-                .displayName("V" + version + (version.equals("1") ? " - Stable" : " - In Development"))
-                .pathsToMatch("/**")
-                .addOpenApiMethodFilter(method -> {
-                    RequestMapping mapping = AnnotatedElementUtils.findMergedAnnotation(method, RequestMapping.class);
-                    return mapping == null || mapping.version().isEmpty() || mapping.version().equals(version);
-                })
-                .addOperationCustomizer((operation, handlerMethod) -> {
-                    if (operation.getParameters() != null) {
-                        operation.getParameters().stream()
-                                .filter(p -> ApiVersionConfig.HEADER.equals(p.getName()))
-                                .forEach(p -> p.schema(new StringSchema()._default(version)._enum(List.of(version))));
-                    }
-                    return operation;
-                })
-                .build();
-    }
-
+    /**
+     * Swagger document for V1.
+     *
+     * addOpenApiMethodFilter: includes a handler method in this document when its @RequestMapping
+     * has no version attribute (shared across all versions) or version = "1" (V1-only).
+     *
+     * addOperationCustomizer: finds the X-API-Version header parameter that Spring MVC exposes
+     * automatically and locks its value to "1", so the Swagger UI pre-fills it and prevents
+     * the user from typing a different version while browsing the V1 document.
+     *
+     * addOpenApiCustomizer: strips the Bearer security scheme (V1 is public) and appends the
+     * standard 500 response to every operation.
+     */
     @Bean
     public GroupedOpenApi v1() {
         return GroupedOpenApi.builder()
@@ -93,6 +90,18 @@ public class ConfigSwagger {
                 .build();
     }
 
+    /**
+     * Swagger document for V2.
+     *
+     * addOpenApiMethodFilter: includes only handler methods explicitly annotated with version = "2".
+     * Unlike V1, methods without a version are excluded — V2 is built incrementally and only
+     * exposes what has been intentionally ported or created for this version.
+     *
+     * addOperationCustomizer: same header-locking strategy as V1, but pre-fills "2".
+     *
+     * addOpenApiCustomizer: appends the Bearer JWT security requirement to every operation
+     * (all V2 routes require authentication) and adds the standard 500 response.
+     */
     @Bean
     public GroupedOpenApi v2() {
         return GroupedOpenApi.builder()
@@ -101,7 +110,7 @@ public class ConfigSwagger {
                 .pathsToMatch("/**")
                 .addOpenApiMethodFilter(method -> {
                     RequestMapping mapping = AnnotatedElementUtils.findMergedAnnotation(method, RequestMapping.class);
-                    return mapping == null || mapping.version().isEmpty() || mapping.version().equals("2");
+                    return mapping != null && mapping.version().equals("2");
                 })
                 .addOperationCustomizer((operation, handlerMethod) -> {
                     if (operation.getParameters() != null) {

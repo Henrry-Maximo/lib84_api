@@ -45,7 +45,7 @@ public class AuthorController {
 
     @Operation(summary = "Get all authors")
     @ApiResponse(responseCode = "200", description = "Returned a paginated list of authors")
-    @GetMapping
+    @GetMapping(version = "1")
     public ResponseEntity<PagedModel<EntityModel<Author>>> all(@ParameterObject @PageableDefault(size = 10, sort = "name") Pageable pageable) {
         Page<Author> authors = this.authorService.getAll(pageable);
 
@@ -57,7 +57,7 @@ public class AuthorController {
             @ApiResponse(responseCode = "200", description = "Author found"),
             @ApiResponse(responseCode = "404", description = "Author not found", content = @Content(mediaType = "application/json", schema = @Schema(example = "{\"error\": \"could not find the author with ID: ...\"}")))
     })
-    @GetMapping("/{id}")
+    @GetMapping(path = "/{id}", version = "1")
     public ResponseEntity<EntityModel<Author>> getById(@PathVariable @Schema(example = "3fa85f64-5717-4562-b3fc-2c963f66afa6") UUID id) {
         return ResponseEntity.ok(assembler.toModel(this.authorService.getById(id)));
     }
@@ -100,7 +100,7 @@ public class AuthorController {
                     )
             )
     })
-    @GetMapping("/search")
+    @GetMapping(path = "/search", version = "1")
     public ResponseEntity<EntityModel<Author>> getByName(
             @RequestParam(name = "name")
             @NotBlank(message = "name must not be blank")
@@ -147,7 +147,7 @@ public class AuthorController {
             ),
             @ApiResponse(responseCode = "409", description = "Author already exists.", content = @Content(mediaType = "application/json", schema = @Schema(example = "{\"error\": \"author 'george orwell' already exists.\"}")))
     })
-    @PostMapping
+    @PostMapping(version = "1")
     public ResponseEntity<EntityModel<Author>> create(@RequestBody @Valid AuthorRecordDto dto) {
         return ResponseEntity.status(HttpStatus.CREATED).body(assembler.toModel(authorService.create(dto)));
     }
@@ -217,7 +217,7 @@ public class AuthorController {
                     )
             )
     })
-    @PutMapping("/{id}")
+    @PutMapping(path = "/{id}", version = "1")
     public ResponseEntity<EntityModel<Author>> update(
             @RequestBody @Valid AuthorRecordDto dto,
             @PathVariable
@@ -264,7 +264,7 @@ public class AuthorController {
                     )
             )
     })
-    @DeleteMapping("/{id}")
+    @DeleteMapping(path = "/{id}", version = "1")
     public ResponseEntity<Void> delete(
             @PathVariable
             @Schema(example = "3fa85f64-5717-4562-b3fc-2c963f66afa6")

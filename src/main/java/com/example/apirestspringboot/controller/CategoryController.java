@@ -45,7 +45,7 @@ public class CategoryController {
 
     @Operation(summary = "Get all categories")
     @ApiResponse(responseCode = "200", description = "Returned a paginated list of categories")
-    @GetMapping
+    @GetMapping(version = "1")
     public ResponseEntity<PagedModel<EntityModel<Category>>> all(@ParameterObject @PageableDefault(size = 10, sort = "title") Pageable pageable) {
         Page<Category> categories = this.categoryService.getAll(pageable);
 
@@ -70,7 +70,7 @@ public class CategoryController {
                     )
             )
     })
-    @GetMapping("/{id}")
+    @GetMapping(path = "/{id}", version = "1")
     public ResponseEntity<EntityModel<Category>> getById(
             @PathVariable
             @Schema(example = "3fa85f64-5717-4562-b3fc-2c963f66afa6")
@@ -114,7 +114,7 @@ public class CategoryController {
                     )
             )
     })
-    @GetMapping("/search")
+    @GetMapping(path = "/search", version = "1")
     public ResponseEntity<EntityModel<Category>> getByTitle(
             @RequestParam(name = "title")
             @NotBlank(message = "title must not be blank")
@@ -171,7 +171,7 @@ public class CategoryController {
                     )
             )
     })
-    @PostMapping
+    @PostMapping(version = "1")
     public ResponseEntity<EntityModel<Category>> create(@RequestBody @Valid CategoryRecordDto dto) {
         return ResponseEntity.status(HttpStatus.CREATED).body(assembler.toModel(categoryService.create(dto)));
     }
@@ -237,7 +237,7 @@ public class CategoryController {
                     )
             )
     })
-    @PutMapping("/{id}")
+    @PutMapping(path = "/{id}", version = "1")
     public ResponseEntity<EntityModel<Category>> update(
             @RequestBody @Valid CategoryRecordDto dto,
             @PathVariable
@@ -265,7 +265,7 @@ public class CategoryController {
                     )
             )
     })
-    @DeleteMapping("/{id}")
+    @DeleteMapping(path = "/{id}", version = "1")
     public ResponseEntity<Void> delete(
             @PathVariable
             @Schema(example = "3fa85f64-5717-4562-b3fc-2c963f66afa6")

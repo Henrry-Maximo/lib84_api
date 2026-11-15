@@ -46,7 +46,7 @@ public class SupplierController {
 
     @Operation(summary = "Get all suppliers")
     @ApiResponse(responseCode = "200", description = "Returned a paginated list of suppliers")
-    @GetMapping
+    @GetMapping(version = "1")
     public ResponseEntity<PagedModel<EntityModel<Supplier>>> all(@ParameterObject @PageableDefault(size = 10, sort = "name") Pageable pageable) {
         Page<Supplier> suppliers = this.supplierService.getAll(pageable);
 
@@ -71,7 +71,7 @@ public class SupplierController {
                     )
             )
     })
-    @GetMapping("/{id}")
+    @GetMapping(path = "/{id}", version = "1")
     public ResponseEntity<EntityModel<Supplier>> getById(
             @PathVariable
             @Schema(example = "3fa85f64-5717-4562-b3fc-2c963f66afa6")
@@ -115,7 +115,7 @@ public class SupplierController {
                     )
             )
     })
-    @GetMapping("/search")
+    @GetMapping(path = "/search", version = "1")
     public ResponseEntity<EntityModel<Supplier>> getByName(
             @RequestParam(name = "name")
             @NotBlank(message = "name must not be blank")
@@ -161,7 +161,7 @@ public class SupplierController {
                     )
             )
     })
-    @PostMapping
+    @PostMapping(version = "1")
     public ResponseEntity<EntityModel<Supplier>> create(@RequestBody @Valid SupplierRecordDto dto) {
         return ResponseEntity.status(HttpStatus.CREATED).body(assembler.toModel(supplierService.create(dto)));
     }
@@ -216,7 +216,7 @@ public class SupplierController {
                     )
             )
     })
-    @PutMapping("/{id}")
+    @PutMapping(path = "/{id}", version = "1")
     public ResponseEntity<EntityModel<Supplier>> update(
             @RequestBody @Valid SupplierRecordDto dto,
             @PathVariable
@@ -244,7 +244,7 @@ public class SupplierController {
                     )
             )
     })
-    @DeleteMapping("/{id}")
+    @DeleteMapping(path = "/{id}", version = "1")
     public ResponseEntity<Void> delete(
             @PathVariable
             @Schema(example = "3fa85f64-5717-4562-b3fc-2c963f66afa6")

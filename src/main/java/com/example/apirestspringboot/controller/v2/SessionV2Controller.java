@@ -1,6 +1,6 @@
 package com.example.apirestspringboot.controller.v2;
 
-import com.example.apirestspringboot.dto.v2.AuthUsersRecordDto;
+import com.example.apirestspringboot.dto.v2.AuthUsersV2RecordDto;
 import com.example.apirestspringboot.service.AuthenticateService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -20,7 +20,7 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/session")
-@Tag(name = "Session", description = "Authentication endpoint. Returns a JWT token on valid credentials - version 2 (send API-Version: 2).")
+@Tag(name = "Session-v2", description = "Authentication endpoint. Returns a JWT token on valid credentials - version 2 (send API-Version: 2).")
 public class SessionV2Controller {
 
     private final AuthenticateService authenticateService;
@@ -30,7 +30,7 @@ public class SessionV2Controller {
     }
 
     @SecurityRequirements({})
-    @Operation(summary = "Authenticate and obtain a JWT token")
+    @Operation(summary = "Authenticate and obtain a JWT token (v2)")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Authentication successful",
                     content = @Content(mediaType = "application/json",
@@ -43,7 +43,7 @@ public class SessionV2Controller {
                             schema = @Schema(example = "{\"error\": \"credentials invalid.\"}")))
     })
     @PostMapping(version = "2")
-    public ResponseEntity<Map<String, String>> session(@RequestBody @Valid AuthUsersRecordDto dto) {
+    public ResponseEntity<Map<String, String>> session(@RequestBody @Valid AuthUsersV2RecordDto dto) {
         var token = this.authenticateService.execute(dto);
         return ResponseEntity.ok(Map.of("token", token));
     }

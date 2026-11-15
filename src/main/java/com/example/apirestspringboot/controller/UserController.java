@@ -48,7 +48,7 @@ public class UserController {
 
     @Operation(summary = "Get all users")
     @ApiResponse(responseCode = "200", description = "Returned a paginated list of all users")
-    @GetMapping
+    @GetMapping(version = "1")
     public ResponseEntity<PagedModel<EntityModel<User>>> all(@ParameterObject @PageableDefault(size = 10, sort = "email") Pageable pageable) {
         Page<User> users = this.userService.getAll(pageable);
 
@@ -73,7 +73,7 @@ public class UserController {
                     )
             )
     })
-    @GetMapping("/{id}")
+    @GetMapping(path = "/{id}", version = "1")
     public ResponseEntity<EntityModel<User>> getById(
             @PathVariable
             @Schema(example = "3fa85f64-5717-4562-b3fc-2c963f66afa6")
@@ -117,7 +117,7 @@ public class UserController {
                     )
             )
     })
-    @GetMapping("/search")
+    @GetMapping(path = "/search", version = "1")
     public ResponseEntity<EntityModel<User>> getByEmail(
             @RequestParam(name = "email")
             @NotBlank(message = "email must not be blank")
@@ -178,7 +178,7 @@ public class UserController {
                     )
             )
     })
-    @PostMapping
+    @PostMapping(version = "1")
     public ResponseEntity<EntityModel<User>> create(@RequestBody @Valid UserRecordDto dto) {
         return ResponseEntity.status(HttpStatus.CREATED).body(assembler.toModel(userService.create(dto)));
     }
@@ -233,7 +233,7 @@ public class UserController {
                     )
             )
     })
-    @PutMapping("/{id}")
+    @PutMapping(path = "/{id}", version = "1")
     public ResponseEntity<EntityModel<User>> update(
             @RequestBody @Valid UserRecordDto dto,
             @PathVariable
@@ -261,7 +261,7 @@ public class UserController {
                     )
             )
     })
-    @PatchMapping("/{id}")
+    @PatchMapping(path = "/{id}", version = "1")
     public ResponseEntity<EntityModel<User>> updateSameFields(
             @RequestBody @Valid UserPatchDto dto,
             @PathVariable
@@ -289,7 +289,7 @@ public class UserController {
                     )
             )
     })
-    @DeleteMapping("/{id}")
+    @DeleteMapping(path = "/{id}", version = "1")
     public ResponseEntity<Void> delete(
             @PathVariable
             @Schema(example = "3fa85f64-5717-4562-b3fc-2c963f66afa6")
