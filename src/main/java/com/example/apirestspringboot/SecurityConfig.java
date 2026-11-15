@@ -1,5 +1,6 @@
 package com.example.apirestspringboot;
 
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
@@ -29,37 +30,11 @@ public class SecurityConfig {
         "/", "/*.css", "/*.js", "/*.png", "/*.webp", "/*.gif", "/*.mp4"
     };
 
-    /**
-     * V1 chain — matches requests without X-API-Version header or with value "1".
-     * All V1 traffic is fully permitted; Spring Security does not authenticate it.
-     */
     @Bean
     @Order(1)
-    SecurityFilterChain v1FilterChain(HttpSecurity http) throws Exception {
-        http
-            .securityMatcher(request -> {
-                String version = request.getHeader("X-API-Version");
-                return version == null || version.isBlank() || version.trim().equals("1");
-            })
-            .csrf(AbstractHttpConfigurer::disable)
-            .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-            .httpBasic(AbstractHttpConfigurer::disable)
-            .formLogin(AbstractHttpConfigurer::disable)
-            .authorizeHttpRequests(auth -> auth.anyRequest().permitAll());
-        return http.build();
-    }
-
-    /**
-     * V2 chain — matches all remaining requests (X-API-Version: 2).
-     * Requires authentication except for the session endpoint and infra paths.
-     * Security response headers are kept intentionally: cache-control and related
-     * headers protect authenticated responses, and X-RateLimit-* headers will be
-     * added here when rate limiting is implemented.
-     */
-    @Bean
-    @Order(2)
     SecurityFilterChain v2FilterChain(HttpSecurity http) throws Exception {
         http
+            .securityMatcher(request -> "2".equals(request.getHeader("X-API-Version")))
             .csrf(AbstractHttpConfigurer::disable)
             .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .httpBasic(AbstractHttpConfigurer::disable)
@@ -69,7 +44,26 @@ public class SecurityConfig {
                 .requestMatchers("/session").permitAll()
                 .anyRequest().authenticated()
             )
-            .addFilterBefore(this.securityFilter, BasicAuthenticationFilter.class);
+            .exceptionHandling(ex -> ex
+                .authenticationEntryPoint((request, response, authException) -> {
+                    response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                    response.setContentType("application/json");
+                    response.getWriter().write("{\"error\":\"authentication required.\"}" );
+                })
+            )
+            .addFilterBefore(securityFilter, BasicAuthenticationFilter.class);
+        return http.build();
+    }
+
+    @Bean
+    @Order(2)
+    SecurityFilterChain v1FilterChain(HttpSecurity http) throws Exception {
+        http
+            .csrf(AbstractHttpConfigurer::disable)
+            .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+            .httpBasic(AbstractHttpConfigurer::disable)
+            .formLogin(AbstractHttpConfigurer::disable)
+            .authorizeHttpRequests(auth -> auth.anyRequest().permitAll());
         return http.build();
     }
 
