@@ -149,7 +149,7 @@ Obs.: o versionamento é realizado pelo header HTTP `X-API-Version`.
 - [x] CORS (Cross-Origin Resource Sharing): definir origens, métodos e headers permitidos
 - [x] Criar `CHANGELOG.md` com as modificações (V1 corrigida e V2)
 - [x] Atualizar o README: checklist, roadmap, como rodar e links da documentação
-- [ ] Criar endpoints de negócio da V2
+- [x] Criar endpoints de negócio da V2
 - [ ] Adotar versionamento semântico `MAJOR.MINOR.PATCH`
   - MAJOR: mudança que quebra compatibilidade
   - MINOR: novas funcionalidades
