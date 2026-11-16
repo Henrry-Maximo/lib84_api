@@ -16,7 +16,6 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.AnnotatedElementUtils;
 import org.springframework.web.bind.annotation.RequestMapping;
 
-import java.util.List;
 
 @Configuration
 public class ConfigSwagger {
@@ -77,7 +76,7 @@ public class ConfigSwagger {
                     if (operation.getParameters() != null) {
                         operation.getParameters().stream()
                                 .filter(p -> ApiVersionConfig.HEADER.equals(p.getName()))
-                                .forEach(p -> p.schema(new StringSchema()._default("1")._enum(List.of("1"))));
+                                .forEach(p -> p.schema(new StringSchema()._default("1")));
                     }
                     return operation;
                 })
@@ -116,7 +115,7 @@ public class ConfigSwagger {
                     if (operation.getParameters() != null) {
                         operation.getParameters().stream()
                                 .filter(p -> ApiVersionConfig.HEADER.equals(p.getName()))
-                                .forEach(p -> p.schema(new StringSchema()._default("2")._enum(List.of("2"))));
+                                .forEach(p -> p.schema(new StringSchema()._default("2")));
                     }
                     return operation;
                 })

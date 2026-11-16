@@ -12,7 +12,10 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
 
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
+
 @Configuration
+@EnableMethodSecurity // ativar o PreAuthorize
 public class SecurityConfig {
 
     private final SecurityFilter securityFilter;
@@ -44,6 +47,7 @@ public class SecurityConfig {
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers(PUBLIC_INFRA).permitAll()
                 .requestMatchers("/session").permitAll()
+                .requestMatchers(org.springframework.http.HttpMethod.POST, "/users").permitAll()
                 .anyRequest().authenticated()
             )
             .exceptionHandling(ex -> ex
