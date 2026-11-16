@@ -45,7 +45,9 @@ public class LoanV2Controller {
     @Operation(summary = "Get all loans (v2)")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Returned a paginated list of loans"),
-            @ApiResponse(responseCode = "401", description = "Missing or invalid JWT token", content = @Content)
+            @ApiResponse(responseCode = "401", description = "Missing or invalid JWT token",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(example = "{\"error\": \"authentication required.\"}")))
     })
     @GetMapping(version = "2")
     public ResponseEntity<PagedModel<EntityModel<Loan>>> all(
@@ -56,7 +58,9 @@ public class LoanV2Controller {
     @Operation(summary = "Get a loan by ID (v2)")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Loan found"),
-            @ApiResponse(responseCode = "401", description = "Missing or invalid JWT token", content = @Content),
+            @ApiResponse(responseCode = "401", description = "Missing or invalid JWT token",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(example = "{\"error\": \"authentication required.\"}"))),
             @ApiResponse(responseCode = "404", description = "Loan not found",
                     content = @Content(mediaType = "application/json",
                             schema = @Schema(example = "{\"error\": \"could not find the loan with ID: 3fa85f64-5717-4562-b3fc-2c963f66afa6\"}")))
@@ -70,7 +74,9 @@ public class LoanV2Controller {
     @Operation(summary = "Get my loans (v2)", description = "Returns all loans belonging to the authenticated user.")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Returned loans for the authenticated user"),
-            @ApiResponse(responseCode = "401", description = "Missing or invalid JWT token", content = @Content)
+            @ApiResponse(responseCode = "401", description = "Missing or invalid JWT token",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(example = "{\"error\": \"authentication required.\"}")))
     })
     @GetMapping(path = "/me", version = "2")
     public ResponseEntity<CollectionModel<EntityModel<Loan>>> getMyLoans(HttpServletRequest request) {
@@ -83,7 +89,9 @@ public class LoanV2Controller {
             description = "The loan is automatically associated with the authenticated user. No userId needed in the body.")
     @ApiResponses({
             @ApiResponse(responseCode = "201", description = "Loan created"),
-            @ApiResponse(responseCode = "401", description = "Missing or invalid JWT token", content = @Content),
+            @ApiResponse(responseCode = "401", description = "Missing or invalid JWT token",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(example = "{\"error\": \"authentication required.\"}"))),
             @ApiResponse(responseCode = "400", description = "Invalid request body",
                     content = @Content(mediaType = "application/json",
                             examples = {
@@ -106,8 +114,12 @@ public class LoanV2Controller {
     @Operation(summary = "Delete a loan (v2)")
     @ApiResponses({
             @ApiResponse(responseCode = "204", description = "Loan deleted"),
-            @ApiResponse(responseCode = "401", description = "Missing or invalid JWT token", content = @Content),
-            @ApiResponse(responseCode = "403", description = "Admin role required", content = @Content),
+            @ApiResponse(responseCode = "401", description = "Missing or invalid JWT token",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(example = "{\"error\": \"authentication required.\"}"))),
+            @ApiResponse(responseCode = "403", description = "Admin role required",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(example = "{\"error\": \"access denied: admin role required.\"}"))),
             @ApiResponse(responseCode = "404", description = "Loan not found",
                     content = @Content(mediaType = "application/json",
                             schema = @Schema(example = "{\"error\": \"could not find the loan with ID: 3fa85f64-5717-4562-b3fc-2c963f66afa6\"}")))

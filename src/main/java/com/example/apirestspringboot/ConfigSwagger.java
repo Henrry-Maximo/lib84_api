@@ -76,7 +76,7 @@ public class ConfigSwagger {
                     if (operation.getParameters() != null) {
                         operation.getParameters().stream()
                                 .filter(p -> ApiVersionConfig.HEADER.equals(p.getName()))
-                                .forEach(p -> p.schema(new StringSchema()._default("1")));
+                                .forEach(p -> p.schema(new StringSchema()._enum(java.util.List.of("1"))._default("1")));
                     }
                     return operation;
                 })
@@ -115,7 +115,7 @@ public class ConfigSwagger {
                     if (operation.getParameters() != null) {
                         operation.getParameters().stream()
                                 .filter(p -> ApiVersionConfig.HEADER.equals(p.getName()))
-                                .forEach(p -> p.schema(new StringSchema()._default("2")));
+                                .forEach(p -> p.schema(new StringSchema()._enum(java.util.List.of("2"))._default("2")));
                     }
                     return operation;
                 })

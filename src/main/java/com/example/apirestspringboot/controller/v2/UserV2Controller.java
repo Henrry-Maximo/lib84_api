@@ -47,8 +47,12 @@ public class UserV2Controller {
     @Operation(summary = "Get all users (v2)")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Returned a paginated list of all users"),
-            @ApiResponse(responseCode = "401", description = "Missing or invalid JWT token", content = @Content),
-            @ApiResponse(responseCode = "403", description = "Admin role required", content = @Content)
+            @ApiResponse(responseCode = "401", description = "Missing or invalid JWT token",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(example = "{\"error\": \"authentication required.\"}"))),
+            @ApiResponse(responseCode = "403", description = "Admin role required",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(example = "{\"error\": \"access denied: admin role required.\"}")))
     })
     @PreAuthorize("hasRole('ADMIN')")
     @GetMapping(version = "2")
@@ -60,8 +64,12 @@ public class UserV2Controller {
     @Operation(summary = "Get a user by ID (v2)")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "User found"),
-            @ApiResponse(responseCode = "401", description = "Missing or invalid JWT token", content = @Content),
-            @ApiResponse(responseCode = "403", description = "Admin role required", content = @Content),
+            @ApiResponse(responseCode = "401", description = "Missing or invalid JWT token",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(example = "{\"error\": \"authentication required.\"}"))),
+            @ApiResponse(responseCode = "403", description = "Admin role required",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(example = "{\"error\": \"access denied: admin role required.\"}"))),
             @ApiResponse(responseCode = "404", description = "User not found",
                     content = @Content(mediaType = "application/json",
                             schema = @Schema(example = "{\"error\": \"could not find the user with ID: 3fa85f64-5717-4562-b3fc-2c963f66afa6\"}")))
@@ -76,8 +84,12 @@ public class UserV2Controller {
     @Operation(summary = "Search user by email (v2)")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "User found"),
-            @ApiResponse(responseCode = "401", description = "Missing or invalid JWT token", content = @Content),
-            @ApiResponse(responseCode = "403", description = "Admin role required", content = @Content),
+            @ApiResponse(responseCode = "401", description = "Missing or invalid JWT token",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(example = "{\"error\": \"authentication required.\"}"))),
+            @ApiResponse(responseCode = "403", description = "Admin role required",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(example = "{\"error\": \"access denied: admin role required.\"}"))),
             @ApiResponse(responseCode = "400", description = "Invalid search parameter",
                     content = @Content(mediaType = "application/json",
                             examples = @ExampleObject(value = "{\"email\": [\"email must not be blank\"]}"))),
@@ -118,7 +130,9 @@ public class UserV2Controller {
     @Operation(summary = "Update all user fields (v2)")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "User updated"),
-            @ApiResponse(responseCode = "401", description = "Missing or invalid JWT token", content = @Content),
+            @ApiResponse(responseCode = "401", description = "Missing or invalid JWT token",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(example = "{\"error\": \"authentication required.\"}"))),
             @ApiResponse(responseCode = "400", description = "Invalid request body",
                     content = @Content(mediaType = "application/json",
                             examples = {
@@ -139,7 +153,9 @@ public class UserV2Controller {
     @Operation(summary = "Partially update a user (v2)")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "User updated"),
-            @ApiResponse(responseCode = "401", description = "Missing or invalid JWT token", content = @Content),
+            @ApiResponse(responseCode = "401", description = "Missing or invalid JWT token",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(example = "{\"error\": \"authentication required.\"}"))),
             @ApiResponse(responseCode = "404", description = "User not found",
                     content = @Content(mediaType = "application/json",
                             schema = @Schema(example = "{\"error\": \"could not find the user with ID: 3fa85f64-5717-4562-b3fc-2c963f66afa6\"}")))
@@ -154,7 +170,9 @@ public class UserV2Controller {
     @Operation(summary = "Delete a user (v2)")
     @ApiResponses({
             @ApiResponse(responseCode = "204", description = "User deleted"),
-            @ApiResponse(responseCode = "401", description = "Missing or invalid JWT token", content = @Content),
+            @ApiResponse(responseCode = "401", description = "Missing or invalid JWT token",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(example = "{\"error\": \"authentication required.\"}"))),
             @ApiResponse(responseCode = "404", description = "User not found",
                     content = @Content(mediaType = "application/json",
                             schema = @Schema(example = "{\"error\": \"could not find the user with ID: 3fa85f64-5717-4562-b3fc-2c963f66afa6\"}")))

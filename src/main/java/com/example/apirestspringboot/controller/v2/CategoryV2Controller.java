@@ -44,7 +44,9 @@ public class CategoryV2Controller {
     @Operation(summary = "Get all categories (v2)")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Returned a paginated list of categories"),
-            @ApiResponse(responseCode = "401", description = "Missing or invalid JWT token", content = @Content)
+            @ApiResponse(responseCode = "401", description = "Missing or invalid JWT token",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(example = "{\"error\": \"authentication required.\"}")))
     })
     @GetMapping(version = "2")
     public ResponseEntity<PagedModel<EntityModel<Category>>> all(
@@ -55,7 +57,9 @@ public class CategoryV2Controller {
     @Operation(summary = "Get a category by ID (v2)")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Category found"),
-            @ApiResponse(responseCode = "401", description = "Missing or invalid JWT token", content = @Content),
+            @ApiResponse(responseCode = "401", description = "Missing or invalid JWT token",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(example = "{\"error\": \"authentication required.\"}"))),
             @ApiResponse(responseCode = "404", description = "Category not found",
                     content = @Content(mediaType = "application/json",
                             schema = @Schema(example = "{\"error\": \"could not find the category with ID: 3fa85f64-5717-4562-b3fc-2c963f66afa6\"}")))
@@ -69,7 +73,9 @@ public class CategoryV2Controller {
     @Operation(summary = "Search category by title (v2)")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Category found"),
-            @ApiResponse(responseCode = "401", description = "Missing or invalid JWT token", content = @Content),
+            @ApiResponse(responseCode = "401", description = "Missing or invalid JWT token",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(example = "{\"error\": \"authentication required.\"}"))),
             @ApiResponse(responseCode = "400", description = "Invalid search parameter",
                     content = @Content(mediaType = "application/json",
                             examples = @ExampleObject(value = "{\"title\": [\"title must not be blank\"]}"))),
@@ -89,8 +95,12 @@ public class CategoryV2Controller {
     @Operation(summary = "Create a category (v2)")
     @ApiResponses({
             @ApiResponse(responseCode = "201", description = "Category created"),
-            @ApiResponse(responseCode = "401", description = "Missing or invalid JWT token", content = @Content),
-            @ApiResponse(responseCode = "403", description = "Admin role required", content = @Content),
+            @ApiResponse(responseCode = "401", description = "Missing or invalid JWT token",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(example = "{\"error\": \"authentication required.\"}"))),
+            @ApiResponse(responseCode = "403", description = "Admin role required",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(example = "{\"error\": \"access denied: admin role required.\"}"))),
             @ApiResponse(responseCode = "400", description = "Invalid request body",
                     content = @Content(mediaType = "application/json",
                             examples = {
@@ -110,8 +120,12 @@ public class CategoryV2Controller {
     @Operation(summary = "Update a category (v2)")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Category updated"),
-            @ApiResponse(responseCode = "401", description = "Missing or invalid JWT token", content = @Content),
-            @ApiResponse(responseCode = "403", description = "Admin role required", content = @Content),
+            @ApiResponse(responseCode = "401", description = "Missing or invalid JWT token",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(example = "{\"error\": \"authentication required.\"}"))),
+            @ApiResponse(responseCode = "403", description = "Admin role required",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(example = "{\"error\": \"access denied: admin role required.\"}"))),
             @ApiResponse(responseCode = "400", description = "Invalid request body",
                     content = @Content(mediaType = "application/json",
                             examples = {
@@ -136,8 +150,12 @@ public class CategoryV2Controller {
     @Operation(summary = "Delete a category (v2)")
     @ApiResponses({
             @ApiResponse(responseCode = "204", description = "Category deleted"),
-            @ApiResponse(responseCode = "401", description = "Missing or invalid JWT token", content = @Content),
-            @ApiResponse(responseCode = "403", description = "Admin role required", content = @Content),
+            @ApiResponse(responseCode = "401", description = "Missing or invalid JWT token",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(example = "{\"error\": \"authentication required.\"}"))),
+            @ApiResponse(responseCode = "403", description = "Admin role required",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(example = "{\"error\": \"access denied: admin role required.\"}"))),
             @ApiResponse(responseCode = "404", description = "Category not found",
                     content = @Content(mediaType = "application/json",
                             schema = @Schema(example = "{\"error\": \"could not find the category with ID: 3fa85f64-5717-4562-b3fc-2c963f66afa6\"}")))

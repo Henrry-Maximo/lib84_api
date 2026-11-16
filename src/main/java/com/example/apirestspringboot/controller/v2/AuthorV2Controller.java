@@ -47,7 +47,9 @@ public class AuthorV2Controller {
     @Operation(summary = "Get all authors (v2)")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Returned a paginated list of authors"),
-            @ApiResponse(responseCode = "401", description = "Missing or invalid JWT token", content = @Content)
+            @ApiResponse(responseCode = "401", description = "Missing or invalid JWT token",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(example = "{\"error\": \"authentication required.\"}")))
     })
     @GetMapping(version = "2")
     public ResponseEntity<PagedModel<EntityModel<Author>>> all(
@@ -58,7 +60,9 @@ public class AuthorV2Controller {
     @Operation(summary = "Get an author by ID (v2)")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Author found"),
-            @ApiResponse(responseCode = "401", description = "Missing or invalid JWT token", content = @Content),
+            @ApiResponse(responseCode = "401", description = "Missing or invalid JWT token",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(example = "{\"error\": \"authentication required.\"}"))),
             @ApiResponse(responseCode = "404", description = "Author not found",
                     content = @Content(mediaType = "application/json",
                             schema = @Schema(example = "{\"error\": \"could not find the author with ID: 3fa85f64-5717-4562-b3fc-2c963f66afa6\"}")))
@@ -72,7 +76,9 @@ public class AuthorV2Controller {
     @Operation(summary = "Search author by name (v2)")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Author found"),
-            @ApiResponse(responseCode = "401", description = "Missing or invalid JWT token", content = @Content),
+            @ApiResponse(responseCode = "401", description = "Missing or invalid JWT token",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(example = "{\"error\": \"authentication required.\"}"))),
             @ApiResponse(responseCode = "400", description = "Invalid search parameter",
                     content = @Content(mediaType = "application/json",
                             examples = @ExampleObject(value = "{\"name\": [\"name must not be blank\"]}"))),
@@ -92,8 +98,12 @@ public class AuthorV2Controller {
     @Operation(summary = "Create an author (v2)")
     @ApiResponses({
             @ApiResponse(responseCode = "201", description = "Author created"),
-            @ApiResponse(responseCode = "401", description = "Missing or invalid JWT token", content = @Content),
-            @ApiResponse(responseCode = "403", description = "Admin role required", content = @Content),
+            @ApiResponse(responseCode = "401", description = "Missing or invalid JWT token",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(example = "{\"error\": \"authentication required.\"}"))),
+            @ApiResponse(responseCode = "403", description = "Admin role required",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(example = "{\"error\": \"access denied: admin role required.\"}"))),
             @ApiResponse(responseCode = "400", description = "Invalid request body",
                     content = @Content(mediaType = "application/json",
                             examples = {
@@ -113,8 +123,12 @@ public class AuthorV2Controller {
     @Operation(summary = "Update an author (v2)")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Author updated"),
-            @ApiResponse(responseCode = "401", description = "Missing or invalid JWT token", content = @Content),
-            @ApiResponse(responseCode = "403", description = "Admin role required", content = @Content),
+            @ApiResponse(responseCode = "401", description = "Missing or invalid JWT token",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(example = "{\"error\": \"authentication required.\"}"))),
+            @ApiResponse(responseCode = "403", description = "Admin role required",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(example = "{\"error\": \"access denied: admin role required.\"}"))),
             @ApiResponse(responseCode = "400", description = "Invalid request body",
                     content = @Content(mediaType = "application/json",
                             examples = {
@@ -139,8 +153,12 @@ public class AuthorV2Controller {
     @Operation(summary = "Delete an author (v2)")
     @ApiResponses({
             @ApiResponse(responseCode = "204", description = "Author deleted"),
-            @ApiResponse(responseCode = "401", description = "Missing or invalid JWT token", content = @Content),
-            @ApiResponse(responseCode = "403", description = "Admin role required", content = @Content),
+            @ApiResponse(responseCode = "401", description = "Missing or invalid JWT token",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(example = "{\"error\": \"authentication required.\"}"))),
+            @ApiResponse(responseCode = "403", description = "Admin role required",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(example = "{\"error\": \"access denied: admin role required.\"}"))),
             @ApiResponse(responseCode = "404", description = "Author not found",
                     content = @Content(mediaType = "application/json",
                             schema = @Schema(example = "{\"error\": \"could not find the author with ID: 3fa85f64-5717-4562-b3fc-2c963f66afa6\"}"))),

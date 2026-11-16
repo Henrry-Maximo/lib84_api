@@ -44,7 +44,9 @@ public class BookV2Controller {
     @Operation(summary = "Get all books (v2)")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Returned a paginated list of books"),
-            @ApiResponse(responseCode = "401", description = "Missing or invalid JWT token", content = @Content)
+            @ApiResponse(responseCode = "401", description = "Missing or invalid JWT token",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(example = "{\"error\": \"authentication required.\"}")))
     })
     @GetMapping(version = "2")
     public ResponseEntity<PagedModel<EntityModel<Book>>> all(
@@ -55,7 +57,9 @@ public class BookV2Controller {
     @Operation(summary = "Get a book by ID (v2)")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Book found"),
-            @ApiResponse(responseCode = "401", description = "Missing or invalid JWT token", content = @Content),
+            @ApiResponse(responseCode = "401", description = "Missing or invalid JWT token",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(example = "{\"error\": \"authentication required.\"}"))),
             @ApiResponse(responseCode = "404", description = "Book not found",
                     content = @Content(mediaType = "application/json",
                             schema = @Schema(example = "{\"error\": \"could not find the book with ID: 3fa85f64-5717-4562-b3fc-2c963f66afa6\"}")))
@@ -69,7 +73,9 @@ public class BookV2Controller {
     @Operation(summary = "Get books by category ID (v2)")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Returned books for the given category"),
-            @ApiResponse(responseCode = "401", description = "Missing or invalid JWT token", content = @Content),
+            @ApiResponse(responseCode = "401", description = "Missing or invalid JWT token",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(example = "{\"error\": \"authentication required.\"}"))),
             @ApiResponse(responseCode = "404", description = "Category not found",
                     content = @Content(mediaType = "application/json",
                             schema = @Schema(example = "{\"error\": \"could not find the category with ID: '3fa85f64-5717-4562-b3fc-2c963f66afa6'.\"}")))
@@ -84,8 +90,12 @@ public class BookV2Controller {
     @Operation(summary = "Create a book (v2)")
     @ApiResponses({
             @ApiResponse(responseCode = "201", description = "Book created"),
-            @ApiResponse(responseCode = "401", description = "Missing or invalid JWT token", content = @Content),
-            @ApiResponse(responseCode = "403", description = "Admin role required", content = @Content),
+            @ApiResponse(responseCode = "401", description = "Missing or invalid JWT token",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(example = "{\"error\": \"authentication required.\"}"))),
+            @ApiResponse(responseCode = "403", description = "Admin role required",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(example = "{\"error\": \"access denied: admin role required.\"}"))),
             @ApiResponse(responseCode = "400", description = "Invalid request body",
                     content = @Content(mediaType = "application/json",
                             examples = {
@@ -109,8 +119,12 @@ public class BookV2Controller {
     @Operation(summary = "Update a book (v2)")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Book updated"),
-            @ApiResponse(responseCode = "401", description = "Missing or invalid JWT token", content = @Content),
-            @ApiResponse(responseCode = "403", description = "Admin role required", content = @Content),
+            @ApiResponse(responseCode = "401", description = "Missing or invalid JWT token",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(example = "{\"error\": \"authentication required.\"}"))),
+            @ApiResponse(responseCode = "403", description = "Admin role required",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(example = "{\"error\": \"access denied: admin role required.\"}"))),
             @ApiResponse(responseCode = "400", description = "Invalid request body",
                     content = @Content(mediaType = "application/json",
                             examples = {
@@ -132,8 +146,12 @@ public class BookV2Controller {
     @Operation(summary = "Delete a book (v2)")
     @ApiResponses({
             @ApiResponse(responseCode = "204", description = "Book deleted"),
-            @ApiResponse(responseCode = "401", description = "Missing or invalid JWT token", content = @Content),
-            @ApiResponse(responseCode = "403", description = "Admin role required", content = @Content),
+            @ApiResponse(responseCode = "401", description = "Missing or invalid JWT token",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(example = "{\"error\": \"authentication required.\"}"))),
+            @ApiResponse(responseCode = "403", description = "Admin role required",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(example = "{\"error\": \"access denied: admin role required.\"}"))),
             @ApiResponse(responseCode = "404", description = "Book not found",
                     content = @Content(mediaType = "application/json",
                             schema = @Schema(example = "{\"error\": \"could not find the book with ID: 3fa85f64-5717-4562-b3fc-2c963f66afa6\"}")))

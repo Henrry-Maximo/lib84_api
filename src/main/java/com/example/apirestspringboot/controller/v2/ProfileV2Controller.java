@@ -41,7 +41,9 @@ public class ProfileV2Controller {
     @Operation(summary = "Get the profile of the authenticated user (v2)")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Profile found"),
-            @ApiResponse(responseCode = "401", description = "Missing or invalid JWT token", content = @Content),
+            @ApiResponse(responseCode = "401", description = "Missing or invalid JWT token",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(example = "{\"error\": \"authentication required.\"}"))),
             @ApiResponse(
                     responseCode = "404",
                     description = "Profile not found for the authenticated user",
@@ -72,7 +74,9 @@ public class ProfileV2Controller {
                             }
                     )
             ),
-            @ApiResponse(responseCode = "401", description = "Missing or invalid JWT token", content = @Content),
+            @ApiResponse(responseCode = "401", description = "Missing or invalid JWT token",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(example = "{\"error\": \"authentication required.\"}"))),
             @ApiResponse(
                     responseCode = "404",
                     description = "User not found",
@@ -107,7 +111,9 @@ public class ProfileV2Controller {
                             }
                     )
             ),
-            @ApiResponse(responseCode = "401", description = "Missing or invalid JWT token", content = @Content),
+            @ApiResponse(responseCode = "401", description = "Missing or invalid JWT token",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(example = "{\"error\": \"authentication required.\"}"))),
             @ApiResponse(
                     responseCode = "403",
                     description = "Authenticated user does not own this profile",
@@ -139,7 +145,9 @@ public class ProfileV2Controller {
     @Operation(summary = "Delete the authenticated user's profile (v2)")
     @ApiResponses({
             @ApiResponse(responseCode = "204", description = "Profile deleted"),
-            @ApiResponse(responseCode = "401", description = "Missing or invalid JWT token", content = @Content),
+            @ApiResponse(responseCode = "401", description = "Missing or invalid JWT token",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(example = "{\"error\": \"authentication required.\"}"))),
             @ApiResponse(
                     responseCode = "403",
                     description = "Authenticated user does not own this profile",
