@@ -61,6 +61,7 @@ public class SecurityConfig {
         return http.build();
     }
 
+    // configurações da v1, desativando critérios de segurança pra deixar público
     @Bean
     @Order(2)
     SecurityFilterChain v1FilterChain(HttpSecurity http) throws Exception {
@@ -73,6 +74,7 @@ public class SecurityConfig {
         return http.build();
     }
 
+    // método de encoder da password
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();

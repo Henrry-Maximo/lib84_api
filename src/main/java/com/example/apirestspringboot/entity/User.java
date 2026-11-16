@@ -18,7 +18,7 @@ import java.util.UUID;
 
 @Entity
 @Table(name = "tb_users")
-@JsonPropertyOrder({"id", "email", "role", "createdAt", "loans", "_links"})
+@JsonPropertyOrder({"id", "email", "role", "createdAt", "loans", "plan", "_links"})
 public class User extends RepresentationModel<User> implements Serializable {
     public enum Role {
         MEMBER,

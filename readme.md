@@ -159,7 +159,7 @@ Obs.: o versionamento é realizado pelo header HTTP `X-API-Version`.
 - [x] Responder `429 Too Many Requests` com `Retry-After`
 - [x] Expor headers informativos (limite, restante, reset)
 - [ ] Header `Idempotency-Key` nas operações que não são idempotentes por natureza (POST e, se necessário, PATCH)
-- [ ] Vincular a chave ao conteúdo do JSON (hash do corpo); mesma chave com corpo diferente → `422`
+- [ ] Vincular a chave ao conteúdo do JSON (hash do corpo): mesma chave com corpo diferente → `422`
 - [ ] Mesma chave com o mesmo corpo → devolver a resposta já gravada, sem duplicar o registro
 - [ ] Definir uma janela de validade (TTL) para a chave
 - [ ] Documentar a idempotência dos métodos HTTP: GET, PUT e DELETE já são idempotentes; POST e PATCH precisam da chave

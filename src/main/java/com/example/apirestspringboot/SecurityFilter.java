@@ -27,6 +27,7 @@ public class SecurityFilter extends OncePerRequestFilter {
         this.userRepository = userRepository;
     }
 
+    // filtro usado para capturar informações do usuário como id/permissão
     // Intercepta a requisição antes de chegar na controller (interceptor/middleware)
     @Override
     protected void doFilterInternal(
@@ -50,7 +51,7 @@ public class SecurityFilter extends OncePerRequestFilter {
             request.setAttribute("user_id", subjectToken);
 
             var authorities = userRepository.findById(UUID.fromString(subjectToken))
-                    .map(u -> List.of(new SimpleGrantedAuthority("ROLE_" + u.getRole().name())))
+                    .map(user -> List.of(new SimpleGrantedAuthority("ROLE_" + user.getRole().name())))
                     .orElse(List.of());
 
             var auth = new UsernamePasswordAuthenticationToken(subjectToken, null, authorities);

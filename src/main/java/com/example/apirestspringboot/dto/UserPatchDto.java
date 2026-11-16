@@ -10,7 +10,7 @@ public record UserPatchDto(
         @Email(message = "email must be a valid address")
         String email,
 
-        @Schema(description = "New password (min. 8 characters)")
+        @Schema(example = "12345678", description = "New password (min. 8 characters)")
         @Size(min = 8, max = 72, message = "password must have between 8 and 72 characters")
         String password,
 
