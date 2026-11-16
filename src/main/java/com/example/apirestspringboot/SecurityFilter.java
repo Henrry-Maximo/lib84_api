@@ -1,28 +1,33 @@
 package com.example.apirestspringboot;
 
 import com.example.apirestspringboot.providers.JWTProvider;
+import com.example.apirestspringboot.repository.UserRepository;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
-import java.util.Collections;
+import java.util.List;
+import java.util.UUID;
 
 @Component
 public class SecurityFilter extends OncePerRequestFilter {
 
     private final JWTProvider jwtProvider;
+    private final UserRepository userRepository;
 
-    public SecurityFilter(JWTProvider jwtProvider) {
+    public SecurityFilter(JWTProvider jwtProvider, UserRepository userRepository) {
         this.jwtProvider = jwtProvider;
+        this.userRepository = userRepository;
     }
 
+    // Intercepta a requisição antes de chegar na controller (interceptor/middleware)
     @Override
     protected void doFilterInternal(
             HttpServletRequest request,
@@ -36,13 +41,20 @@ public class SecurityFilter extends OncePerRequestFilter {
 
         if (header != null) {
             var subjectToken = this.jwtProvider.validateToken(header);
+
             if (subjectToken.isEmpty()) {
                 response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
                 return;
             }
-            request.setAttribute("user_id", subjectToken); // passar o id do usuário
-            UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(subjectToken, null, Collections.emptyList());
-            SecurityContextHolder.getContext().setAuthentication(auth); // fluxo de uso, validar se tem permissão
+
+            request.setAttribute("user_id", subjectToken);
+
+            var authorities = userRepository.findById(UUID.fromString(subjectToken))
+                    .map(u -> List.of(new SimpleGrantedAuthority("ROLE_" + u.getRole().name())))
+                    .orElse(List.of());
+
+            var auth = new UsernamePasswordAuthenticationToken(subjectToken, null, authorities);
+            SecurityContextHolder.getContext().setAuthentication(auth);
         }
 
         // disponibilizar para a controller
