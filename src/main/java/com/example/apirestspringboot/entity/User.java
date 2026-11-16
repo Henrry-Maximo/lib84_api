@@ -25,6 +25,11 @@ public class User extends RepresentationModel<User> implements Serializable {
         ADMIN
     }
 
+    public enum Plan {
+        BASIC,
+        PREMIUM
+    }
+
     @Id
     @GeneratedValue(generator = "UUID")
     @Schema(example = "3fa85f64-5717-4562-b3fc-2c963f66afa6")
@@ -38,8 +43,12 @@ public class User extends RepresentationModel<User> implements Serializable {
     @Length(min = 8, max = 72)
     private String password;
 
-    @Enumerated(EnumType.STRING) // armazenar enum como string
+    @Enumerated(EnumType.STRING)
     private Role role;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private Plan plan = Plan.BASIC;
 
     @CreationTimestamp
     private LocalDateTime createdAt;
@@ -74,6 +83,14 @@ public class User extends RepresentationModel<User> implements Serializable {
 
     public void setRole(Role role) {
         this.role = role;
+    }
+
+    public Plan getPlan() {
+        return plan;
+    }
+
+    public void setPlan(Plan plan) {
+        this.plan = plan;
     }
 
     public LocalDateTime getCreatedAt() {
