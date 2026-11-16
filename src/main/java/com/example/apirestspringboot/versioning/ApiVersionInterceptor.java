@@ -15,6 +15,10 @@ public class ApiVersionInterceptor implements HandlerInterceptor {
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
         String version = request.getHeader(ApiVersionConfig.HEADER);
+        // Swagger UI envia o header como query param quando configurado via Parameters
+        if (version == null) {
+            version = request.getParameter(ApiVersionConfig.HEADER);
+        }
 
         if (version != null && !SUPPORTED.contains(version)) {
             response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
