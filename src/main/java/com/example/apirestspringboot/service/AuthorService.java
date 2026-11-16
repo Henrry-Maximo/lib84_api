@@ -2,10 +2,7 @@ package com.example.apirestspringboot.service;
 
 import com.example.apirestspringboot.dto.AuthorRecordDto;
 import com.example.apirestspringboot.entity.Author;
-import com.example.apirestspringboot.exception.AuthorAlreadyExistsException;
-import com.example.apirestspringboot.exception.AuthorByNameNotFoundException;
-import com.example.apirestspringboot.exception.AuthorHasBooksException;
-import com.example.apirestspringboot.exception.AuthorNotFoundException;
+import com.example.apirestspringboot.exception.*;
 import com.example.apirestspringboot.repository.AuthorRepository;
 import com.example.apirestspringboot.repository.BookRepository;
 
