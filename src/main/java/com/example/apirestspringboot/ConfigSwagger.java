@@ -120,7 +120,22 @@ public class ConfigSwagger {
                     return operation;
                 })
                 .addOpenApiCustomizer(openApi -> {
-                    openApi.getInfo().setVersion("2.0.0");
+                    // personalizar v2 (informações)
+                    openApi.getInfo()
+                            .title("LIB84 API RESTful v2 Authenticated - Books & Loans Management")
+                            .version("2.0.0")
+                            .description("""
+                                    Welcome to **LIB84 API v2** — the authenticated, role-based evolution of the LIB84 library system.
+                                    
+                                    ### What's New in V2
+                                    - **Native Header Versioning:** Pass `X-API-Version: 2` on all requests.
+                                    - **JWT Authentication Required:** Authenticate via `POST /session` and click **Authorize** above with your Bearer token.
+                                    - **Context-Aware Resources:** Endpoints like `/loans` and `/profiles` automatically extract the authenticated `user_id` from the JWT payload.
+                                    - **Role-Based Access Control (RBAC):** Write operations (`POST`, `PUT`, `DELETE`) on catalog resources require `ADMIN` privileges.
+                                    - **Rate Limiting by Plan:** Request quotas enforced per user subscription plan (`BASIC` vs `PREMIUM`).
+                                    
+                                    **Repository**: https://github.com/Henrry-Maximo/lib84_api
+                                    """);
                     add500ToAllOperations(openApi);
                     if (openApi.getPaths() != null) {
                         openApi.getPaths().forEach((path, item) ->
