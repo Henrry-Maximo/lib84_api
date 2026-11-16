@@ -20,7 +20,7 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/session")
-@Tag(name = "Session-v2", description = "Authentication endpoint. Returns a JWT token on valid credentials - version 2 (send API-Version: 2).")
+@Tag(name = "Session-v2", description = "Returns a JWT token on valid credentials - version 2 (send API-Version: 2).")
 public class SessionV2Controller {
 
     private final AuthenticateService authenticateService;
