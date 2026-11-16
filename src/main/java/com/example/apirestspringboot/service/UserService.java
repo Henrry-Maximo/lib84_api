@@ -82,6 +82,7 @@ public class UserService {
         if (dto.email() != null) user.setEmail(dto.email());
         if (dto.password() != null) user.setPassword(passwordEncoder.encode(dto.password()));
         if (dto.role() != null) user.setRole(User.Role.valueOf(dto.role()));
+        if (dto.plan() != null) user.setPlan(User.Plan.valueOf(dto.plan()));
 
         return this.userRepository.save(user);
     }

@@ -83,7 +83,7 @@ public class ProfileService {
         var profile = this.profileRepository.findByUserId(userId);
 
         if (profile.isEmpty()) {
-            throw new ProfileNotFoundException(userId);
+            throw new ProfileNotFoundException("profile not found. Please create your profile first using POST /profiles.");
         }
 
         return profile.get();

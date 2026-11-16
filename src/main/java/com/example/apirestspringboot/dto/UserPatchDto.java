@@ -16,5 +16,9 @@ public record UserPatchDto(
 
         @Schema(example = "MEMBER", allowableValues = {"MEMBER", "ADMIN"})
         @Pattern(regexp = "^(MEMBER|ADMIN)$", message = "role must be MEMBER or ADMIN")
-        String role
+        String role,
+
+        @Schema(example = "BASIC", allowableValues = {"BASIC", "PREMIUM"})
+        @Pattern(regexp = "^(BASIC|PREMIUM)$", message = "plan must be BASIC or PREMIUM")
+        String plan
 ) {}
