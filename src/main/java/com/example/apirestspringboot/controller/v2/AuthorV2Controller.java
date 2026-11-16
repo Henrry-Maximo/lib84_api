@@ -27,7 +27,7 @@ import java.util.UUID;
 
 @RestController
 @RequestMapping("/authors")
-@Tag(name = "Authors-v2", description = "Author management - version 2 (send X-API-Version: 2). All routes require a valid Bearer token.")
+@Tag(name = "Authors-v2", description = "Author management, featuring options such as listing, searching, creating, updating, and deleting - version 2 (send X-API-Version: 2).")
 public class AuthorV2Controller {
 
     private final AuthorService authorService;
