@@ -21,6 +21,7 @@ import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.PagedModel;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.UUID;
@@ -89,6 +90,7 @@ public class SupplierV2Controller {
     @ApiResponses({
             @ApiResponse(responseCode = "201", description = "Supplier created"),
             @ApiResponse(responseCode = "401", description = "Missing or invalid JWT token", content = @Content),
+            @ApiResponse(responseCode = "403", description = "Admin role required", content = @Content),
             @ApiResponse(responseCode = "400", description = "Invalid request body",
                     content = @Content(mediaType = "application/json",
                             examples = {
@@ -96,6 +98,7 @@ public class SupplierV2Controller {
                                     @ExampleObject(name = "Malformed JSON", value = "{\"error\": \"invalid JSON request body. Check the JSON syntax and field types.\"}")
                             }))
     })
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping(version = "2")
     public ResponseEntity<EntityModel<Supplier>> create(@RequestBody @Valid SupplierRecordDto dto) {
         return ResponseEntity.status(HttpStatus.CREATED).body(assembler.toModel(supplierService.create(dto)));
@@ -105,6 +108,7 @@ public class SupplierV2Controller {
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Supplier updated"),
             @ApiResponse(responseCode = "401", description = "Missing or invalid JWT token", content = @Content),
+            @ApiResponse(responseCode = "403", description = "Admin role required", content = @Content),
             @ApiResponse(responseCode = "400", description = "Invalid request body",
                     content = @Content(mediaType = "application/json",
                             examples = {
@@ -115,6 +119,7 @@ public class SupplierV2Controller {
                     content = @Content(mediaType = "application/json",
                             schema = @Schema(example = "{\"error\": \"could not find the supplier with ID: 3fa85f64-5717-4562-b3fc-2c963f66afa6\"}")))
     })
+    @PreAuthorize("hasRole('ADMIN')")
     @PutMapping(path = "/{id}", version = "2")
     public ResponseEntity<EntityModel<Supplier>> update(
             @PathVariable @Schema(example = "3fa85f64-5717-4562-b3fc-2c963f66afa6") UUID id,
@@ -126,10 +131,12 @@ public class SupplierV2Controller {
     @ApiResponses({
             @ApiResponse(responseCode = "204", description = "Supplier deleted"),
             @ApiResponse(responseCode = "401", description = "Missing or invalid JWT token", content = @Content),
+            @ApiResponse(responseCode = "403", description = "Admin role required", content = @Content),
             @ApiResponse(responseCode = "404", description = "Supplier not found",
                     content = @Content(mediaType = "application/json",
                             schema = @Schema(example = "{\"error\": \"could not find the supplier with ID: 3fa85f64-5717-4562-b3fc-2c963f66afa6\"}")))
     })
+    @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping(path = "/{id}", version = "2")
     public ResponseEntity<Void> delete(
             @PathVariable @Schema(example = "3fa85f64-5717-4562-b3fc-2c963f66afa6") UUID id) {

@@ -11,6 +11,7 @@ import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.security.SecurityRequirements;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Email;
@@ -23,6 +24,7 @@ import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.PagedModel;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.UUID;
@@ -45,8 +47,10 @@ public class UserV2Controller {
     @Operation(summary = "Get all users (v2)")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Returned a paginated list of all users"),
-            @ApiResponse(responseCode = "401", description = "Missing or invalid JWT token", content = @Content)
+            @ApiResponse(responseCode = "401", description = "Missing or invalid JWT token", content = @Content),
+            @ApiResponse(responseCode = "403", description = "Admin role required", content = @Content)
     })
+    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping(version = "2")
     public ResponseEntity<PagedModel<EntityModel<User>>> all(
             @ParameterObject @PageableDefault(size = 10, sort = "email") Pageable pageable) {
@@ -57,10 +61,12 @@ public class UserV2Controller {
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "User found"),
             @ApiResponse(responseCode = "401", description = "Missing or invalid JWT token", content = @Content),
+            @ApiResponse(responseCode = "403", description = "Admin role required", content = @Content),
             @ApiResponse(responseCode = "404", description = "User not found",
                     content = @Content(mediaType = "application/json",
                             schema = @Schema(example = "{\"error\": \"could not find the user with ID: 3fa85f64-5717-4562-b3fc-2c963f66afa6\"}")))
     })
+    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping(path = "/{id}", version = "2")
     public ResponseEntity<EntityModel<User>> getById(
             @PathVariable @Schema(example = "3fa85f64-5717-4562-b3fc-2c963f66afa6") UUID id) {
@@ -71,6 +77,7 @@ public class UserV2Controller {
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "User found"),
             @ApiResponse(responseCode = "401", description = "Missing or invalid JWT token", content = @Content),
+            @ApiResponse(responseCode = "403", description = "Admin role required", content = @Content),
             @ApiResponse(responseCode = "400", description = "Invalid search parameter",
                     content = @Content(mediaType = "application/json",
                             examples = @ExampleObject(value = "{\"email\": [\"email must not be blank\"]}"))),
@@ -78,6 +85,7 @@ public class UserV2Controller {
                     content = @Content(mediaType = "application/json",
                             schema = @Schema(example = "{\"error\": \"could not find the user with email: 'johndoe@example.com'.\"}")))
     })
+    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping(path = "/search", version = "2")
     public ResponseEntity<EntityModel<User>> getByEmail(
             @RequestParam(name = "email")
@@ -88,10 +96,10 @@ public class UserV2Controller {
         return ResponseEntity.ok(assembler.toModel(userService.getByEmail(email)));
     }
 
+    @SecurityRequirements({})
     @Operation(summary = "Create a user (v2)")
     @ApiResponses({
             @ApiResponse(responseCode = "201", description = "User created"),
-            @ApiResponse(responseCode = "401", description = "Missing or invalid JWT token", content = @Content),
             @ApiResponse(responseCode = "400", description = "Invalid request body",
                     content = @Content(mediaType = "application/json",
                             examples = {

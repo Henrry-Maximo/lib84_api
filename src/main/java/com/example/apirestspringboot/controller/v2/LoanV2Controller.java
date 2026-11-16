@@ -22,13 +22,14 @@ import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.PagedModel;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.UUID;
 
 @RestController
 @RequestMapping("/loans")
-@Tag(name = "Loans-v2", description = "Loan management - version 2 (send X-API-Version: 2). All routes require a valid Bearer token.")
+@Tag(name = "Loans-v2", description = "Loan management, featuring options such as listing, searching, creating, updating, and deleting - version 2 (send X-API-Version: 2).")
 public class LoanV2Controller {
 
     private final LoanService loanService;
@@ -106,10 +107,12 @@ public class LoanV2Controller {
     @ApiResponses({
             @ApiResponse(responseCode = "204", description = "Loan deleted"),
             @ApiResponse(responseCode = "401", description = "Missing or invalid JWT token", content = @Content),
+            @ApiResponse(responseCode = "403", description = "Admin role required", content = @Content),
             @ApiResponse(responseCode = "404", description = "Loan not found",
                     content = @Content(mediaType = "application/json",
                             schema = @Schema(example = "{\"error\": \"could not find the loan with ID: 3fa85f64-5717-4562-b3fc-2c963f66afa6\"}")))
     })
+    @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping(path = "/{id}", version = "2")
     public ResponseEntity<Void> delete(
             @PathVariable @Schema(example = "3fa85f64-5717-4562-b3fc-2c963f66afa6") UUID id) {

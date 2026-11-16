@@ -21,6 +21,7 @@ import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.PagedModel;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.UUID;
@@ -89,6 +90,7 @@ public class CategoryV2Controller {
     @ApiResponses({
             @ApiResponse(responseCode = "201", description = "Category created"),
             @ApiResponse(responseCode = "401", description = "Missing or invalid JWT token", content = @Content),
+            @ApiResponse(responseCode = "403", description = "Admin role required", content = @Content),
             @ApiResponse(responseCode = "400", description = "Invalid request body",
                     content = @Content(mediaType = "application/json",
                             examples = {
@@ -99,6 +101,7 @@ public class CategoryV2Controller {
                     content = @Content(mediaType = "application/json",
                             schema = @Schema(example = "{\"error\": \"category 'engenharia de software' already exists.\"}")))
     })
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping(version = "2")
     public ResponseEntity<EntityModel<Category>> create(@RequestBody @Valid CategoryRecordDto dto) {
         return ResponseEntity.status(HttpStatus.CREATED).body(assembler.toModel(categoryService.create(dto)));
@@ -108,6 +111,7 @@ public class CategoryV2Controller {
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Category updated"),
             @ApiResponse(responseCode = "401", description = "Missing or invalid JWT token", content = @Content),
+            @ApiResponse(responseCode = "403", description = "Admin role required", content = @Content),
             @ApiResponse(responseCode = "400", description = "Invalid request body",
                     content = @Content(mediaType = "application/json",
                             examples = {
@@ -121,6 +125,7 @@ public class CategoryV2Controller {
                     content = @Content(mediaType = "application/json",
                             schema = @Schema(example = "{\"error\": \"category 'engenharia de software' already exists.\"}")))
     })
+    @PreAuthorize("hasRole('ADMIN')")
     @PutMapping(path = "/{id}", version = "2")
     public ResponseEntity<EntityModel<Category>> update(
             @PathVariable @Schema(example = "3fa85f64-5717-4562-b3fc-2c963f66afa6") UUID id,
@@ -132,10 +137,12 @@ public class CategoryV2Controller {
     @ApiResponses({
             @ApiResponse(responseCode = "204", description = "Category deleted"),
             @ApiResponse(responseCode = "401", description = "Missing or invalid JWT token", content = @Content),
+            @ApiResponse(responseCode = "403", description = "Admin role required", content = @Content),
             @ApiResponse(responseCode = "404", description = "Category not found",
                     content = @Content(mediaType = "application/json",
                             schema = @Schema(example = "{\"error\": \"could not find the category with ID: 3fa85f64-5717-4562-b3fc-2c963f66afa6\"}")))
     })
+    @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping(path = "/{id}", version = "2")
     public ResponseEntity<Void> delete(
             @PathVariable @Schema(example = "3fa85f64-5717-4562-b3fc-2c963f66afa6") UUID id) {
