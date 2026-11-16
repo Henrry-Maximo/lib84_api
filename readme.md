@@ -150,14 +150,14 @@ Obs.: o versionamento é realizado pelo header HTTP `X-API-Version`.
 - [x] Criar `CHANGELOG.md` com as modificações (V1 corrigida e V2)
 - [x] Atualizar o README: checklist, roadmap, como rodar e links da documentação
 - [x] Criar endpoints de negócio da V2
-- [ ] Adotar versionamento semântico `MAJOR.MINOR.PATCH`
+- [x] Adotar versionamento semântico `MAJOR.MINOR.PATCH`
   - MAJOR: mudança que quebra compatibilidade
   - MINOR: novas funcionalidades
   - PATCH: correção de bug
-- [ ] Implementar rate limit com algoritmo **token bucket**
-- [ ] Limitar por IP, por header e por chave de API (limites diferentes por contexto)
-- [ ] Responder `429 Too Many Requests` com `Retry-After`
-- [ ] Expor headers informativos (limite, restante, reset)
+- [x] Implementar rate limit com algoritmo **token bucket** (feito com thread-safe)
+- [x] Limitar por IP, por header e por chave de API (feito usando IP para anônimos e plano/usuário do JWT para logados)
+- [x] Responder `429 Too Many Requests` com `Retry-After`
+- [x] Expor headers informativos (limite, restante, reset)
 - [ ] Header `Idempotency-Key` nas operações que não são idempotentes por natureza (POST e, se necessário, PATCH)
 - [ ] Vincular a chave ao conteúdo do JSON (hash do corpo); mesma chave com corpo diferente → `422`
 - [ ] Mesma chave com o mesmo corpo → devolver a resposta já gravada, sem duplicar o registro
@@ -248,3 +248,7 @@ Obs.: o versionamento é realizado pelo header HTTP `X-API-Version`.
 - Um fornecedor pode fornecer vários livros. Cada livro possui um fornecedor (One-to-Many).
 - Um livro pode possuir vários autores e um autor pode escrever vários livros (Many-to-Many).
 - Um usuário possui exatamente um perfil, e cada perfil pertence a exatamente um usuário (One-to-One)
+
+### Artigos
+
+- https://medium.com/@bharathdayals/building-a-per-endpoint-rate-limiter-using-the-token-bucket-algorithm-f09dff457aaa
