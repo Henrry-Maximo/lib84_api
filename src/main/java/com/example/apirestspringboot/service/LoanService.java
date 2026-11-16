@@ -13,8 +13,10 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 @Service
@@ -49,6 +51,22 @@ public class LoanService {
         loan.setUser(user.get());
         loan.setBooks(new HashSet<>(foundBooks));
         loan.setLoanDateScheduled(dto.loanDateScheduled());
+
+        return this.loanRepository.save(loan);
+    }
+
+    @Transactional
+    public Loan createForUser(UUID userId, Set<UUID> bookIds, LocalDateTime loanDateScheduled) {
+        var user = userRepository.findById(userId);
+        if (user.isEmpty()) throw new UserNotFoundException(userId);
+
+        var foundBooks = bookRepository.findAllById(bookIds);
+        if (foundBooks.size() != new HashSet<>(bookIds).size()) throw new BooksNotFoundException();
+
+        var loan = new Loan();
+        loan.setUser(user.get());
+        loan.setBooks(new HashSet<>(foundBooks));
+        loan.setLoanDateScheduled(loanDateScheduled);
 
         return this.loanRepository.save(loan);
     }

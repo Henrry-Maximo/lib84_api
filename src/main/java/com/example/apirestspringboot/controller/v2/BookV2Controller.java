@@ -21,6 +21,7 @@ import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.PagedModel;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.UUID;
@@ -84,6 +85,7 @@ public class BookV2Controller {
     @ApiResponses({
             @ApiResponse(responseCode = "201", description = "Book created"),
             @ApiResponse(responseCode = "401", description = "Missing or invalid JWT token", content = @Content),
+            @ApiResponse(responseCode = "403", description = "Admin role required", content = @Content),
             @ApiResponse(responseCode = "400", description = "Invalid request body",
                     content = @Content(mediaType = "application/json",
                             examples = {
@@ -98,6 +100,7 @@ public class BookV2Controller {
                                     @ExampleObject(name = "Authors not found", value = "{\"error\": \"could not find the authors with ID: ['3fa85f64-5717-4562-b3fc-2c963f66afa6'].\"}")
                             }))
     })
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping(version = "2")
     public ResponseEntity<EntityModel<Book>> create(@RequestBody @Valid BookRecordDto dto) {
         return ResponseEntity.status(HttpStatus.CREATED).body(assembler.toModel(bookService.create(dto)));
@@ -107,6 +110,7 @@ public class BookV2Controller {
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Book updated"),
             @ApiResponse(responseCode = "401", description = "Missing or invalid JWT token", content = @Content),
+            @ApiResponse(responseCode = "403", description = "Admin role required", content = @Content),
             @ApiResponse(responseCode = "400", description = "Invalid request body",
                     content = @Content(mediaType = "application/json",
                             examples = {
@@ -117,6 +121,7 @@ public class BookV2Controller {
                     content = @Content(mediaType = "application/json",
                             schema = @Schema(example = "{\"error\": \"could not find the book with ID: 3fa85f64-5717-4562-b3fc-2c963f66afa6\"}")))
     })
+    @PreAuthorize("hasRole('ADMIN')")
     @PutMapping(path = "/{id}", version = "2")
     public ResponseEntity<EntityModel<Book>> update(
             @PathVariable @Schema(example = "3fa85f64-5717-4562-b3fc-2c963f66afa6") UUID id,
@@ -128,10 +133,12 @@ public class BookV2Controller {
     @ApiResponses({
             @ApiResponse(responseCode = "204", description = "Book deleted"),
             @ApiResponse(responseCode = "401", description = "Missing or invalid JWT token", content = @Content),
+            @ApiResponse(responseCode = "403", description = "Admin role required", content = @Content),
             @ApiResponse(responseCode = "404", description = "Book not found",
                     content = @Content(mediaType = "application/json",
                             schema = @Schema(example = "{\"error\": \"could not find the book with ID: 3fa85f64-5717-4562-b3fc-2c963f66afa6\"}")))
     })
+    @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping(path = "/{id}", version = "2")
     public ResponseEntity<Void> delete(
             @PathVariable @Schema(example = "3fa85f64-5717-4562-b3fc-2c963f66afa6") UUID id) {

@@ -21,6 +21,7 @@ import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.PagedModel;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.UUID;
@@ -92,6 +93,7 @@ public class AuthorV2Controller {
     @ApiResponses({
             @ApiResponse(responseCode = "201", description = "Author created"),
             @ApiResponse(responseCode = "401", description = "Missing or invalid JWT token", content = @Content),
+            @ApiResponse(responseCode = "403", description = "Admin role required", content = @Content),
             @ApiResponse(responseCode = "400", description = "Invalid request body",
                     content = @Content(mediaType = "application/json",
                             examples = {
@@ -102,6 +104,7 @@ public class AuthorV2Controller {
                     content = @Content(mediaType = "application/json",
                             schema = @Schema(example = "{\"error\": \"author 'george orwell' already exists.\"}")))
     })
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping(version = "2")
     public ResponseEntity<EntityModel<Author>> create(@RequestBody @Valid AuthorRecordDto dto) {
         return ResponseEntity.status(HttpStatus.CREATED).body(assembler.toModel(this.authorService.create(dto)));
@@ -111,6 +114,7 @@ public class AuthorV2Controller {
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Author updated"),
             @ApiResponse(responseCode = "401", description = "Missing or invalid JWT token", content = @Content),
+            @ApiResponse(responseCode = "403", description = "Admin role required", content = @Content),
             @ApiResponse(responseCode = "400", description = "Invalid request body",
                     content = @Content(mediaType = "application/json",
                             examples = {
@@ -124,6 +128,7 @@ public class AuthorV2Controller {
                     content = @Content(mediaType = "application/json",
                             schema = @Schema(example = "{\"error\": \"author 'george orwell' already exists.\"}")))
     })
+    @PreAuthorize("hasRole('ADMIN')")
     @PutMapping(path = "/{id}", version = "2")
     public ResponseEntity<EntityModel<Author>> update(
             @PathVariable @Schema(example = "3fa85f64-5717-4562-b3fc-2c963f66afa6") UUID id,
@@ -135,6 +140,7 @@ public class AuthorV2Controller {
     @ApiResponses({
             @ApiResponse(responseCode = "204", description = "Author deleted"),
             @ApiResponse(responseCode = "401", description = "Missing or invalid JWT token", content = @Content),
+            @ApiResponse(responseCode = "403", description = "Admin role required", content = @Content),
             @ApiResponse(responseCode = "404", description = "Author not found",
                     content = @Content(mediaType = "application/json",
                             schema = @Schema(example = "{\"error\": \"could not find the author with ID: 3fa85f64-5717-4562-b3fc-2c963f66afa6\"}"))),
@@ -142,6 +148,7 @@ public class AuthorV2Controller {
                     content = @Content(mediaType = "application/json",
                             schema = @Schema(example = "{\"error\": \"author with ID: 3fa85f64-5717-4562-b3fc-2c963f66afa6 cannot be deleted because it is associated with one or more books.\"}")))
     })
+    @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping(path = "/{id}", version = "2")
     public ResponseEntity<Void> delete(
             @PathVariable @Schema(example = "3fa85f64-5717-4562-b3fc-2c963f66afa6") UUID id) {

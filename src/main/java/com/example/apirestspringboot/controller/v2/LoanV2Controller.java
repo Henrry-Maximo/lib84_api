@@ -1,7 +1,7 @@
 package com.example.apirestspringboot.controller.v2;
 
 import com.example.apirestspringboot.assembler.LoanModelAssembler;
-import com.example.apirestspringboot.dto.LoanRecordDto;
+import com.example.apirestspringboot.dto.v2.LoanV2RecordDto;
 import com.example.apirestspringboot.entity.Loan;
 import com.example.apirestspringboot.service.LoanService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -11,6 +11,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.data.domain.Pageable;
@@ -27,7 +28,7 @@ import java.util.UUID;
 
 @RestController
 @RequestMapping("/loans")
-@Tag(name = "Loans-v2", description = "Loan management, featuring options such as listing, searching, creating, updating, and deleting - version 2 (send X-API-Version: 2).")
+@Tag(name = "Loans-v2", description = "Loan management - version 2 (send X-API-Version: 2). All routes require a valid Bearer token.")
 public class LoanV2Controller {
 
     private final LoanService loanService;
@@ -65,66 +66,40 @@ public class LoanV2Controller {
         return ResponseEntity.ok(assembler.toModel(loanService.getById(id)));
     }
 
-    @Operation(summary = "Get loans by user ID (v2)")
+    @Operation(summary = "Get my loans (v2)", description = "Returns all loans belonging to the authenticated user.")
     @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "Returned loans for the given user"),
-            @ApiResponse(responseCode = "401", description = "Missing or invalid JWT token", content = @Content),
-            @ApiResponse(responseCode = "404", description = "User not found",
-                    content = @Content(mediaType = "application/json",
-                            schema = @Schema(example = "{\"error\": \"could not find the user with ID: 3fa85f64-5717-4562-b3fc-2c963f66afa6\"}")))
+            @ApiResponse(responseCode = "200", description = "Returned loans for the authenticated user"),
+            @ApiResponse(responseCode = "401", description = "Missing or invalid JWT token", content = @Content)
     })
-    @GetMapping(path = "/user/{userId}", version = "2")
-    public ResponseEntity<CollectionModel<EntityModel<Loan>>> getByUser(
-            @PathVariable @Schema(example = "3fa85f64-5717-4562-b3fc-2c963f66afa6") UUID userId) {
+    @GetMapping(path = "/me", version = "2")
+    public ResponseEntity<CollectionModel<EntityModel<Loan>>> getMyLoans(HttpServletRequest request) {
+        UUID userId = UUID.fromString((String) request.getAttribute("user_id"));
         return ResponseEntity.ok(CollectionModel.of(
                 loanService.getByUser(userId).stream().map(assembler::toModel).toList()));
     }
 
-    @Operation(summary = "Create a loan (v2)")
+    @Operation(summary = "Create a loan for the authenticated user (v2)",
+            description = "The loan is automatically associated with the authenticated user. No userId needed in the body.")
     @ApiResponses({
             @ApiResponse(responseCode = "201", description = "Loan created"),
             @ApiResponse(responseCode = "401", description = "Missing or invalid JWT token", content = @Content),
             @ApiResponse(responseCode = "400", description = "Invalid request body",
                     content = @Content(mediaType = "application/json",
                             examples = {
-                                    @ExampleObject(name = "Validation error", value = "{\"userId\": [\"userId is required\"], \"bookIds\": [\"bookIds must contain at least one book\"]}"),
+                                    @ExampleObject(name = "Validation error", value = "{\"bookIds\": [\"bookIds must contain at least one book\"], \"loanDateScheduled\": [\"loanDateScheduled is required\"]}"),
                                     @ExampleObject(name = "Malformed JSON", value = "{\"error\": \"invalid JSON request body. Check the JSON syntax and field types.\"}")
                             })),
-            @ApiResponse(responseCode = "404", description = "User or books not found",
+            @ApiResponse(responseCode = "404", description = "Books not found",
                     content = @Content(mediaType = "application/json",
-                            examples = {
-                                    @ExampleObject(name = "User not found", value = "{\"error\": \"could not find the user with ID: 3fa85f64-5717-4562-b3fc-2c963f66afa6\"}"),
-                                    @ExampleObject(name = "Books not found", value = "{\"error\": \"one or more books not found.\"}")
-                            }))
+                            schema = @Schema(example = "{\"error\": \"one or more books not found.\"}")))
     })
     @PostMapping(version = "2")
-    public ResponseEntity<EntityModel<Loan>> create(@RequestBody @Valid LoanRecordDto dto) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(assembler.toModel(loanService.create(dto)));
-    }
-
-    @Operation(summary = "Update a loan (v2)")
-    @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "Loan updated"),
-            @ApiResponse(responseCode = "401", description = "Missing or invalid JWT token", content = @Content),
-            @ApiResponse(responseCode = "400", description = "Invalid request body",
-                    content = @Content(mediaType = "application/json",
-                            examples = {
-                                    @ExampleObject(name = "Validation error", value = "{\"userId\": [\"userId is required\"], \"bookIds\": [\"bookIds must contain at least one book\"]}"),
-                                    @ExampleObject(name = "Malformed JSON", value = "{\"error\": \"invalid JSON request body. Check the JSON syntax and field types.\"}")
-                            })),
-            @ApiResponse(responseCode = "404", description = "Loan, user or books not found",
-                    content = @Content(mediaType = "application/json",
-                            examples = {
-                                    @ExampleObject(name = "Loan not found", value = "{\"error\": \"could not find the loan with ID: 3fa85f64-5717-4562-b3fc-2c963f66afa6\"}"),
-                                    @ExampleObject(name = "User not found", value = "{\"error\": \"could not find the user with ID: 3fa85f64-5717-4562-b3fc-2c963f66afa6\"}"),
-                                    @ExampleObject(name = "Books not found", value = "{\"error\": \"one or more books not found.\"}")
-                            }))
-    })
-    @PutMapping(path = "/{id}", version = "2")
-    public ResponseEntity<EntityModel<Loan>> update(
-            @PathVariable @Schema(example = "3fa85f64-5717-4562-b3fc-2c963f66afa6") UUID id,
-            @RequestBody @Valid LoanRecordDto dto) {
-        return ResponseEntity.ok(assembler.toModel(loanService.update(id, dto)));
+    public ResponseEntity<EntityModel<Loan>> create(
+            @RequestBody @Valid LoanV2RecordDto dto,
+            HttpServletRequest request) {
+        UUID userId = UUID.fromString((String) request.getAttribute("user_id"));
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(assembler.toModel(loanService.createForUser(userId, dto.bookIds(), dto.loanDateScheduled())));
     }
 
     @Operation(summary = "Delete a loan (v2)")
