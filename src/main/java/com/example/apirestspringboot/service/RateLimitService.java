@@ -13,9 +13,9 @@ public class RateLimitService {
     private final ConcurrentMap<String, TokenBucket> buckets = new ConcurrentHashMap<>();
 
     // definição de quantidade de tokens por segundo para os planos
-    private static final long   PREMIUM_CAPACITY = 50;
+    private static final long   PREMIUM_CAPACITY = 1000;
     private static final double PREMIUM_REFILL   = 0.5; // tokens/s (1 token a cada 2s)
-    private static final long   BASIC_CAPACITY   = 15;
+    private static final long   BASIC_CAPACITY   = 500;
     private static final double BASIC_REFILL     = 0.2; // tokens/s (1 token a cada 5s)
 
     public TokenBucket getBucket(String clientKey, boolean isPremium) {
