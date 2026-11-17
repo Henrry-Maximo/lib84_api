@@ -174,7 +174,7 @@ public class ConfigSwagger {
                                     ### Features
                                     - **JWT Authentication:** All routes (except `/session` and `POST /users`) require a valid Bearer token.
                                     - **Role-Based Access Control:** Write operations on catalog resources (`books`, `authors`, `categories`, `suppliers`) require the `ADMIN` role.
-                                    - **Rate Limiting:** Requests are throttled by subscription plan — `BASIC` (15 requests) or `PREMIUM` (50 requests). Update your plan via `PATCH /users/{id}`.
+                                    - **Rate Limiting:** Requests are throttled by subscription plan — `BASIC` (500 requests) or `PREMIUM` (1000 requests). Update your plan via `PATCH /users/{id}`.
                                     - **Idempotency:** `POST` and `PATCH` requests require an `Idempotency-Key` (UUID). Sending the same key with the same body replays the cached response without duplicating data. Keys expire after 24 hours.
                                     - **Context-Aware Endpoints:** Routes like `POST /loans` and `GET /loans/me` resolve the authenticated user from the JWT automatically.
                                     

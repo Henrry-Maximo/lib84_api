@@ -73,31 +73,31 @@ public class IdempotencyDemoController {
         ));
     }
 
-    @SecurityRequirements({})
-    @Operation(
-            summary = "Echo endpoint to test idempotency (v2)",
-            description = "Send any JSON body with an `Idempotency-Key` header. Repeat the request to see the cached response replayed."
-    )
-    @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "Request processed or replayed from cache",
-                    content = @Content(mediaType = "application/json",
-                            schema = @Schema(example = "{\"echo\": {\"message\": \"hello\"}, \"processedAt\": \"2025-01-01T00:00:00Z\"}"))),
-            @ApiResponse(responseCode = "409", description = "Concurrent request with same key in progress",
-                    content = @Content(mediaType = "application/json",
-                            schema = @Schema(example = "{\"error\": \"A request with this Idempotency-Key is already being processed.\"}"))),
-            @ApiResponse(responseCode = "422", description = "Missing key or key reused with different body",
-                    content = @Content(mediaType = "application/json",
-                            examples = {
-                                    @ExampleObject(name = "Missing key", value = "{\"error\": \"Idempotency-Key header is required for POST and PATCH requests.\"}"),
-                                    @ExampleObject(name = "Body mismatch", value = "{\"error\": \"Idempotency-Key reused with a different request body.\"}")
-                            }))
-    })
-    @PostMapping(path = "/echo", version = "2")
-    public ResponseEntity<Map<String, Object>> echo(@RequestBody Map<String, Object> body) {
-        return ResponseEntity.ok(Map.of(
-                "echo", body,
-                "processedAt", Instant.now().toString(),
-                "requestId", UUID.randomUUID().toString()
-        ));
-    }
+//    @SecurityRequirements({})
+//    @Operation(
+//            summary = "Echo endpoint to test idempotency (v2)",
+//            description = "Send any JSON body with an `Idempotency-Key` header. Repeat the request to see the cached response replayed."
+//    )
+//    @ApiResponses({
+//            @ApiResponse(responseCode = "200", description = "Request processed or replayed from cache",
+//                    content = @Content(mediaType = "application/json",
+//                            schema = @Schema(example = "{\"echo\": {\"message\": \"hello\"}, \"processedAt\": \"2025-01-01T00:00:00Z\"}"))),
+//            @ApiResponse(responseCode = "409", description = "Concurrent request with same key in progress",
+//                    content = @Content(mediaType = "application/json",
+//                            schema = @Schema(example = "{\"error\": \"A request with this Idempotency-Key is already being processed.\"}"))),
+//            @ApiResponse(responseCode = "422", description = "Missing key or key reused with different body",
+//                    content = @Content(mediaType = "application/json",
+//                            examples = {
+//                                    @ExampleObject(name = "Missing key", value = "{\"error\": \"Idempotency-Key header is required for POST and PATCH requests.\"}"),
+//                                    @ExampleObject(name = "Body mismatch", value = "{\"error\": \"Idempotency-Key reused with a different request body.\"}")
+//                            }))
+//    })
+//    @PostMapping(path = "/echo", version = "2")
+//    public ResponseEntity<Map<String, Object>> echo(@RequestBody Map<String, Object> body) {
+//        return ResponseEntity.ok(Map.of(
+//                "echo", body,
+//                "processedAt", Instant.now().toString(),
+//                "requestId", UUID.randomUUID().toString()
+//        ));
+//    }
 }
