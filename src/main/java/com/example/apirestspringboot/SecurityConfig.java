@@ -30,6 +30,7 @@ public class SecurityConfig {
         "/swagger-ui/**", "/swagger-ui.html",
         "/api-docs/**",
         "/terms",
+        "/idempotency-demo",
         "/h2-console/**",
         "/", "/*.css", "/*.js", "/*.png", "/*.webp", "/*.gif", "/*.mp4"
     };
