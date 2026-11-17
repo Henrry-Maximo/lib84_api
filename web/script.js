@@ -1,4 +1,45 @@
 const BASE = 'http://localhost:8080';
+let authToken = localStorage.getItem('lib84_token') || '';
+
+// Inicializa na aba de livros
+window.addEventListener('DOMContentLoaded', () => {
+  nav('books');
+});
+
+// ── Auth & Version ────────────────────────────────────────────────────────────
+
+function changeVersion() {
+  const v = document.getElementById('api-version').value;
+  console.log('Versão da API alterada para: V' + v);
+}
+
+async function doLogin() {
+  const email = document.getElementById('auth-email').value;
+  const password = document.getElementById('auth-password').value;
+  const statusEl = document.getElementById('auth-status');
+  statusEl.textContent = 'Autenticando...';
+  
+  try {
+    const res = await fetch(BASE + '/session', {
+      method: 'POST',
+      headers: { 
+        'Content-Type': 'application/json',
+        'X-API-Version': document.getElementById('api-version').value
+      },
+      body: JSON.stringify({ email, password })
+    });
+    const data = await res.json();
+    if (!res.ok) throw data;
+    
+    // Supondo que retorna o token no formato { token: "..." } ou direto a string
+    authToken = data.token || data.accessToken || data;
+    localStorage.setItem('lib84_token', authToken);
+    statusEl.textContent = 'Token JWT obtido com sucesso!';
+    setTimeout(() => closeModal(), 1500);
+  } catch (e) {
+    statusEl.textContent = 'Erro no login: ' + (e.message || JSON.stringify(e));
+  }
+}
 
 // ── nav ───────────────────────────────────────────────────────────────────────
 
@@ -34,7 +75,7 @@ function closeModal() {
 function showError(prefix, msg) {
   const el = document.getElementById(`${prefix}-error`);
   if (!el) return;
-  el.textContent = msg;
+  el.textContent = typeof msg === 'object' ? JSON.stringify(msg) : msg;
   el.classList.remove('hidden');
 }
 
@@ -43,15 +84,34 @@ function hideError(prefix) {
   if (el) el.classList.add('hidden');
 }
 
-// ── api ───────────────────────────────────────────────────────────────────────
+// ── api helper ────────────────────────────────────────────────────────────────
 
 async function api(method, path, body) {
-  const opts = { method, headers: { 'Content-Type': 'application/json' } };
+  const version = document.getElementById('api-version').value;
+  const headers = { 
+    'Content-Type': 'application/json',
+    'X-API-Version': version
+  };
+
+  if (authToken) {
+    headers['Authorization'] = `Bearer ${authToken}`;
+  }
+
+  // Se for POST ou PATCH na V2, injeta o Idempotency-Key automaticamente
+  if (version === '2' && (method === 'POST' || method === 'PATCH')) {
+    headers['Idempotency-Key'] = crypto.randomUUID();
+  }
+
+  const opts = { method, headers };
   if (body) opts.body = JSON.stringify(body);
+
   const res = await fetch(BASE + path, opts);
   if (res.status === 204) return null;
-  const data = await res.json();
-  if (!res.ok) throw data;
+  
+  const text = await res.text();
+  const data = text ? JSON.parse(text) : null;
+  
+  if (!res.ok) throw data || { message: res.statusText };
   return data;
 }
 
@@ -80,15 +140,24 @@ function confirmDelete(fn) {
   document.getElementById('confirm-yes').onclick = () => { closeModal(); fn(); };
 }
 
+function esc(str) {
+  return (str || '').replace(/'/g, "\\'");
+}
+
+function renderPagination(pageName, pageData, loadFn) {
+  const container = document.getElementById(`${pageName}-pagination`);
+  if (!pageData) { container.innerHTML = ''; return; }
+  container.innerHTML = `
+    <span>Página ${pageData.number + 1} de ${pageData.totalPages}</span>
+  `;
+}
+
 // ── BOOKS ─────────────────────────────────────────────────────────────────────
 
-let booksPage = 0;
-
 async function loadBooks(page = 0) {
-  booksPage = page;
   const data = await api('GET', `/books?page=${page}&size=9`).catch(() => null);
   const list = document.getElementById('books-list');
-  const items = data?._embedded?.bookList ?? [];
+  const items = data?._embedded?.bookList ?? (Array.isArray(data) ? data : []);
   list.innerHTML = items.length
     ? items.map(b => card(
         [['Título', b.title], ['ISBN', b.isbn], ['Qtd', b.amount], ['Categoria', b.category?.title], ['Publicado', b.datePublication]],
@@ -102,11 +171,8 @@ async function loadBooks(page = 0) {
 async function searchByCategory() {
   const q = document.getElementById('search-books').value.trim();
   if (!q) return loadBooks();
-  // search category by title first, then get books by categoryId
-  const cat = await api('GET', `/categories/search?title=${encodeURIComponent(q)}`).catch(() => null);
-  if (!cat?.id) { document.getElementById('books-list').innerHTML = empty('Categoria não encontrada.'); return; }
-  const data = await api('GET', `/books/category/${cat.id}`).catch(() => null);
-  const items = data?._embedded?.bookList ?? [];
+  const data = await api('GET', `/books/category/${q}`).catch(() => null);
+  const items = data?._embedded?.bookList ?? (Array.isArray(data) ? data : []);
   document.getElementById('books-list').innerHTML = items.length
     ? items.map(b => card(
         [['Título', b.title], ['ISBN', b.isbn], ['Qtd', b.amount], ['Categoria', b.category?.title]],
@@ -114,7 +180,6 @@ async function searchByCategory() {
         `deleteBook('${b.id}')`
       )).join('')
     : empty('Nenhum livro nessa categoria.');
-  document.getElementById('books-pagination').innerHTML = '';
 }
 
 function editBook(id, title, isbn, amount, date, categoryId, supplierId, authorIds) {
@@ -148,21 +213,21 @@ async function saveBook() {
     closeModal();
     document.getElementById('book-id').value = '';
     document.getElementById('book-form-title').textContent = 'Novo Livro';
-    loadBooks(booksPage);
+    loadBooks();
   } catch (e) {
-    showError('book', JSON.stringify(e));
+    showError('book', e);
   }
 }
 
 function deleteBook(id) {
-  confirmDelete(async () => { await api('DELETE', `/books/${id}`); loadBooks(booksPage); });
+  confirmDelete(async () => { await api('DELETE', `/books/${id}`); loadBooks(); });
 }
 
 // ── AUTHORS ───────────────────────────────────────────────────────────────────
 
 async function loadAuthors() {
   const data = await api('GET', '/authors?size=50').catch(() => null);
-  const items = data?._embedded?.authorList ?? [];
+  const items = data?._embedded?.authorList ?? (Array.isArray(data) ? data : []);
   document.getElementById('authors-list').innerHTML = items.length
     ? items.map(a => card(
         [['Nome', a.name], ['Biografia', a.biography]],
@@ -170,15 +235,6 @@ async function loadAuthors() {
         `deleteAuthor('${a.id}')`
       )).join('')
     : empty('Nenhum autor encontrado.');
-}
-
-async function searchAuthor() {
-  const q = document.getElementById('search-authors').value.trim();
-  if (!q) return loadAuthors();
-  const a = await api('GET', `/authors/search?name=${encodeURIComponent(q)}`).catch(() => null);
-  document.getElementById('authors-list').innerHTML = a
-    ? card([['Nome', a.name], ['Biografia', a.biography]], `editAuthor('${a.id}','${esc(a.name)}','${esc(a.biography)}')`, `deleteAuthor('${a.id}')`)
-    : empty('Autor não encontrado.');
 }
 
 function editAuthor(id, name, bio) {
@@ -203,7 +259,7 @@ async function saveAuthor() {
     document.getElementById('author-id').value = '';
     document.getElementById('author-form-title').textContent = 'Novo Autor';
     loadAuthors();
-  } catch (e) { showError('author', JSON.stringify(e)); }
+  } catch (e) { showError('author', e); }
 }
 
 function deleteAuthor(id) {
@@ -214,7 +270,7 @@ function deleteAuthor(id) {
 
 async function loadCategories() {
   const data = await api('GET', '/categories?size=50').catch(() => null);
-  const items = data?._embedded?.categoryList ?? [];
+  const items = data?._embedded?.categoryList ?? (Array.isArray(data) ? data : []);
   document.getElementById('categories-list').innerHTML = items.length
     ? items.map(c => card(
         [['Título', c.title], ['Descrição', c.description]],
@@ -246,7 +302,7 @@ async function saveCategory() {
     document.getElementById('category-id').value = '';
     document.getElementById('category-form-title').textContent = 'Nova Categoria';
     loadCategories();
-  } catch (e) { showError('category', JSON.stringify(e)); }
+  } catch (e) { showError('category', e); }
 }
 
 function deleteCategory(id) {
@@ -257,7 +313,7 @@ function deleteCategory(id) {
 
 async function loadSuppliers() {
   const data = await api('GET', '/suppliers?size=50').catch(() => null);
-  const items = data?._embedded?.supplierList ?? [];
+  const items = data?._embedded?.supplierList ?? (Array.isArray(data) ? data : []);
   document.getElementById('suppliers-list').innerHTML = items.length
     ? items.map(s => card(
         [['Nome', s.name], ['E-mail', s.email], ['Telefone', s.phone], ['CNPJ', s.cnpj]],
@@ -293,7 +349,7 @@ async function saveSupplier() {
     document.getElementById('supplier-id').value = '';
     document.getElementById('supplier-form-title').textContent = 'Novo Fornecedor';
     loadSuppliers();
-  } catch (e) { showError('supplier', JSON.stringify(e)); }
+  } catch (e) { showError('supplier', e); }
 }
 
 function deleteSupplier(id) {
@@ -303,8 +359,8 @@ function deleteSupplier(id) {
 // ── USERS ─────────────────────────────────────────────────────────────────────
 
 async function loadUsers() {
-  const data = await api('GET', '/users?size=50').catch(() => null);
-  const items = data?._embedded?.userList ?? [];
+  const data = await api('GET', '/users').catch(() => null);
+  const items = data?._embedded?.userList ?? (Array.isArray(data) ? data : []);
   document.getElementById('users-list').innerHTML = items.length
     ? items.map(u => card(
         [['E-mail', u.email], ['Perfil', u.role], ['Criado em', u.createdAt?.slice(0,10)]],
@@ -312,15 +368,6 @@ async function loadUsers() {
         `deleteUser('${u.id}')`
       )).join('')
     : empty('Nenhum usuário encontrado.');
-}
-
-async function searchUser() {
-  const q = document.getElementById('search-users').value.trim();
-  if (!q) return loadUsers();
-  const u = await api('GET', `/users/search?email=${encodeURIComponent(q)}`).catch(() => null);
-  document.getElementById('users-list').innerHTML = u
-    ? card([['E-mail', u.email], ['Perfil', u.role], ['Criado em', u.createdAt?.slice(0,10)]], `editUser('${u.id}','${esc(u.email)}')`, `deleteUser('${u.id}')`)
-    : empty('Usuário não encontrado.');
 }
 
 function editUser(id, email) {
@@ -345,7 +392,7 @@ async function saveUser() {
     document.getElementById('user-id').value = '';
     document.getElementById('user-form-title').textContent = 'Novo Usuário';
     loadUsers();
-  } catch (e) { showError('user', JSON.stringify(e)); }
+  } catch (e) { showError('user', e); }
 }
 
 function deleteUser(id) {
@@ -356,66 +403,33 @@ function deleteUser(id) {
 
 async function loadLoans() {
   const data = await api('GET', '/loans?size=50').catch(() => null);
-  const items = data?._embedded?.loanList ?? [];
+  const items = data?._embedded?.loanList ?? (Array.isArray(data) ? data : []);
   document.getElementById('loans-list').innerHTML = items.length
     ? items.map(l => card(
         [
           ['Usuário', l.user?.email],
           ['Livros', (l.books ?? []).map(b => b.title).join(', ')],
-          ['Emprestado em', l.loanDate?.slice(0,10)],
-          ['Previsto', l.loanDateScheduled?.slice(0,10)],
-          ['Devolvido', l.loanDateReturn?.slice(0,10)],
+          ['Emprestado em', l.loanDate?.slice(0,10)]
         ],
-        `editLoan('${l.id}','${l.user?.id}','${(l.books??[]).map(b=>b.id).join(',')}')`,
+        ``,
         `deleteLoan('${l.id}')`
       )).join('')
     : empty('Nenhum empréstimo encontrado.');
 }
 
-function editLoan(id, userId, bookIds) {
-  document.getElementById('loan-userId').value = userId;
-  document.getElementById('loan-bookIds').value = bookIds;
-  document.getElementById('loan-date').value = '';
-  hideError('loan');
-  openModal('loan-form');
-  document.querySelector('#modal-loan-form button[onclick="saveLoan()"]').onclick = () => saveLoan(id);
-}
-
-async function saveLoan(id) {
+async function saveLoan() {
   hideError('loan');
   const body = {
     userId: document.getElementById('loan-userId').value.trim(),
     bookIds: document.getElementById('loan-bookIds').value.split(',').map(s => s.trim()).filter(Boolean),
-    loanDateScheduled: document.getElementById('loan-date').value || undefined,
   };
   try {
-    id ? await api('PUT', `/loans/${id}`, body) : await api('POST', '/loans', body);
+    await api('POST', '/loans', body);
     closeModal();
     loadLoans();
-  } catch (e) { showError('loan', JSON.stringify(e)); }
+  } catch (e) { showError('loan', e); }
 }
 
 function deleteLoan(id) {
   confirmDelete(async () => { await api('DELETE', `/loans/${id}`); loadLoans(); });
 }
-
-// ── pagination ────────────────────────────────────────────────────────────────
-
-function renderPagination(prefix, page, loader) {
-  const el = document.getElementById(`${prefix}-pagination`);
-  if (!el || !page || page.totalPages <= 1) { if (el) el.innerHTML = ''; return; }
-  const { number, totalPages } = page;
-  let html = '';
-  if (number > 0) html += `<button onclick="${loader.name}(${number - 1})" class="px-3 py-1 border border-border rounded hover:border-blue text-subtle hover:text-text transition-colors">← Anterior</button>`;
-  html += `<span class="text-muted px-2">${number + 1} / ${totalPages}</span>`;
-  if (number < totalPages - 1) html += `<button onclick="${loader.name}(${number + 1})" class="px-3 py-1 border border-border rounded hover:border-blue text-subtle hover:text-text transition-colors">Próxima →</button>`;
-  el.innerHTML = html;
-}
-
-// ── utils ─────────────────────────────────────────────────────────────────────
-
-function esc(s) { return (s ?? '').replace(/'/g, "\\'").replace(/"/g, '&quot;'); }
-
-// ── init ──────────────────────────────────────────────────────────────────────
-
-nav('books');

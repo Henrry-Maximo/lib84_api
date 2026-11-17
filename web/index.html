@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>LIB84</title>
+  <title>LIB84 — Gerenciador</title>
   <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
@@ -21,7 +21,7 @@
     }
   </script>
   <style>
-    * { font-family: 'JetBrains Mono', monospace; }
+    body { font-family: 'JetBrains Mono', monospace; }
     ::-webkit-scrollbar { width: 6px; }
     ::-webkit-scrollbar-thumb { background: #2563eb66; border-radius: 999px; }
     ::-webkit-scrollbar-thumb:hover { background: #2563eb; }
@@ -35,7 +35,17 @@
 
   <!-- Header -->
   <header class="bg-surface border-b border-border px-6 py-3 flex items-center justify-between sticky top-0 z-30">
-    <span class="text-white font-semibold tracking-widest text-sm">LIB84</span>
+    <div class="flex items-center gap-4">
+      <span class="text-white font-semibold tracking-widest text-sm">LIB84</span>
+      <!-- Seletor de Versão e Auth -->
+      <div class="flex items-center gap-2 text-xs">
+        <select id="api-version" onchange="changeVersion()" class="bg-card border border-border text-subtle rounded px-2 py-1 outline-none">
+          <option value="2">V2 (Segura/RateLimit)</option>
+          <option value="1">V1 (Padrão)</option>
+        </select>
+        <button onclick="openModal('auth-login')" class="bg-card border border-border text-subtle hover:text-text px-3 py-1 rounded transition-colors">🔑 Login / Token</button>
+      </div>
+    </div>
     <nav class="flex gap-1 text-xs text-subtle overflow-x-auto">
       <button onclick="nav('books')"      class="nav-link px-3 py-1.5 hover:text-text" data-page="books">Livros</button>
       <button onclick="nav('authors')"    class="nav-link px-3 py-1.5 hover:text-text" data-page="authors">Autores</button>
@@ -58,7 +68,7 @@
         <button onclick="openModal('book-form')" class="bg-blue hover:bg-blue-h text-white text-xs px-4 py-2 rounded transition-colors">+ Novo Livro</button>
       </div>
       <div class="mb-4 flex gap-2">
-        <input id="search-books" type="text" placeholder="Buscar por categoria..." class="bg-surface border border-border text-text text-xs rounded px-3 py-2 w-64 focus:border-blue outline-none" />
+        <input id="search-books" type="text" placeholder="Buscar por categoria (UUID)..." class="bg-surface border border-border text-text text-xs rounded px-3 py-2 w-64 focus:border-blue outline-none" />
         <button onclick="searchByCategory()" class="bg-surface border border-border text-subtle hover:text-text text-xs px-3 py-2 rounded transition-colors">Buscar</button>
         <button onclick="loadBooks()" class="text-xs text-muted hover:text-subtle px-2">Limpar</button>
       </div>
@@ -74,11 +84,6 @@
           <p class="text-muted text-xs mt-0.5">Cadastro de autores do acervo</p>
         </div>
         <button onclick="openModal('author-form')" class="bg-blue hover:bg-blue-h text-white text-xs px-4 py-2 rounded transition-colors">+ Novo Autor</button>
-      </div>
-      <div class="mb-4 flex gap-2">
-        <input id="search-authors" type="text" placeholder="Buscar por nome..." class="bg-surface border border-border text-text text-xs rounded px-3 py-2 w-64 focus:border-blue outline-none" />
-        <button onclick="searchAuthor()" class="bg-surface border border-border text-subtle hover:text-text text-xs px-3 py-2 rounded transition-colors">Buscar</button>
-        <button onclick="loadAuthors()" class="text-xs text-muted hover:text-subtle px-2">Limpar</button>
       </div>
       <div id="authors-list" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4"></div>
     </div>
@@ -116,11 +121,6 @@
         </div>
         <button onclick="openModal('user-form')" class="bg-blue hover:bg-blue-h text-white text-xs px-4 py-2 rounded transition-colors">+ Novo Usuário</button>
       </div>
-      <div class="mb-4 flex gap-2">
-        <input id="search-users" type="text" placeholder="Buscar por e-mail..." class="bg-surface border border-border text-text text-xs rounded px-3 py-2 w-64 focus:border-blue outline-none" />
-        <button onclick="searchUser()" class="bg-surface border border-border text-subtle hover:text-text text-xs px-3 py-2 rounded transition-colors">Buscar</button>
-        <button onclick="loadUsers()" class="text-xs text-muted hover:text-subtle px-2">Limpar</button>
-      </div>
       <div id="users-list" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4"></div>
     </div>
 
@@ -139,11 +139,25 @@
   </main>
 
   <footer class="bg-surface border-t border-border text-center text-xs text-muted py-4">
-    <p>Feito com 💕, 2026 — Dev, Henrry-maximo</p>
+    <p>Feito para apresentação acadêmica — LIB84 V2</p>
   </footer>
 
   <!-- ── MODAIS ─────────────────────────────────────────────────────────── -->
   <div id="modal-overlay" onclick="closeModal()" class="hidden fixed inset-0 bg-black/70 z-40"></div>
+
+  <!-- Modal: Login / Token JWT -->
+  <div id="modal-auth-login" class="hidden fixed z-50 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-surface border border-border rounded-xl p-6 w-full max-w-sm shadow-2xl">
+    <h3 class="text-white font-semibold mb-4">Autenticação V2 (JWT)</h3>
+    <div class="space-y-3">
+      <div><label class="text-xs text-muted block mb-1">E-mail</label><input id="auth-email" type="email" value="admin@lib84.com" class="input-field w-full"></div>
+      <div><label class="text-xs text-muted block mb-1">Senha</label><input id="auth-password" type="password" value="123456" class="input-field w-full"></div>
+    </div>
+    <div class="flex gap-2 mt-5">
+      <button onclick="doLogin()" class="flex-1 bg-blue hover:bg-blue-h text-white text-xs py-2 rounded transition-colors">Entrar / Gerar Token</button>
+      <button onclick="closeModal()" class="flex-1 border border-border text-subtle hover:text-text text-xs py-2 rounded transition-colors">Fechar</button>
+    </div>
+    <p id="auth-status" class="text-subtle text-xs mt-3 text-center"></p>
+  </div>
 
   <!-- Modal: Livro -->
   <div id="modal-book-form" class="hidden fixed z-50 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-surface border border-border rounded-xl p-6 w-full max-w-md shadow-2xl">
@@ -233,7 +247,6 @@
     <div class="space-y-3">
       <div><label class="text-xs text-muted block mb-1">ID do Usuário *</label><input id="loan-userId" type="text" placeholder="uuid" class="input-field w-full"></div>
       <div><label class="text-xs text-muted block mb-1">IDs dos Livros * (separados por vírgula)</label><input id="loan-bookIds" type="text" placeholder="uuid, uuid" class="input-field w-full"></div>
-      <div><label class="text-xs text-muted block mb-1">Data Prevista de Devolução</label><input id="loan-date" type="datetime-local" class="input-field w-full"></div>
     </div>
     <div class="flex gap-2 mt-5">
       <button onclick="saveLoan()" class="flex-1 bg-blue hover:bg-blue-h text-white text-xs py-2 rounded transition-colors">Salvar</button>
