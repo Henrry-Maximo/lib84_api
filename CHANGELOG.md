@@ -6,6 +6,24 @@ O formato é baseado em [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.
 
 ## [Unreleased]
 
+## [2.0.0] - 2026-11-17
+
+### Added
+
+- Adicionado `IdempotencyStore` para armazenamento em memória de chaves de idempotência com TTL de 24 horas, hash SHA-256 do corpo da requisição e controle de estado (`IN_PROGRESS` / `DONE`) via `ConcurrentHashMap`.
+- Adicionado `IdempotencyWrapperFilter` (`@Order(1)`) para envolver requisições POST e PATCH da V2 nos wrappers `CachedBodyRequestWrapper` e `ContentCachingResponseWrapper`, permitindo múltiplas leituras do `InputStream` e captura do corpo da resposta.
+- Adicionado `CachedBodyRequestWrapper` para armazenar o corpo da requisição em buffer e permitir releitura do `InputStream`.
+- Adicionado `IdempotencyInterceptor` para validar o header `Idempotency-Key` em operações POST e PATCH da V2, aplicando as regras: chave ausente → 422, chave em andamento (concorrência) → 409, mesma chave com corpo diferente → 422, mesma chave com mesmo corpo → replay da resposta cacheada com header `Idempotent-Replayed: true`.
+- Adicionado `IdempotencyDemoController` com `GET /idempotency-demo` (documentação interativa das regras) e `POST /idempotency-demo/echo` (endpoint de teste sem exigência de chave).
+
+### Changed
+
+- Atualizado `ApiVersionConfig` para registrar o `IdempotencyInterceptor` após o `RateLimitingInterceptor`.
+- Atualizado `ConfigSwagger` para injetar o parâmetro de header `Idempotency-Key` (obrigatório, com exemplo UUID) em todos os endpoints POST e PATCH da V2, exceto `/session` e `/idempotency-demo`.
+- Atualizado `SecurityConfig` para liberar a rota `/idempotency-demo` sem autenticação.
+- Atualizado configuração do swagger para abrigar campo UUID da idempotência.
+- Atualizado readme para refletir conclusão da etapa II.
+
 ## [2.0.0] - 2026-11-16
 
 ### Added

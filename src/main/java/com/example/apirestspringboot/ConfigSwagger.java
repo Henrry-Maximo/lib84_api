@@ -105,7 +105,7 @@ public class ConfigSwagger {
     public GroupedOpenApi v2() {
         return GroupedOpenApi.builder()
                 .group("v2")
-                .displayName("V2 - In Development")
+                .displayName("V2 - Stable")
                 .pathsToMatch("/**")
                 .addOpenApiMethodFilter(method -> {
                     RequestMapping mapping = AnnotatedElementUtils.findMergedAnnotation(method, RequestMapping.class);
@@ -165,12 +165,26 @@ public class ConfigSwagger {
                             .description("""
                                     Welcome to **LIB84 API v2** — the authenticated, role-based evolution of the LIB84 library system.
                                     
-                                    ### What's New in V2
-                                    - **Native Header Versioning:** Pass `X-API-Version: 2` on all requests.
-                                    - **JWT Authentication Required:** Authenticate via `POST /session` and click **Authorize** above with your Bearer token.
-                                    - **Context-Aware Resources:** Endpoints like `/loans` and `/profiles` automatically extract the authenticated `user_id` from the JWT payload.
-                                    - **Role-Based Access Control (RBAC):** Write operations (`POST`, `PUT`, `DELETE`) on catalog resources require `ADMIN` privileges.
-                                    - **Rate Limiting by Plan:** Request quotas enforced per user subscription plan (`BASIC` vs `PREMIUM`).
+                                    ### Getting Started
+                                    1. Create an account via `POST /users` (no token needed).
+                                    2. Authenticate via `POST /session` to receive a Bearer token.
+                                    3. Click **Authorize** above and paste the token.
+                                    4. All `POST` and `PATCH` requests require an `Idempotency-Key` header — generate any UUID v4.
+                                    
+                                    ### Features
+                                    - **JWT Authentication:** All routes (except `/session` and `POST /users`) require a valid Bearer token.
+                                    - **Role-Based Access Control:** Write operations on catalog resources (`books`, `authors`, `categories`, `suppliers`) require the `ADMIN` role.
+                                    - **Rate Limiting:** Requests are throttled by subscription plan — `BASIC` (15 requests) or `PREMIUM` (50 requests). Update your plan via `PATCH /users/{id}`.
+                                    - **Idempotency:** `POST` and `PATCH` requests require an `Idempotency-Key` (UUID). Sending the same key with the same body replays the cached response without duplicating data. Keys expire after 24 hours.
+                                    - **Context-Aware Endpoints:** Routes like `POST /loans` and `GET /loans/me` resolve the authenticated user from the JWT automatically.
+                                    
+                                    ### Required Headers
+                                    
+                                    | Header | When | Description |
+                                    |---|---|---|
+                                    | `Authorization` | All authenticated routes | `Bearer <token>` from `POST /session` |
+                                    | `X-API-Version` | Always | Must be `2` |
+                                    | `Idempotency-Key` | POST and PATCH | UUID v4 to prevent duplicate operations |
                                     
                                     **Repository**: https://github.com/Henrry-Maximo/lib84_api
                                     """);

@@ -5,7 +5,7 @@
 ![alt text](logo.png)
 
 - ✅ **Status:** Concluído - Part I
-- 🚧 **Status:** Andamento - Part II
+- ✅ **Status:** Concluído - Part II
 
 [![Swagger Docs](https://img.shields.io/badge/API%20Docs-Swagger-85EA2D?style=for-the-badge&logo=swagger)](https://lib84-api.onrender.com/docs)
 [![OpenAPI Spec](https://img.shields.io/badge/OpenAPI-JSON-6BA539?style=for-the-badge&logo=openapiinitiative&logoColor=white)](https://lib84-api.onrender.com/api-docs)
@@ -158,12 +158,12 @@ Obs.: o versionamento é realizado pelo header HTTP `X-API-Version`.
 - [x] Limitar por IP, por header e por chave de API (feito usando IP para anônimos e plano/usuário do JWT para logados)
 - [x] Responder `429 Too Many Requests` com `Retry-After`
 - [x] Expor headers informativos (limite, restante, reset)
-- [ ] Header `Idempotency-Key` nas operações que não são idempotentes por natureza (POST e, se necessário, PATCH)
-- [ ] Vincular a chave ao conteúdo do JSON (hash do corpo): mesma chave com corpo diferente → `422`
-- [ ] Mesma chave com o mesmo corpo → devolver a resposta já gravada, sem duplicar o registro
-- [ ] Definir uma janela de validade (TTL) para a chave
-- [ ] Documentar a idempotência dos métodos HTTP: GET, PUT e DELETE já são idempotentes; POST e PATCH precisam da chave
-- [ ] Endpoint de demonstração de idempotência (o seu "GET idempotent")
+- [x] Header `Idempotency-Key` nas operações que não são idempotentes por natureza (POST e, se necessário, PATCH)
+- [x] Vincular a chave ao conteúdo do JSON (hash do corpo): mesma chave com corpo diferente → `422`
+- [x] Mesma chave com o mesmo corpo → devolver a resposta já gravada, sem duplicar o registro
+- [x] Definir uma janela de validade (TTL) para a chave (24h - TTL_SECONDS)
+- [x] Documentar a idempotência dos métodos HTTP: GET, PUT e DELETE já são idempotentes; POST e PATCH precisam da chave
+- [x] Endpoint de demonstração de idempotência (o seu "GET idempotent")
 
 ## Documentação de Negócio
 
@@ -248,6 +248,7 @@ Obs.: o versionamento é realizado pelo header HTTP `X-API-Version`.
 - Um livro pode possuir vários autores e um autor pode escrever vários livros (Many-to-Many).
 - Um usuário possui exatamente um perfil, e cada perfil pertence a exatamente um usuário (One-to-One)
 
-### Artigos
+### Artigos (usados)
 
 - https://medium.com/@bharathdayals/building-a-per-endpoint-rate-limiter-using-the-token-bucket-algorithm-f09dff457aaa
+- https://alexanderobregon.substack.com/p/idempotency-keys-in-spring-boot-apis
