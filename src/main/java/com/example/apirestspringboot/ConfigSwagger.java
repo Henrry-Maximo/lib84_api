@@ -118,29 +118,41 @@ public class ConfigSwagger {
                                 .forEach(p -> p.schema(new StringSchema()._enum(java.util.List.of("2"))._default("2")));
                     }
 
-                    // adiciona Idempotency-Key nos POST e PATCH
+                    // adiciona Idempotency-Key nos POST e PATCH, exceto rotas sem idempotência
                     var requestMethod = handlerMethod.getMethod();
                     boolean isWriteOp = java.util.Arrays.stream(requestMethod.getAnnotations())
                             .anyMatch(a -> a instanceof org.springframework.web.bind.annotation.PostMapping
                                     || a instanceof org.springframework.web.bind.annotation.PatchMapping);
 
-                    String path = "";
-                    var reqMapping = org.springframework.core.annotation.AnnotatedElementUtils
-                            .findMergedAnnotation(requestMethod, org.springframework.web.bind.annotation.RequestMapping.class);
-                    if (reqMapping != null && reqMapping.path().length > 0) path = reqMapping.path()[0];
+                    if (isWriteOp) {
+                        // monta o path completo: prefixo da classe + path do método
+                        String classPath = "";
+                        var classMapping = org.springframework.core.annotation.AnnotatedElementUtils
+                                .findMergedAnnotation(handlerMethod.getBeanType(), org.springframework.web.bind.annotation.RequestMapping.class);
+                        if (classMapping != null && classMapping.value().length > 0) classPath = classMapping.value()[0];
 
-                    boolean excluded = path.equals("/session") || path.contains("/idempotency-demo");
+                        String methodPath = "";
+                        var methodMapping = org.springframework.core.annotation.AnnotatedElementUtils
+                                .findMergedAnnotation(requestMethod, org.springframework.web.bind.annotation.RequestMapping.class);
+                        if (methodMapping != null && methodMapping.path().length > 0) methodPath = methodMapping.path()[0];
 
-                    if (isWriteOp && !excluded) {
-                        var keyParam = new io.swagger.v3.oas.models.parameters.HeaderParameter()
-                                .name("Idempotency-Key")
-                                .description("Unique UUID to ensure idempotency. Same key + same body = cached response. Same key + different body = 422.")
-                                .required(true)
-                                .schema(new StringSchema().example("550e8400-e29b-41d4-a716-446655440000"));
-                        if (operation.getParameters() == null) operation.setParameters(new java.util.ArrayList<>());
-                        boolean alreadyPresent = operation.getParameters().stream()
-                                .anyMatch(p -> "Idempotency-Key".equals(p.getName()));
-                        if (!alreadyPresent) operation.addParametersItem(keyParam);
+                        String fullPath = classPath + methodPath;
+
+                        // rotas excluídas da exigência de Idempotency-Key
+                        boolean excluded = fullPath.equals("/session")
+                                || fullPath.startsWith("/idempotency-demo");
+
+                        if (!excluded) {
+                            var keyParam = new io.swagger.v3.oas.models.parameters.HeaderParameter()
+                                    .name("Idempotency-Key")
+                                    .description("Unique UUID to ensure idempotency. Same key + same body = cached response. Same key + different body = 422.")
+                                    .required(true)
+                                    .schema(new StringSchema().example("550e8400-e29b-41d4-a716-446655440000"));
+                            if (operation.getParameters() == null) operation.setParameters(new java.util.ArrayList<>());
+                            boolean alreadyPresent = operation.getParameters().stream()
+                                    .anyMatch(p -> "Idempotency-Key".equals(p.getName()));
+                            if (!alreadyPresent) operation.addParametersItem(keyParam);
+                        }
                     }
 
                     return operation;
