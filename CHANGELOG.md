@@ -6,6 +6,24 @@ O formato é baseado em [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.
 
 ## [Unreleased]
 
+## [2.0.0] - 2026-11-16
+
+### Added
+
+- Adicionado RateLimitService e TokenBucket baseados no algoritmo de Token Bucket com threads seguras (ReentrantLock) para controle de taxa de requisições.
+- Adicionado RateLimitingInterceptor para interceptar requisições globais e aplicar cotas dinâmicas baseadas no plano do usuário (BASIC vs PREMIUM) ou por IP para clientes anônimos.
+- Adicionada resposta HTTP 429 Too Many Requests acompanhada do header Retry-After e headers informativos de cota (X-RateLimit-Limit, X-RateLimit-Remaining).
+- Adicionada validação por parâmetro de query no ApiVersionInterceptor como fallback para garantir compatibilidade com o seletor visual do Swagger UI (prevenir contra escolha de versão não existente).
+- Adicionados exemplos estruturados e schemas de resposta JSON para os códigos de erro HTTP 401 (missing or invalid JWT Token) e 403 (not authorized) em todos os controllers da V2.
+- Adicionada enum com valor único no ConfigSwagger para estabelecer versão (X-API-Version), sendo renderizado como dropdown estático no Swagger UI.
+
+### Changed
+
+- Atualizado UserPatchDto e UserService para permitir a atualização dinâmica do plano de assinatura do usuário via método PATCH "/users/{id}".
+- Atualizada a mensagem da exceção ProfileNotFoundException no ProfileService para orientar explicitamente usuários autenticados sem perfil a criá-lo via POST "/profiles". Caso contrário, perfil não terá as informações opcionais.
+- Atualizado o RateLimitingInterceptor para aplicar proteção de taxa em todas as requisições (incluindo rotas públicas e anônimas por IP), mitigando riscos de abusos e ataques de negação de serviço (DoS).
+- Otimizado o método tryConsume no TokenBucket para eliminar chamadas duplicadas ao mecanismo de recarga (refill), garantindo a consistência exata dos tokens restantes nos headers informativos (bloqueio via reentrant lock).
+
 ## [2.0.0] - 2026-11-15
 
 ### Added

@@ -165,7 +165,6 @@ Obs.: o versionamento é realizado pelo header HTTP `X-API-Version`.
 - [ ] Documentar a idempotência dos métodos HTTP: GET, PUT e DELETE já são idempotentes; POST e PATCH precisam da chave
 - [ ] Endpoint de demonstração de idempotência (o seu "GET idempotent")
 
-
 ## Documentação de Negócio
 
 ## Estrutura do Banco de Dados
