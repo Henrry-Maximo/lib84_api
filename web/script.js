@@ -1,435 +1,658 @@
-const BASE = 'http://localhost:8080';
-let authToken = localStorage.getItem('lib84_token') || '';
-
-// Inicializa na aba de livros
-window.addEventListener('DOMContentLoaded', () => {
-  nav('books');
-});
-
-// ── Auth & Version ────────────────────────────────────────────────────────────
-
-function changeVersion() {
-  const v = document.getElementById('api-version').value;
-  console.log('Versão da API alterada para: V' + v);
-}
-
-async function doLogin() {
-  const email = document.getElementById('auth-email').value;
-  const password = document.getElementById('auth-password').value;
-  const statusEl = document.getElementById('auth-status');
-  statusEl.textContent = 'Autenticando...';
-  
-  try {
-    const res = await fetch(BASE + '/session', {
-      method: 'POST',
-      headers: { 
-        'Content-Type': 'application/json',
-        'X-API-Version': document.getElementById('api-version').value
-      },
-      body: JSON.stringify({ email, password })
-    });
-    const data = await res.json();
-    if (!res.ok) throw data;
-    
-    // Supondo que retorna o token no formato { token: "..." } ou direto a string
-    authToken = data.token || data.accessToken || data;
-    localStorage.setItem('lib84_token', authToken);
-    statusEl.textContent = 'Token JWT obtido com sucesso!';
-    setTimeout(() => closeModal(), 1500);
-  } catch (e) {
-    statusEl.textContent = 'Erro no login: ' + (e.message || JSON.stringify(e));
-  }
-}
-
-// ── nav ───────────────────────────────────────────────────────────────────────
-
-function nav(page) {
-  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-  document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
-  document.getElementById(`page-${page}`).classList.add('active');
-  document.querySelector(`[data-page="${page}"]`).classList.add('active');
-  loaders[page]?.();
-}
-
-const loaders = {
-  books: loadBooks,
-  authors: loadAuthors,
-  categories: loadCategories,
-  suppliers: loadSuppliers,
-  users: loadUsers,
-  loans: loadLoans,
+const CONFIG = {
+  // Servidor em produção. Para o Swagger local use 'http://localhost:8080'.
+  BASE: 'http://localhost:8080',
+  PAGE_SIZE: 9,
+  LOOKUP_SIZE: 100,
 };
 
-// ── modal ─────────────────────────────────────────────────────────────────────
+const BTN_GHOST =
+  'border border-border bg-surface text-subtle hover:text-text text-xs px-3 py-2 rounded transition-colors disabled:opacity-40';
+
+// Nome da chave que a API usa dentro de "_embedded"
+const LIST_KEY = {
+  books: 'bookList',
+  authors: 'authorList',
+  categories: 'categoryList',
+  suppliers: 'supplierList',
+  users: 'userList',
+  loans: 'loanList',
+};
+
+const state = {
+  resource: 'books',
+  page: 0,
+  query: '',
+  filter: {},
+  items: [],
+  editing: null,
+  onConfirm: null,
+  lookups: {}, // listas auxiliares (categorias, autores...) para nomes e selects
+  version: localStorage.getItem('lib84_version') || '1',
+  token: localStorage.getItem('lib84_token') || '',
+};
+
+// ── Helpers ───────────────────────────────────────────────────────
+
+const $ = id => document.getElementById(id);
+const isV2 = () => state.version === '2';
+const idOf = v => (v && typeof v === 'object' ? v.id : v);
+const cut = (s, n = 140) => (s && s.length > n ? s.slice(0, n) + '…' : s);
+const esc = v =>
+  String(v ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const invalidate = key => { delete state.lookups[key]; };
+const findItem = id => state.items.find(i => i.id === id);
+const extract = (name, data) => data?._embedded?.[LIST_KEY[name]] ?? [];
+const msg = (text, isError = false) =>
+  `<p class="${isError ? 'text-red-400' : 'text-muted'} text-xs col-span-full">${esc(text)}</p>`;
+
+const fmtDate = (s, withTime = false) => {
+  if (!s) return '—';
+  const d = new Date(s.length === 10 ? `${s}T00:00:00` : s);
+  if (isNaN(d)) return s;
+  return d.toLocaleString('pt-BR', withTime
+    ? { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' }
+    : { day: '2-digit', month: '2-digit', year: 'numeric' });
+};
+
+// ── Definição dos recursos ────────────────────────────────────────
+// Cada recurso descreve: caminho, campos do formulário, cartão, busca e filtro.
+
+const RES = {
+  books: {
+    title: 'Livros',
+    sub: 'Gerencie o acervo da biblioteca',
+    single: 'Livro',
+    path: '/books',
+    needs: ['categories', 'suppliers', 'authors'],
+    label: b => b.title,
+    filter: {
+      key: 'categoryId',
+      source: 'categories',
+      placeholder: 'Todas as categorias',
+      url: v => `/books/category/${v}`,
+    },
+    fields: [
+      { key: 'title', label: 'Título', required: true },
+      { key: 'isbn', label: 'ISBN', required: true },
+      { key: 'amount', label: 'Quantidade', type: 'number', required: true },
+      { key: 'datePublication', label: 'Data de publicação', type: 'date', required: true },
+      { key: 'categoryId', label: 'Categoria', type: 'select', source: 'categories', required: true,
+        from: i => idOf(i.category) },
+      { key: 'supplierId', label: 'Fornecedor', type: 'select', source: 'suppliers', required: true,
+        from: i => idOf(i.supplier) },
+      { key: 'authorIds', label: 'Autores', type: 'multiselect', source: 'authors', required: true,
+        from: i => (i.authors ?? []).map(idOf) },
+    ],
+    card: b => ({
+      title: b.title,
+      rows: [
+        ['ISBN', b.isbn],
+        ['Quantidade', b.amount],
+        ['Categoria', nameOf('categories', idOf(b.category))],
+        ['Fornecedor', nameOf('suppliers', idOf(b.supplier))],
+        ['Autores', (b.authors ?? []).map(a => a.name).join(', ')],
+        ['Publicação', fmtDate(b.datePublication)],
+      ],
+    }),
+    empty: 'Nenhum livro encontrado.',
+  },
+
+  authors: {
+    title: 'Autores',
+    sub: 'Cadastro de autores do acervo',
+    single: 'Autor',
+    path: '/authors',
+    needs: [],
+    label: a => a.name,
+    search: { path: '/authors/search', param: 'name', label: 'nome' },
+    fields: [
+      { key: 'name', label: 'Nome', required: true },
+      { key: 'biography', label: 'Biografia', type: 'textarea' },
+    ],
+    card: a => ({ title: a.name, rows: [['Biografia', cut(a.biography)]] }),
+    empty: 'Nenhum autor encontrado.',
+  },
+
+  categories: {
+    title: 'Categorias',
+    sub: 'Categorias dos livros',
+    single: 'Categoria',
+    path: '/categories',
+    needs: [],
+    label: c => c.title,
+    search: { path: '/categories/search', param: 'title', label: 'título' },
+    fields: [
+      { key: 'title', label: 'Título', required: true },
+      { key: 'description', label: 'Descrição', type: 'textarea' },
+    ],
+    card: c => ({ title: c.title, rows: [['Descrição', cut(c.description)]] }),
+    empty: 'Nenhuma categoria encontrada.',
+  },
+
+  suppliers: {
+    title: 'Fornecedores',
+    sub: 'Fornecedores dos livros',
+    single: 'Fornecedor',
+    path: '/suppliers',
+    needs: [],
+    label: s => s.name,
+    search: { path: '/suppliers/search', param: 'name', label: 'nome' },
+    fields: [
+      { key: 'name', label: 'Nome', required: true },
+      { key: 'email', label: 'E-mail', type: 'email', required: true },
+      { key: 'phone', label: 'Telefone' },
+      { key: 'cnpj', label: 'CNPJ' },
+    ],
+    card: s => ({
+      title: s.name,
+      rows: [['E-mail', s.email], ['Telefone', s.phone], ['CNPJ', s.cnpj]],
+    }),
+    empty: 'Nenhum fornecedor encontrado.',
+  },
+
+  users: {
+    title: 'Usuários',
+    sub: 'Membros e administradores',
+    single: 'Usuário',
+    path: '/users',
+    needs: [],
+    label: u => u.email,
+    search: { path: '/users/search', param: 'email', label: 'e-mail' },
+    fields: [
+      { key: 'email', label: 'E-mail', type: 'email', required: true },
+      { key: 'password', label: 'Senha', type: 'password', required: true }, // a API exige senha no PUT também
+    ],
+    card: u => ({
+      title: u.email,
+      rows: [['Perfil', u.role], ['Plano', u.plan], ['Criado em', fmtDate(u.createdAt)]],
+    }),
+    empty: 'Nenhum usuário encontrado.',
+  },
+
+  loans: {
+    title: 'Empréstimos',
+    sub: 'Controle de empréstimos de livros',
+    single: 'Empréstimo',
+    path: '/loans',
+    needs: ['users', 'books'],
+    v2Fallback: '/loans/me', // usuário comum na V2 não lista todos os empréstimos
+    v2Edit: false,           // a V2 não possui PUT /loans/{id}
+    label: l => `Empréstimo · ${l.user?.email ?? ''}`,
+    filter: {
+      key: 'userId',
+      source: 'users',
+      placeholder: 'Todos os usuários',
+      url: v => `/loans/user/${v}`,
+      v1Only: true,
+    },
+    fields: [
+      { key: 'userId', label: 'Usuário', type: 'select', source: 'users', required: true, v1Only: true,
+        from: i => idOf(i.user) },
+      { key: 'bookIds', label: 'Livros', type: 'multiselect', source: 'books', required: true,
+        from: i => (i.books ?? []).map(idOf) },
+      { key: 'loanDateScheduled', label: 'Data agendada', type: 'datetime-local', required: true,
+        from: i => i.loanDateScheduled?.slice(0, 16) },
+    ],
+    card: l => ({
+      title: l.user?.email ?? 'Empréstimo',
+      rows: [
+        ['Livros', (l.books ?? []).map(b => b.title).join(', ')],
+        ['Agendado', fmtDate(l.loanDateScheduled, true)],
+        ['Retirada', fmtDate(l.loanDate, true)],
+        ['Devolução', fmtDate(l.loanDateReturn, true)],
+      ],
+    }),
+    empty: 'Nenhum empréstimo encontrado.',
+  },
+};
+
+// Nome de um item de lookup (ex.: id de categoria -> título)
+function nameOf(key, id) {
+  const o = state.lookups[key]?.find(x => x.id === id);
+  return o ? RES[key].label(o) : '—';
+}
+
+// ── Modais e notificações ────────────────────────────────────────
 
 function openModal(name) {
-  document.getElementById('modal-overlay').classList.remove('hidden');
-  document.getElementById(`modal-${name}`).classList.remove('hidden');
+  document.querySelectorAll('.modal').forEach(m => m.classList.add('hidden'));
+  $('modal-' + name).classList.remove('hidden');
+  $('overlay').classList.remove('hidden');
 }
 
 function closeModal() {
-  document.getElementById('modal-overlay').classList.add('hidden');
-  document.querySelectorAll('[id^="modal-"]').forEach(m => m.classList.add('hidden'));
+  document.querySelectorAll('.modal').forEach(m => m.classList.add('hidden'));
+  $('overlay').classList.add('hidden');
 }
 
-function showError(prefix, msg) {
-  const el = document.getElementById(`${prefix}-error`);
-  if (!el) return;
-  el.textContent = typeof msg === 'object' ? JSON.stringify(msg) : msg;
+function toast(text, type = 'ok') {
+  const el = document.createElement('div');
+  el.className = `text-xs px-4 py-2 rounded border shadow-lg max-w-sm ${
+    type === 'error' ? 'bg-red-950 border-red-800 text-red-300' : 'bg-surface border-border text-text'
+  }`;
+  el.textContent = text;
+  $('toasts').appendChild(el);
+  setTimeout(() => el.remove(), 4000);
+}
+
+function formError(text) {
+  const el = $('form-error');
+  el.textContent = text;
   el.classList.remove('hidden');
 }
 
-function hideError(prefix) {
-  const el = document.getElementById(`${prefix}-error`);
-  if (el) el.classList.add('hidden');
-}
+// ── API ───────────────────────────────────────────────────────────
 
-// ── api helper ────────────────────────────────────────────────────────────────
+async function api(method, path, body, opts = {}) {
+  const headers = { 'X-API-Version': state.version };
+  if (body) headers['Content-Type'] = 'application/json';
 
-async function api(method, path, body) {
-  const version = document.getElementById('api-version').value;
-  const headers = { 
-    'Content-Type': 'application/json',
-    'X-API-Version': version
-  };
-
-  if (authToken) {
-    headers['Authorization'] = `Bearer ${authToken}`;
+  if (isV2()) {
+    if (state.token && !opts.public) headers.Authorization = `Bearer ${state.token}`;
+    if (['POST', 'PATCH'].includes(method) && !path.startsWith('/session')) {
+      headers['Idempotency-Key'] = crypto.randomUUID();
+    }
   }
 
-  // Se for POST ou PATCH na V2, injeta o Idempotency-Key automaticamente
-  if (version === '2' && (method === 'POST' || method === 'PATCH')) {
-    headers['Idempotency-Key'] = crypto.randomUUID();
+  let res;
+  try {
+    res = await fetch(CONFIG.BASE + path, {
+      method,
+      headers,
+      body: body ? JSON.stringify(body) : undefined,
+    });
+  } catch {
+    const err = new Error('Não foi possível conectar à API.');
+    err.network = true;
+    throw err;
   }
 
-  const opts = { method, headers };
-  if (body) opts.body = JSON.stringify(body);
-
-  const res = await fetch(BASE + path, opts);
+  if (res.status === 401 && !opts.public && state.token) clearSession();
   if (res.status === 204) return null;
-  
+
   const text = await res.text();
-  const data = text ? JSON.parse(text) : null;
-  
-  if (!res.ok) throw data || { message: res.statusText };
+  let data = null;
+  try { data = text ? JSON.parse(text) : null; } catch { data = { message: text }; }
+
+  if (!res.ok) {
+    const err = new Error('api error');
+    err.status = res.status;
+    err.data = data;
+    throw err;
+  }
   return data;
 }
 
-// ── card builder ──────────────────────────────────────────────────────────────
+// Converte erros da API (formato { error } ou { campo: [mensagens] }) em texto
+function errMsg(err) {
+  if (err.network) return err.message;
+  const d = err.data;
+  if (d) {
+    if (typeof d === 'string') return d;
+    if (d.error) return d.error;
+    if (d.message) return d.message;
+    const fields = Object.entries(d).map(([k, v]) => `${k}: ${[].concat(v).join('; ')}`);
+    if (fields.length) return fields.join(' | ');
+  }
+  if (err.status === 401) return 'Sessão ausente ou expirada. Faça login.';
+  if (err.status === 403) return 'Sem permissão para esta ação (requer perfil ADMIN).';
+  return err.message || 'Erro inesperado.';
+}
 
-function card(rows, onEdit, onDelete) {
-  const fields = rows.map(([label, value]) =>
-    `<p class="text-xs leading-relaxed"><span class="text-muted">${label}:</span> <span class="text-text">${value ?? '—'}</span></p>`
-  ).join('');
+// ── Lookups (listas auxiliares, cacheadas) ───────────────────────
+
+async function ensureLookups(keys = []) {
+  if (isV2() && !state.token) return;
+  await Promise.all(
+    keys.filter(k => !state.lookups[k]).map(async k => {
+      try {
+        state.lookups[k] = extract(k, await api('GET', `/${k}?size=${CONFIG.LOOKUP_SIZE}`));
+      } catch {
+        state.lookups[k] = [];
+      }
+    })
+  );
+}
+
+// ── Renderização de listas ───────────────────────────────────────
+
+async function fetchPage(res) {
+  try {
+    return await api('GET', `${res.path}?page=${state.page}&size=${CONFIG.PAGE_SIZE}`);
+  } catch (e) {
+    if (e.status === 403 && res.v2Fallback && isV2()) return api('GET', res.v2Fallback);
+    throw e;
+  }
+}
+
+async function loadList() {
+  const res = RES[state.resource];
+  const grid = $('grid');
+  $('pagination').innerHTML = '';
+
+  if (isV2() && !state.token) {
+    grid.innerHTML = msg('Esta versão exige autenticação. Clique em "Entrar" no topo para continuar.');
+    return;
+  }
+  grid.innerHTML = msg('Carregando...');
+  await ensureLookups(res.needs);
+
+  const filterValue = res.filter && !(res.filter.v1Only && isV2()) ? state.filter[res.filter.key] : null;
+  let items = [];
+  let page = null;
+
+  try {
+    if (state.query && res.search) {
+      const data = await api('GET', `${res.search.path}?${res.search.param}=${encodeURIComponent(state.query)}`);
+      items = data ? [data] : [];
+    } else if (filterValue) {
+      items = extract(state.resource, await api('GET', res.filter.url(filterValue)));
+    } else {
+      const data = await fetchPage(res);
+      items = extract(state.resource, data);
+      page = data?.page ?? null;
+    }
+  } catch (e) {
+    if (e.status !== 404) {
+      grid.innerHTML = msg('⚠ ' + errMsg(e), true);
+      return;
+    }
+  }
+
+  state.items = items;
+  grid.innerHTML = items.length ? items.map(i => cardHTML(i, res)).join('') : msg(res.empty);
+  renderPagination(page);
+}
+
+function cardHTML(item, res) {
+  const c = res.card(item);
+  const rows = c.rows
+    .map(([k, v]) => `
+      <p class="text-xs leading-relaxed">
+        <span class="text-muted">${k}:</span>
+        <span class="text-text break-words">${v == null || v === '' ? '—' : esc(v)}</span>
+      </p>`)
+    .join('');
+  const canEdit = res.v2Edit !== false || !isV2();
+
   return `
     <div class="bg-surface border border-border rounded-lg p-4 flex flex-col gap-2 hover:border-blue/50 transition-colors">
-      <div class="flex flex-col gap-1 flex-1">${fields}</div>
+      <h3 class="text-white text-sm font-semibold break-words">${esc(c.title)}</h3>
+      <div class="flex flex-col gap-1 flex-1">${rows}</div>
       <div class="flex gap-2 mt-2 pt-2 border-t border-border">
-        <button onclick="${onEdit}" class="flex-1 text-xs text-subtle hover:text-blue transition-colors py-1">Editar</button>
-        <button onclick="${onDelete}" class="flex-1 text-xs text-subtle hover:text-red-400 transition-colors py-1">Excluir</button>
+        ${canEdit ? `<button data-act="edit" data-id="${item.id}" class="flex-1 text-xs text-subtle hover:text-blue py-1">Editar</button>` : ''}
+        <button data-act="del" data-id="${item.id}" class="flex-1 text-xs text-subtle hover:text-red-400 py-1">Excluir</button>
       </div>
     </div>`;
 }
 
-function empty(msg) {
-  return `<p class="text-muted text-xs col-span-3">${msg}</p>`;
+function renderPagination(p) {
+  const el = $('pagination');
+  if (!p) return;
+  if (p.totalPages <= 1) {
+    el.innerHTML = `<span>${p.totalElements} registro(s)</span>`;
+    return;
+  }
+  el.innerHTML = `
+    <button data-act="page" data-page="${p.number - 1}" ${p.number === 0 ? 'disabled' : ''} class="${BTN_GHOST}">← Anterior</button>
+    <span>Página ${p.number + 1} de ${p.totalPages} · ${p.totalElements} registros</span>
+    <button data-act="page" data-page="${p.number + 1}" ${p.number + 1 >= p.totalPages ? 'disabled' : ''} class="${BTN_GHOST}">Próxima →</button>`;
 }
 
-function confirmDelete(fn) {
-  openModal('confirm');
-  document.getElementById('confirm-yes').onclick = () => { closeModal(); fn(); };
+function renderToolbar(res) {
+  let html = '';
+  if (res.search) {
+    html += `
+      <input id="q" type="text" value="${esc(state.query)}" placeholder="Buscar por ${res.search.label}..." class="input-field w-64">
+      <button data-act="search" class="${BTN_GHOST}">Buscar</button>
+      <button data-act="clear" class="text-xs text-muted hover:text-subtle px-2">Limpar</button>`;
+  }
+  if (res.filter && !(res.filter.v1Only && isV2())) {
+    const opts = (state.lookups[res.filter.source] ?? []).map(o => {
+      const sel = state.filter[res.filter.key] === o.id ? 'selected' : '';
+      return `<option value="${o.id}" ${sel}>${esc(RES[res.filter.source].label(o))}</option>`;
+    }).join('');
+    html += `
+      <select id="flt" class="input-field w-64">
+        <option value="">${res.filter.placeholder}</option>${opts}
+      </select>`;
+  }
+  $('toolbar').innerHTML = html;
 }
 
-function esc(str) {
-  return (str || '').replace(/'/g, "\\'");
+// Recarrega lookups necessários, a barra de ferramentas e a lista
+async function refresh() {
+  const res = RES[state.resource];
+  await ensureLookups(res.needs);
+  renderToolbar(res);
+  await loadList();
 }
 
-function renderPagination(pageName, pageData, loadFn) {
-  const container = document.getElementById(`${pageName}-pagination`);
-  if (!pageData) { container.innerHTML = ''; return; }
-  container.innerHTML = `
-    <span>Página ${pageData.number + 1} de ${pageData.totalPages}</span>
-  `;
+async function showResource(name) {
+  Object.assign(state, { resource: name, page: 0, query: '', filter: {}, items: [] });
+  const res = RES[name];
+
+  document.querySelectorAll('[data-act="tab"]').forEach(b =>
+    b.classList.toggle('active', b.dataset.res === name));
+  $('view-title').textContent = res.title;
+  $('view-subtitle').textContent = res.sub;
+  $('btn-new').textContent = `+ Novo ${res.single}`;
+  $('btn-new').disabled = isV2() && !state.token;
+
+  await refresh();
 }
 
-// ── BOOKS ─────────────────────────────────────────────────────────────────────
+// ── Formulário (criar / editar) ──────────────────────────────────
 
-async function loadBooks(page = 0) {
-  const data = await api('GET', `/books?page=${page}&size=9`).catch(() => null);
-  const list = document.getElementById('books-list');
-  const items = data?._embedded?.bookList ?? (Array.isArray(data) ? data : []);
-  list.innerHTML = items.length
-    ? items.map(b => card(
-        [['Título', b.title], ['ISBN', b.isbn], ['Qtd', b.amount], ['Categoria', b.category?.title], ['Publicado', b.datePublication]],
-        `editBook('${b.id}','${esc(b.title)}','${esc(b.isbn)}',${b.amount},'${b.datePublication}','${b.category?.id}','${b.supplier?.id}','${(b.authors??[]).map(a=>a.id).join(',')}')`,
-        `deleteBook('${b.id}')`
-      )).join('')
-    : empty('Nenhum livro encontrado.');
-  renderPagination('books', data?.page, loadBooks);
+function fieldHTML(f, item) {
+  const id = `f-${f.key}`;
+  const multi = f.type === 'multiselect';
+  const raw = item ? (f.from ? f.from(item) : item[f.key]) : (multi ? [] : '');
+  const label = `<label for="${id}" class="text-xs text-muted block mb-1">${f.label}${f.required ? ' *' : ''}</label>`;
+  let input;
+
+  if (f.type === 'select' || multi) {
+    const opts = (state.lookups[f.source] ?? []).map(o => {
+      const sel = multi ? (raw ?? []).includes(o.id) : raw === o.id;
+      return `<option value="${o.id}" ${sel ? 'selected' : ''}>${esc(RES[f.source].label(o))}</option>`;
+    }).join('');
+    input = `<select id="${id}" class="input-field" ${multi ? 'multiple size="5"' : ''}>
+      ${multi ? '' : '<option value="">Selecione...</option>'}${opts}
+    </select>`;
+  } else if (f.type === 'textarea') {
+    input = `<textarea id="${id}" rows="3" class="input-field resize-none">${esc(raw)}</textarea>`;
+  } else {
+    input = `<input id="${id}" type="${f.type || 'text'}" value="${esc(raw)}"
+      ${f.type === 'number' ? 'min="0"' : ''}
+      ${f.type === 'password' ? 'autocomplete="new-password"' : ''}
+      class="input-field">`;
+  }
+  return `<div>${label}${input}</div>`;
 }
 
-async function searchByCategory() {
-  const q = document.getElementById('search-books').value.trim();
-  if (!q) return loadBooks();
-  const data = await api('GET', `/books/category/${q}`).catch(() => null);
-  const items = data?._embedded?.bookList ?? (Array.isArray(data) ? data : []);
-  document.getElementById('books-list').innerHTML = items.length
-    ? items.map(b => card(
-        [['Título', b.title], ['ISBN', b.isbn], ['Qtd', b.amount], ['Categoria', b.category?.title]],
-        `editBook('${b.id}','${esc(b.title)}','${esc(b.isbn)}',${b.amount},'${b.datePublication}','${b.category?.id}','${b.supplier?.id}','${(b.authors??[]).map(a=>a.id).join(',')}')`,
-        `deleteBook('${b.id}')`
-      )).join('')
-    : empty('Nenhum livro nessa categoria.');
+async function openForm(item) {
+  const res = RES[state.resource];
+  state.editing = item ?? null;
+  await ensureLookups(res.needs);
+  $('form-title').textContent = `${item ? 'Editar' : 'Novo'} ${res.single}`;
+  $('form-fields').innerHTML = res.fields
+    .filter(f => !(f.v1Only && isV2()))
+    .map(f => fieldHTML(f, item))
+    .join('');
+  $('form-error').classList.add('hidden');
+  openModal('form');
 }
 
-function editBook(id, title, isbn, amount, date, categoryId, supplierId, authorIds) {
-  document.getElementById('book-form-title').textContent = 'Editar Livro';
-  document.getElementById('book-id').value = id;
-  document.getElementById('book-title').value = title;
-  document.getElementById('book-isbn').value = isbn;
-  document.getElementById('book-amount').value = amount;
-  document.getElementById('book-date').value = date;
-  document.getElementById('book-categoryId').value = categoryId;
-  document.getElementById('book-supplierId').value = supplierId;
-  document.getElementById('book-authorIds').value = authorIds;
-  hideError('book');
-  openModal('book-form');
+function readForm(res) {
+  const body = {};
+  for (const f of res.fields) {
+    if (f.v1Only && isV2()) continue;
+    const el = $('f-' + f.key);
+    const v = f.type === 'multiselect'
+      ? [...el.selectedOptions].map(o => o.value)
+      : (f.type === 'password' ? el.value : el.value.trim());
+    const empty = Array.isArray(v) ? v.length === 0 : v === '';
+    if (empty) {
+      if (f.required) throw new Error(`Preencha o campo "${f.label}".`);
+      continue;
+    }
+    body[f.key] =
+      f.type === 'number' ? Number(v) :
+      f.type === 'datetime-local' ? `${v}:00` :
+      v;
+  }
+  return body;
 }
 
-async function saveBook() {
-  hideError('book');
-  const id = document.getElementById('book-id').value;
-  const body = {
-    title: document.getElementById('book-title').value.trim(),
-    isbn: document.getElementById('book-isbn').value.trim() || undefined,
-    amount: parseInt(document.getElementById('book-amount').value) || undefined,
-    datePublication: document.getElementById('book-date').value || undefined,
-    categoryId: document.getElementById('book-categoryId').value.trim(),
-    supplierId: document.getElementById('book-supplierId').value.trim(),
-    authorIds: document.getElementById('book-authorIds').value.split(',').map(s => s.trim()).filter(Boolean),
-  };
+async function saveForm(e) {
+  e.preventDefault();
+  const res = RES[state.resource];
+  const id = state.editing?.id;
+  let body;
   try {
-    id ? await api('PUT', `/books/${id}`, body) : await api('POST', '/books', body);
+    body = readForm(res);
+  } catch (err) {
+    return formError(err.message);
+  }
+
+  const btn = $('btn-save');
+  btn.disabled = true;
+  try {
+    if (id) await api('PUT', `${res.path}/${id}`, body);
+    else await api('POST', res.path, body);
+    invalidate(state.resource);
     closeModal();
-    document.getElementById('book-id').value = '';
-    document.getElementById('book-form-title').textContent = 'Novo Livro';
-    loadBooks();
-  } catch (e) {
-    showError('book', e);
+    toast(`${res.single} ${id ? 'atualizado' : 'criado'} com sucesso.`);
+    await refresh();
+  } catch (err) {
+    formError(errMsg(err));
+  } finally {
+    btn.disabled = false;
   }
 }
 
-function deleteBook(id) {
-  confirmDelete(async () => { await api('DELETE', `/books/${id}`); loadBooks(); });
-}
+// ── Exclusão ─────────────────────────────────────────────────────
 
-// ── AUTHORS ───────────────────────────────────────────────────────────────────
-
-async function loadAuthors() {
-  const data = await api('GET', '/authors?size=50').catch(() => null);
-  const items = data?._embedded?.authorList ?? (Array.isArray(data) ? data : []);
-  document.getElementById('authors-list').innerHTML = items.length
-    ? items.map(a => card(
-        [['Nome', a.name], ['Biografia', a.biography]],
-        `editAuthor('${a.id}','${esc(a.name)}','${esc(a.biography)}')`,
-        `deleteAuthor('${a.id}')`
-      )).join('')
-    : empty('Nenhum autor encontrado.');
-}
-
-function editAuthor(id, name, bio) {
-  document.getElementById('author-form-title').textContent = 'Editar Autor';
-  document.getElementById('author-id').value = id;
-  document.getElementById('author-name').value = name;
-  document.getElementById('author-bio').value = bio;
-  hideError('author');
-  openModal('author-form');
-}
-
-async function saveAuthor() {
-  hideError('author');
-  const id = document.getElementById('author-id').value;
-  const body = {
-    name: document.getElementById('author-name').value.trim(),
-    biography: document.getElementById('author-bio').value.trim() || undefined,
+function askDelete(item) {
+  if (!item) return;
+  const res = RES[state.resource];
+  $('confirm-text').textContent = `Excluir "${res.label(item)}"? Essa ação não pode ser desfeita.`;
+  state.onConfirm = async () => {
+    await api('DELETE', `${res.path}/${item.id}`);
+    invalidate(state.resource);
+    toast(`${res.single} excluído.`);
+    await refresh();
   };
+  openModal('confirm');
+}
+
+// ── Autenticação (V2) ────────────────────────────────────────────
+
+function renderAuth() {
+  $('auth-area').innerHTML = !isV2()
+    ? ''
+    : state.token
+      ? `<button data-act="logout" class="${BTN_GHOST}">Sair</button>`
+      : `<button data-act="login" class="${BTN_GHOST}">🔑 Entrar</button>`;
+}
+
+function clearSession() {
+  state.token = '';
+  localStorage.removeItem('lib84_token');
+  state.lookups = {};
+  renderAuth();
+}
+
+async function authenticate(register) {
+  const email = $('auth-email').value.trim();
+  const password = $('auth-password').value;
+  const status = $('auth-status');
+  if (!email || !password) {
+    status.textContent = 'Informe e-mail e senha.';
+    return;
+  }
+  status.textContent = 'Processando...';
   try {
-    id ? await api('PUT', `/authors/${id}`, body) : await api('POST', '/authors', body);
+    if (register) await api('POST', '/users', { email, password }, { public: true });
+    const data = await api('POST', '/session', { email, password }, { public: true });
+    state.token = data.token;
+    localStorage.setItem('lib84_token', state.token);
+    state.lookups = {};
+    $('auth-password').value = '';
+    status.textContent = '';
     closeModal();
-    document.getElementById('author-id').value = '';
-    document.getElementById('author-form-title').textContent = 'Novo Autor';
-    loadAuthors();
-  } catch (e) { showError('author', e); }
+    renderAuth();
+    toast('Sessão iniciada.');
+    await showResource(state.resource);
+  } catch (e) {
+    status.textContent = errMsg(e);
+  }
 }
 
-function deleteAuthor(id) {
-  confirmDelete(async () => { await api('DELETE', `/authors/${id}`); loadAuthors(); });
+function setVersion(v) {
+  state.version = v;
+  localStorage.setItem('lib84_version', v);
+  state.lookups = {};
+  renderAuth();
+  showResource(state.resource);
 }
 
-// ── CATEGORIES ────────────────────────────────────────────────────────────────
+// ── Eventos ──────────────────────────────────────────────────────
 
-async function loadCategories() {
-  const data = await api('GET', '/categories?size=50').catch(() => null);
-  const items = data?._embedded?.categoryList ?? (Array.isArray(data) ? data : []);
-  document.getElementById('categories-list').innerHTML = items.length
-    ? items.map(c => card(
-        [['Título', c.title], ['Descrição', c.description]],
-        `editCategory('${c.id}','${esc(c.title)}','${esc(c.description)}')`,
-        `deleteCategory('${c.id}')`
-      )).join('')
-    : empty('Nenhuma categoria encontrada.');
+function runSearch() {
+  state.query = $('q')?.value.trim() ?? '';
+  state.filter = {};
+  state.page = 0;
+  loadList();
 }
 
-function editCategory(id, title, desc) {
-  document.getElementById('category-form-title').textContent = 'Editar Categoria';
-  document.getElementById('category-id').value = id;
-  document.getElementById('category-title').value = title;
-  document.getElementById('category-desc').value = desc;
-  hideError('category');
-  openModal('category-form');
-}
+document.addEventListener('click', e => {
+  const t = e.target.closest('[data-act]');
+  if (!t) return;
 
-async function saveCategory() {
-  hideError('category');
-  const id = document.getElementById('category-id').value;
-  const body = {
-    title: document.getElementById('category-title').value.trim(),
-    description: document.getElementById('category-desc').value.trim() || undefined,
-  };
-  try {
-    id ? await api('PUT', `/categories/${id}`, body) : await api('POST', '/categories', body);
+  switch (t.dataset.act) {
+    case 'tab':      return showResource(t.dataset.res);
+    case 'new':      return openForm(null);
+    case 'edit':     return openForm(findItem(t.dataset.id));
+    case 'del':      return askDelete(findItem(t.dataset.id));
+    case 'page':     state.page = Number(t.dataset.page); return loadList();
+    case 'search':   return runSearch();
+    case 'clear':    return showResource(state.resource);
+    case 'close':    return closeModal();
+    case 'login':    $('auth-status').textContent = ''; return openModal('login');
+    case 'logout':   clearSession(); toast('Sessão encerrada.'); return showResource(state.resource);
+    case 'do-login': return authenticate(false);
+    case 'do-register': return authenticate(true);
+  }
+});
+
+document.addEventListener('change', e => {
+  if (e.target.id !== 'flt') return;
+  const key = RES[state.resource].filter.key;
+  state.filter = e.target.value ? { [key]: e.target.value } : {};
+  state.query = '';
+  state.page = 0;
+  loadList();
+});
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'Enter' && e.target.id === 'q') runSearch();
+});
+
+document.addEventListener('DOMContentLoaded', () => {
+  $('api-version').value = state.version;
+  $('api-version').addEventListener('change', e => setVersion(e.target.value));
+  $('modal-form').addEventListener('submit', saveForm);
+  $('overlay').addEventListener('click', closeModal);
+  $('confirm-yes').addEventListener('click', async () => {
     closeModal();
-    document.getElementById('category-id').value = '';
-    document.getElementById('category-form-title').textContent = 'Nova Categoria';
-    loadCategories();
-  } catch (e) { showError('category', e); }
-}
+    try {
+      await state.onConfirm();
+    } catch (err) {
+      toast(errMsg(err), 'error');
+    }
+  });
 
-function deleteCategory(id) {
-  confirmDelete(async () => { await api('DELETE', `/categories/${id}`); loadCategories(); });
-}
-
-// ── SUPPLIERS ─────────────────────────────────────────────────────────────────
-
-async function loadSuppliers() {
-  const data = await api('GET', '/suppliers?size=50').catch(() => null);
-  const items = data?._embedded?.supplierList ?? (Array.isArray(data) ? data : []);
-  document.getElementById('suppliers-list').innerHTML = items.length
-    ? items.map(s => card(
-        [['Nome', s.name], ['E-mail', s.email], ['Telefone', s.phone], ['CNPJ', s.cnpj]],
-        `editSupplier('${s.id}','${esc(s.name)}','${esc(s.email)}','${esc(s.phone)}','${esc(s.cnpj)}')`,
-        `deleteSupplier('${s.id}')`
-      )).join('')
-    : empty('Nenhum fornecedor encontrado.');
-}
-
-function editSupplier(id, name, email, phone, cnpj) {
-  document.getElementById('supplier-form-title').textContent = 'Editar Fornecedor';
-  document.getElementById('supplier-id').value = id;
-  document.getElementById('supplier-name').value = name;
-  document.getElementById('supplier-email').value = email;
-  document.getElementById('supplier-phone').value = phone;
-  document.getElementById('supplier-cnpj').value = cnpj;
-  hideError('supplier');
-  openModal('supplier-form');
-}
-
-async function saveSupplier() {
-  hideError('supplier');
-  const id = document.getElementById('supplier-id').value;
-  const body = {
-    name: document.getElementById('supplier-name').value.trim(),
-    email: document.getElementById('supplier-email').value.trim(),
-    phone: document.getElementById('supplier-phone').value.trim() || undefined,
-    cnpj: document.getElementById('supplier-cnpj').value.trim() || undefined,
-  };
-  try {
-    id ? await api('PUT', `/suppliers/${id}`, body) : await api('POST', '/suppliers', body);
-    closeModal();
-    document.getElementById('supplier-id').value = '';
-    document.getElementById('supplier-form-title').textContent = 'Novo Fornecedor';
-    loadSuppliers();
-  } catch (e) { showError('supplier', e); }
-}
-
-function deleteSupplier(id) {
-  confirmDelete(async () => { await api('DELETE', `/suppliers/${id}`); loadSuppliers(); });
-}
-
-// ── USERS ─────────────────────────────────────────────────────────────────────
-
-async function loadUsers() {
-  const data = await api('GET', '/users').catch(() => null);
-  const items = data?._embedded?.userList ?? (Array.isArray(data) ? data : []);
-  document.getElementById('users-list').innerHTML = items.length
-    ? items.map(u => card(
-        [['E-mail', u.email], ['Perfil', u.role], ['Criado em', u.createdAt?.slice(0,10)]],
-        `editUser('${u.id}','${esc(u.email)}')`,
-        `deleteUser('${u.id}')`
-      )).join('')
-    : empty('Nenhum usuário encontrado.');
-}
-
-function editUser(id, email) {
-  document.getElementById('user-form-title').textContent = 'Editar Usuário';
-  document.getElementById('user-id').value = id;
-  document.getElementById('user-email').value = email;
-  document.getElementById('user-password').value = '';
-  hideError('user');
-  openModal('user-form');
-}
-
-async function saveUser() {
-  hideError('user');
-  const id = document.getElementById('user-id').value;
-  const body = {
-    email: document.getElementById('user-email').value.trim(),
-    password: document.getElementById('user-password').value,
-  };
-  try {
-    id ? await api('PUT', `/users/${id}`, body) : await api('POST', '/users', body);
-    closeModal();
-    document.getElementById('user-id').value = '';
-    document.getElementById('user-form-title').textContent = 'Novo Usuário';
-    loadUsers();
-  } catch (e) { showError('user', e); }
-}
-
-function deleteUser(id) {
-  confirmDelete(async () => { await api('DELETE', `/users/${id}`); loadUsers(); });
-}
-
-// ── LOANS ─────────────────────────────────────────────────────────────────────
-
-async function loadLoans() {
-  const data = await api('GET', '/loans?size=50').catch(() => null);
-  const items = data?._embedded?.loanList ?? (Array.isArray(data) ? data : []);
-  document.getElementById('loans-list').innerHTML = items.length
-    ? items.map(l => card(
-        [
-          ['Usuário', l.user?.email],
-          ['Livros', (l.books ?? []).map(b => b.title).join(', ')],
-          ['Emprestado em', l.loanDate?.slice(0,10)]
-        ],
-        ``,
-        `deleteLoan('${l.id}')`
-      )).join('')
-    : empty('Nenhum empréstimo encontrado.');
-}
-
-async function saveLoan() {
-  hideError('loan');
-  const body = {
-    userId: document.getElementById('loan-userId').value.trim(),
-    bookIds: document.getElementById('loan-bookIds').value.split(',').map(s => s.trim()).filter(Boolean),
-  };
-  try {
-    await api('POST', '/loans', body);
-    closeModal();
-    loadLoans();
-  } catch (e) { showError('loan', e); }
-}
-
-function deleteLoan(id) {
-  confirmDelete(async () => { await api('DELETE', `/loans/${id}`); loadLoans(); });
-}
+  renderAuth();
+  showResource('books');
+});
