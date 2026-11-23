@@ -6,6 +6,9 @@ import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.info.Contact;
 import io.swagger.v3.oas.models.info.Info;
 import io.swagger.v3.oas.models.info.License;
+import io.swagger.v3.oas.models.media.DateTimeSchema;
+import io.swagger.v3.oas.models.media.IntegerSchema;
+import io.swagger.v3.oas.models.media.ObjectSchema;
 import io.swagger.v3.oas.models.media.StringSchema;
 import io.swagger.v3.oas.models.security.SecurityRequirement;
 import io.swagger.v3.oas.models.security.SecurityScheme;
@@ -28,12 +31,14 @@ public class ConfigSwagger {
      */
     private void add500ToAllOperations(io.swagger.v3.oas.models.OpenAPI openApi) {
         if (openApi.getPaths() == null) return;
-        var schema = new io.swagger.v3.oas.models.media.ObjectSchema()
-                .addProperty("timestamp", new io.swagger.v3.oas.models.media.StringSchema().example("2025-01-01T00:00:00Z"))
-                .addProperty("status", new io.swagger.v3.oas.models.media.IntegerSchema().example(500))
-                .addProperty("error", new io.swagger.v3.oas.models.media.StringSchema().example("Internal Server Error"))
-                .addProperty("message", new io.swagger.v3.oas.models.media.StringSchema().example("an unexpected error occurred. Please try again later."))
-                .addProperty("path", new io.swagger.v3.oas.models.media.StringSchema().example("/authors"));
+        var schema = new ObjectSchema()
+                .addProperty("timestamp", new DateTimeSchema().description("Momento do erro (ISO 8601)"))
+                .addProperty("status", new IntegerSchema().example(500))
+                .addProperty("error", new StringSchema().example("Internal Server Error"))
+                .addProperty("message", new StringSchema().example("an unexpected error occurred. Please try again later."))
+                .addProperty("path", new StringSchema()
+                        .description("URI da requisição que falhou")
+                        .example("/{recurso}"));
         var mediaType = new io.swagger.v3.oas.models.media.MediaType().schema(schema);
         var content = new io.swagger.v3.oas.models.media.Content()
                 .addMediaType("application/json", mediaType);

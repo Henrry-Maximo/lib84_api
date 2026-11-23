@@ -27,7 +27,7 @@ public class ApiVersionConfig implements WebMvcConfigurer {
         registry.addInterceptor(idempotencyInterceptor);
     }
 
-    // sobreescreve método nativo do spring boot para manipulação da request/response
+// sobreescreve método nativo do spring boot para manipulação da request/response
     // insere a chave "X-API-Version" com o valor padrão de 1
     // configura uma única vez e usa o atributo direto nas anotações das controllers
     @Override

@@ -29,7 +29,7 @@ public class Book extends RepresentationModel<Book> {
     @NotBlank
     @Size(min = 3, max = 255)
     @Column(nullable = false, length = 255)
-    @Schema(example = "Eu, robô")
+    @Schema(example = "Clean Code")
     private String title;
 
     @NotBlank
@@ -41,7 +41,7 @@ public class Book extends RepresentationModel<Book> {
     @NotNull
     @Min(value = 0, message = "must be have more one character")
     @Column(nullable = false)
-    @Schema(example = "30")
+    @Schema(example = "10")
     private Integer amount;
 
     @NotNull
