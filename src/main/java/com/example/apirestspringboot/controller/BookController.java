@@ -45,7 +45,10 @@ public class BookController {
     }
 
     @Operation(summary = "Get all books")
-    @ApiResponse(responseCode = "200", description = "Returned a paginated list of books")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Returned a paginated list of books"),
+            @ApiResponse(responseCode = "429", description = "Rate limit exceeded for your plan", content = @Content(mediaType = "application/json", schema = @Schema(example = "{\"error\":\"too many requests. Rate limit exceeded for your plan.\"}")))
+    })
     @GetMapping(version = "1")
     public ResponseEntity<PagedModel<EntityModel<Book>>> all(@ParameterObject @PageableDefault(size = 10, sort = "title") Pageable pageable) {
         Page<Book> books = this.bookService.getAll(pageable);
@@ -56,7 +59,8 @@ public class BookController {
     @Operation(summary = "Get an book by ID")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Book found"),
-            @ApiResponse(responseCode = "404", description = "Book not found", content = @Content(mediaType = "application/json", schema = @Schema(example = "{\"error\": \"could not find the book with ID: ...\"}")))
+            @ApiResponse(responseCode = "404", description = "Book not found", content = @Content(mediaType = "application/json", schema = @Schema(example = "{\"error\": \"could not find the book with ID: ...\"}"))),
+            @ApiResponse(responseCode = "429", description = "Rate limit exceeded for your plan", content = @Content(mediaType = "application/json", schema = @Schema(example = "{\"error\":\"too many requests. Rate limit exceeded for your plan.\"}")))
     })
     @GetMapping(path = "/{id}", version = "1")
     public ResponseEntity<EntityModel<Book>> getById(@PathVariable @Schema(example = "3fa85f64-5717-4562-b3fc-2c963f66afa6") UUID id) {
@@ -82,7 +86,8 @@ public class BookController {
                                             """
                             )
                     )
-            )
+            ),
+            @ApiResponse(responseCode = "429", description = "Rate limit exceeded for your plan", content = @Content(mediaType = "application/json", schema = @Schema(example = "{\"error\":\"too many requests. Rate limit exceeded for your plan.\"}")))
     })
     @GetMapping(path = "/category/{categoryId}", version = "1")
     public ResponseEntity<CollectionModel<EntityModel<Book>>> getByCategory(@PathVariable @Schema(example = "3fa85f64-5717-4562-b3fc-2c963f66afa6") UUID categoryId) {
@@ -130,7 +135,8 @@ public class BookController {
                                     )
                             }
                     )
-            )
+            ),
+            @ApiResponse(responseCode = "429", description = "Rate limit exceeded for your plan", content = @Content(mediaType = "application/json", schema = @Schema(example = "{\"error\":\"too many requests. Rate limit exceeded for your plan.\"}")))
     })
     @PostMapping(version = "1")
     public ResponseEntity<EntityModel<Book>> create(@RequestBody @Valid BookRecordDto dto) {
@@ -141,7 +147,8 @@ public class BookController {
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Book updated"),
             @ApiResponse(responseCode = "400", description = "Invalid request body", content = @Content(mediaType = "application/json", schema = @Schema(example = "{\"title\": [\"title is required\"], \"isbn\": [\"isbn is required\"], \"amount\": [\"amount is required\"], \"datePublication\": [\"datePublication is required\"], \"categoryId\": [\"categoryId is required\"], \"supplierId\": [\"supplierId is required\"], \"authorIds\": [\"authorId/authorsId is required\"]}"))),
-            @ApiResponse(responseCode = "404", description = "Book not found", content = @Content(mediaType = "application/json", schema = @Schema(example = "{\"error\": \"could not find the book with ID: ...\"}")))
+            @ApiResponse(responseCode = "404", description = "Book not found", content = @Content(mediaType = "application/json", schema = @Schema(example = "{\"error\": \"could not find the book with ID: ...\"}"))),
+            @ApiResponse(responseCode = "429", description = "Rate limit exceeded for your plan", content = @Content(mediaType = "application/json", schema = @Schema(example = "{\"error\":\"too many requests. Rate limit exceeded for your plan.\"}")))
     })
     @PutMapping(path = "/{id}", version = "1")
     public ResponseEntity<EntityModel<Book>> update(@RequestBody @Valid BookRecordDto dto, @PathVariable @Schema(example = "3fa85f64-5717-4562-b3fc-2c963f66afa6") UUID id) {
@@ -169,7 +176,8 @@ public class BookController {
                                             """
                             )
                     )
-            )
+            ),
+            @ApiResponse(responseCode = "429", description = "Rate limit exceeded for your plan", content = @Content(mediaType = "application/json", schema = @Schema(example = "{\"error\":\"too many requests. Rate limit exceeded for your plan.\"}")))
     })
     @DeleteMapping(path = "/{id}", version = "1")
     public ResponseEntity<Void> delete(

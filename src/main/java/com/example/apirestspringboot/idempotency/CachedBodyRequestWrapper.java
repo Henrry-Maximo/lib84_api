@@ -8,7 +8,7 @@ import jakarta.servlet.http.HttpServletRequestWrapper;
 import java.io.*;
 
 /*
- * Envolve o HttpServletRequest e armazena o body em byte[],
+ * envolve o HttpServletRequest e armazena o body em byte[],
  * permitindo múltiplas leituras do InputStream (default lido uma vez).
  */
 public class CachedBodyRequestWrapper extends HttpServletRequestWrapper {

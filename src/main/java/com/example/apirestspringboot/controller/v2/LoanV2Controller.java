@@ -47,7 +47,8 @@ public class LoanV2Controller {
             @ApiResponse(responseCode = "200", description = "Returned a paginated list of loans"),
             @ApiResponse(responseCode = "401", description = "Missing or invalid JWT token",
                     content = @Content(mediaType = "application/json",
-                            schema = @Schema(example = "{\"error\": \"authentication required.\"}")))
+                            schema = @Schema(example = "{\"error\": \"authentication required.\"}"))),
+            @ApiResponse(responseCode = "429", description = "Rate limit exceeded for your plan", content = @Content(mediaType = "application/json", schema = @Schema(example = "{\"error\":\"too many requests. Rate limit exceeded for your plan.\"}")))
     })
     @GetMapping(version = "2")
     public ResponseEntity<PagedModel<EntityModel<Loan>>> all(
@@ -63,7 +64,8 @@ public class LoanV2Controller {
                             schema = @Schema(example = "{\"error\": \"authentication required.\"}"))),
             @ApiResponse(responseCode = "404", description = "Loan not found",
                     content = @Content(mediaType = "application/json",
-                            schema = @Schema(example = "{\"error\": \"could not find the loan with ID: 3fa85f64-5717-4562-b3fc-2c963f66afa6\"}")))
+                            schema = @Schema(example = "{\"error\": \"could not find the loan with ID: 3fa85f64-5717-4562-b3fc-2c963f66afa6\"}"))),
+            @ApiResponse(responseCode = "429", description = "Rate limit exceeded for your plan", content = @Content(mediaType = "application/json", schema = @Schema(example = "{\"error\":\"too many requests. Rate limit exceeded for your plan.\"}")))
     })
     @GetMapping(path = "/{id}", version = "2")
     public ResponseEntity<EntityModel<Loan>> getById(
@@ -76,7 +78,8 @@ public class LoanV2Controller {
             @ApiResponse(responseCode = "200", description = "Returned loans for the authenticated user"),
             @ApiResponse(responseCode = "401", description = "Missing or invalid JWT token",
                     content = @Content(mediaType = "application/json",
-                            schema = @Schema(example = "{\"error\": \"authentication required.\"}")))
+                            schema = @Schema(example = "{\"error\": \"authentication required.\"}"))),
+            @ApiResponse(responseCode = "429", description = "Rate limit exceeded for your plan", content = @Content(mediaType = "application/json", schema = @Schema(example = "{\"error\":\"too many requests. Rate limit exceeded for your plan.\"}")))
     })
     @GetMapping(path = "/me", version = "2")
     public ResponseEntity<CollectionModel<EntityModel<Loan>>> getMyLoans(HttpServletRequest request) {
@@ -100,7 +103,8 @@ public class LoanV2Controller {
                             })),
             @ApiResponse(responseCode = "404", description = "Books not found",
                     content = @Content(mediaType = "application/json",
-                            schema = @Schema(example = "{\"error\": \"one or more books not found.\"}")))
+                            schema = @Schema(example = "{\"error\": \"one or more books not found.\"}"))),
+            @ApiResponse(responseCode = "429", description = "Rate limit exceeded for your plan", content = @Content(mediaType = "application/json", schema = @Schema(example = "{\"error\":\"too many requests. Rate limit exceeded for your plan.\"}")))
     })
     @PostMapping(version = "2")
     public ResponseEntity<EntityModel<Loan>> create(
@@ -122,7 +126,8 @@ public class LoanV2Controller {
                             schema = @Schema(example = "{\"error\": \"access denied: admin role required.\"}"))),
             @ApiResponse(responseCode = "404", description = "Loan not found",
                     content = @Content(mediaType = "application/json",
-                            schema = @Schema(example = "{\"error\": \"could not find the loan with ID: 3fa85f64-5717-4562-b3fc-2c963f66afa6\"}")))
+                            schema = @Schema(example = "{\"error\": \"could not find the loan with ID: 3fa85f64-5717-4562-b3fc-2c963f66afa6\"}"))),
+            @ApiResponse(responseCode = "429", description = "Rate limit exceeded for your plan", content = @Content(mediaType = "application/json", schema = @Schema(example = "{\"error\":\"too many requests. Rate limit exceeded for your plan.\"}")))
     })
     @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping(path = "/{id}", version = "2")

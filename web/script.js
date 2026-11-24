@@ -553,7 +553,7 @@ function renderAuth() {
     ? ''
     : state.token
       ? `<button data-act="logout" class="${BTN_GHOST}">Sair</button>`
-      : `<button data-act="login" class="${BTN_GHOST}">🔑 Entrar</button>`;
+      : `<button data-act="login" class="${BTN_GHOST}">Entrar</button>`;
 }
 
 function clearSession() {

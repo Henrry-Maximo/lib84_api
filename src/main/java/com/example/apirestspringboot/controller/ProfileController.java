@@ -67,7 +67,8 @@ public class ProfileController {
                                             """
                             )
                     )
-            )
+            ),
+            @ApiResponse(responseCode = "429", description = "Rate limit exceeded for your plan", content = @Content(mediaType = "application/json", schema = @Schema(example = "{\"error\":\"too many requests. Rate limit exceeded for your plan.\"}")))
     })
     @GetMapping(path = "/{id}", version = "1")
     public ResponseEntity<EntityModel<Profile>> getById(
@@ -107,7 +108,8 @@ public class ProfileController {
                                     )
                             }
                     )
-            )
+            ),
+            @ApiResponse(responseCode = "429", description = "Rate limit exceeded for your plan", content = @Content(mediaType = "application/json", schema = @Schema(example = "{\"error\":\"too many requests. Rate limit exceeded for your plan.\"}")))
     })
     @GetMapping(path = "/user/{userId}", version = "1")
     public ResponseEntity<EntityModel<Profile>> getByUserId(
@@ -166,7 +168,8 @@ public class ProfileController {
                                             """
                             )
                     )
-            )
+            ),
+            @ApiResponse(responseCode = "429", description = "Rate limit exceeded for your plan", content = @Content(mediaType = "application/json", schema = @Schema(example = "{\"error\":\"too many requests. Rate limit exceeded for your plan.\"}")))
     })
     @PostMapping(version = "1")
     public ResponseEntity<EntityModel<Profile>> create(@RequestBody @Valid ProfileRecordDto dto) {
@@ -234,7 +237,8 @@ public class ProfileController {
                                     )
                             }
                     )
-            )
+            ),
+            @ApiResponse(responseCode = "429", description = "Rate limit exceeded for your plan", content = @Content(mediaType = "application/json", schema = @Schema(example = "{\"error\":\"too many requests. Rate limit exceeded for your plan.\"}")))
     })
     @PutMapping(path = "/{id}", version = "1")
     public ResponseEntity<EntityModel<Profile>> update(
@@ -262,7 +266,8 @@ public class ProfileController {
                                             """
                             )
                     )
-            )
+            ),
+            @ApiResponse(responseCode = "429", description = "Rate limit exceeded for your plan", content = @Content(mediaType = "application/json", schema = @Schema(example = "{\"error\":\"too many requests. Rate limit exceeded for your plan.\"}")))
     })
     @DeleteMapping(path = "/{id}", version = "1")
     public ResponseEntity<Void> delete(

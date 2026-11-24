@@ -22,6 +22,7 @@ public class SecurityFilter extends OncePerRequestFilter {
     private final JWTProvider jwtProvider;
     private final UserRepository userRepository;
 
+    // instância JWTProvider e UserRepository
     public SecurityFilter(JWTProvider jwtProvider, UserRepository userRepository) {
         this.jwtProvider = jwtProvider;
         this.userRepository = userRepository;
@@ -40,6 +41,7 @@ public class SecurityFilter extends OncePerRequestFilter {
 
         // System.out.println(header);
 
+        // sem header
         if (header != null) {
             var subjectToken = this.jwtProvider.validateToken(header);
 
@@ -55,6 +57,8 @@ public class SecurityFilter extends OncePerRequestFilter {
                     .orElse(List.of());
 
             var auth = new UsernamePasswordAuthenticationToken(subjectToken, null, authorities);
+
+            // registrar o usuário e o que ele pode fazer.
             SecurityContextHolder.getContext().setAuthentication(auth);
         }
 

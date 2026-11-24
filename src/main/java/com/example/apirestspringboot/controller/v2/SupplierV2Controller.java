@@ -46,7 +46,8 @@ public class SupplierV2Controller {
             @ApiResponse(responseCode = "200", description = "Returned a paginated list of suppliers"),
             @ApiResponse(responseCode = "401", description = "Missing or invalid JWT token",
                     content = @Content(mediaType = "application/json",
-                            schema = @Schema(example = "{\"error\": \"authentication required.\"}")))
+                            schema = @Schema(example = "{\"error\": \"authentication required.\"}"))),
+            @ApiResponse(responseCode = "429", description = "Rate limit exceeded for your plan", content = @Content(mediaType = "application/json", schema = @Schema(example = "{\"error\":\"too many requests. Rate limit exceeded for your plan.\"}")))
     })
     @GetMapping(version = "2")
     public ResponseEntity<PagedModel<EntityModel<Supplier>>> all(
@@ -62,7 +63,8 @@ public class SupplierV2Controller {
                             schema = @Schema(example = "{\"error\": \"authentication required.\"}"))),
             @ApiResponse(responseCode = "404", description = "Supplier not found",
                     content = @Content(mediaType = "application/json",
-                            schema = @Schema(example = "{\"error\": \"could not find the supplier with ID: 3fa85f64-5717-4562-b3fc-2c963f66afa6\"}")))
+                            schema = @Schema(example = "{\"error\": \"could not find the supplier with ID: 3fa85f64-5717-4562-b3fc-2c963f66afa6\"}"))),
+            @ApiResponse(responseCode = "429", description = "Rate limit exceeded for your plan", content = @Content(mediaType = "application/json", schema = @Schema(example = "{\"error\":\"too many requests. Rate limit exceeded for your plan.\"}")))
     })
     @GetMapping(path = "/{id}", version = "2")
     public ResponseEntity<EntityModel<Supplier>> getById(
@@ -81,7 +83,8 @@ public class SupplierV2Controller {
                             examples = @ExampleObject(value = "{\"name\": [\"name must not be blank\"]}"))),
             @ApiResponse(responseCode = "404", description = "Supplier not found",
                     content = @Content(mediaType = "application/json",
-                            schema = @Schema(example = "{\"error\": \"could not find the supplier with name: 'editora exemplo ltda'.\"}")))
+                            schema = @Schema(example = "{\"error\": \"could not find the supplier with name: 'editora exemplo ltda'.\"}"))),
+            @ApiResponse(responseCode = "429", description = "Rate limit exceeded for your plan", content = @Content(mediaType = "application/json", schema = @Schema(example = "{\"error\":\"too many requests. Rate limit exceeded for your plan.\"}")))
     })
     @GetMapping(path = "/search", version = "2")
     public ResponseEntity<EntityModel<Supplier>> getByName(
@@ -106,7 +109,8 @@ public class SupplierV2Controller {
                             examples = {
                                     @ExampleObject(name = "Validation error", value = "{\"name\": [\"name is required\"], \"email\": [\"email is required\"]}"),
                                     @ExampleObject(name = "Malformed JSON", value = "{\"error\": \"invalid JSON request body. Check the JSON syntax and field types.\"}")
-                            }))
+                            })),
+            @ApiResponse(responseCode = "429", description = "Rate limit exceeded for your plan", content = @Content(mediaType = "application/json", schema = @Schema(example = "{\"error\":\"too many requests. Rate limit exceeded for your plan.\"}")))
     })
     @PreAuthorize("hasRole('ADMIN')")
     @PostMapping(version = "2")
@@ -131,7 +135,8 @@ public class SupplierV2Controller {
                             })),
             @ApiResponse(responseCode = "404", description = "Supplier not found",
                     content = @Content(mediaType = "application/json",
-                            schema = @Schema(example = "{\"error\": \"could not find the supplier with ID: 3fa85f64-5717-4562-b3fc-2c963f66afa6\"}")))
+                            schema = @Schema(example = "{\"error\": \"could not find the supplier with ID: 3fa85f64-5717-4562-b3fc-2c963f66afa6\"}"))),
+            @ApiResponse(responseCode = "429", description = "Rate limit exceeded for your plan", content = @Content(mediaType = "application/json", schema = @Schema(example = "{\"error\":\"too many requests. Rate limit exceeded for your plan.\"}")))
     })
     @PreAuthorize("hasRole('ADMIN')")
     @PutMapping(path = "/{id}", version = "2")
@@ -152,7 +157,8 @@ public class SupplierV2Controller {
                             schema = @Schema(example = "{\"error\": \"access denied: admin role required.\"}"))),
             @ApiResponse(responseCode = "404", description = "Supplier not found",
                     content = @Content(mediaType = "application/json",
-                            schema = @Schema(example = "{\"error\": \"could not find the supplier with ID: 3fa85f64-5717-4562-b3fc-2c963f66afa6\"}")))
+                            schema = @Schema(example = "{\"error\": \"could not find the supplier with ID: 3fa85f64-5717-4562-b3fc-2c963f66afa6\"}"))),
+            @ApiResponse(responseCode = "429", description = "Rate limit exceeded for your plan", content = @Content(mediaType = "application/json", schema = @Schema(example = "{\"error\":\"too many requests. Rate limit exceeded for your plan.\"}")))
     })
     @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping(path = "/{id}", version = "2")

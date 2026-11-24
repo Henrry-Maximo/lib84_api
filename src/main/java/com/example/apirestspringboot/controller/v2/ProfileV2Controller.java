@@ -51,7 +51,8 @@ public class ProfileV2Controller {
                             mediaType = "application/json",
                             schema = @Schema(example = "{\"error\": \"could not find the profile with ID: 3fa85f64-5717-4562-b3fc-2c963f66afa6\"}")
                     )
-            )
+            ),
+            @ApiResponse(responseCode = "429", description = "Rate limit exceeded for your plan", content = @Content(mediaType = "application/json", schema = @Schema(example = "{\"error\":\"too many requests. Rate limit exceeded for your plan.\"}")))
     })
     @GetMapping(path = "/me", version = "2")
     public ResponseEntity<EntityModel<Profile>> getMyProfile(HttpServletRequest request) {
@@ -84,7 +85,8 @@ public class ProfileV2Controller {
                             mediaType = "application/json",
                             schema = @Schema(example = "{\"error\": \"could not find the user with ID: 3fa85f64-5717-4562-b3fc-2c963f66afa6\"}")
                     )
-            )
+            ),
+            @ApiResponse(responseCode = "429", description = "Rate limit exceeded for your plan", content = @Content(mediaType = "application/json", schema = @Schema(example = "{\"error\":\"too many requests. Rate limit exceeded for your plan.\"}")))
     })
     @PostMapping(version = "2")
     public ResponseEntity<EntityModel<Profile>> create(
@@ -129,7 +131,8 @@ public class ProfileV2Controller {
                             mediaType = "application/json",
                             schema = @Schema(example = "{\"error\": \"could not find the profile with ID: 3fa85f64-5717-4562-b3fc-2c963f66afa6\"}")
                     )
-            )
+            ),
+            @ApiResponse(responseCode = "429", description = "Rate limit exceeded for your plan", content = @Content(mediaType = "application/json", schema = @Schema(example = "{\"error\":\"too many requests. Rate limit exceeded for your plan.\"}"))),
     })
     @PutMapping(path = "/{id}", version = "2")
     public ResponseEntity<EntityModel<Profile>> update(
@@ -163,7 +166,8 @@ public class ProfileV2Controller {
                             mediaType = "application/json",
                             schema = @Schema(example = "{\"error\": \"could not find the profile with ID: 3fa85f64-5717-4562-b3fc-2c963f66afa6\"}")
                     )
-            )
+            ),
+            @ApiResponse(responseCode = "429", description = "Rate limit exceeded for your plan", content = @Content(mediaType = "application/json", schema = @Schema(example = "{\"error\":\"too many requests. Rate limit exceeded for your plan.\"}")))
     })
     @DeleteMapping(path = "/{id}", version = "2")
     public ResponseEntity<Void> delete(

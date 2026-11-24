@@ -49,16 +49,7 @@ public class IdempotencyDemoController {
                     2. Send `POST /idempotency-demo/echo` with `Idempotency-Key: <your-uuid>` and any JSON body
                     3. Repeat the same request — you will receive the cached response with `Idempotent-Replayed: true`
                     4. Change the body keeping the same key — you will receive `422`
-                    
-                    ### Idempotency by HTTP method
-                    
-                    | Method | Idempotent by nature? | Requires key? |
-                    |---|---|---|
-                    | GET | ✅ Yes | No |
-                    | PUT | ✅ Yes | No |
-                    | DELETE | ✅ Yes | No |
-                    | POST | ❌ No | **Yes** |
-                    | PATCH | ❌ No | **Yes** |
+                   
                     """
     )
     @ApiResponse(responseCode = "200", description = "Idempotency documentation")
@@ -101,3 +92,13 @@ public class IdempotencyDemoController {
 //        ));
 //    }
 }
+
+// ### Idempotency by HTTP method
+//
+//                    | Method | Idempotent by nature? | Requires key? |
+//        |---|---|---|
+//        | GET | ✅ Yes | No |
+//        | PUT | ✅ Yes | No |
+//        | DELETE | ✅ Yes | No |
+//        | POST | ❌ No | **Yes** |
+//        | PATCH | ❌ No | **Yes** |

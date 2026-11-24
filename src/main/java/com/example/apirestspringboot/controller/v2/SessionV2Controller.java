@@ -40,7 +40,8 @@ public class SessionV2Controller {
                             schema = @Schema(example = "{\"email\": [\"email is required\"], \"password\": [\"password is required\"]}"))),
             @ApiResponse(responseCode = "401", description = "Invalid credentials",
                     content = @Content(mediaType = "application/json",
-                            schema = @Schema(example = "{\"error\": \"credentials invalid.\"}")))
+                            schema = @Schema(example = "{\"error\": \"credentials invalid.\"}"))),
+            @ApiResponse(responseCode = "429", description = "Rate limit exceeded for your plan", content = @Content(mediaType = "application/json", schema = @Schema(example = "{\"error\":\"too many requests. Rate limit exceeded for your plan.\"}")))
     })
     @PostMapping(version = "2")
     public ResponseEntity<Map<String, String>> session(@RequestBody @Valid AuthUsersV2RecordDto dto) {

@@ -112,10 +112,12 @@ public class ConfigSwagger {
                 .group("v2")
                 .displayName("V2 - Stable")
                 .pathsToMatch("/**")
+                // quais métodos devem aparecer (filtra)
                 .addOpenApiMethodFilter(method -> {
                     RequestMapping mapping = AnnotatedElementUtils.findMergedAnnotation(method, RequestMapping.class);
                     return mapping != null && mapping.version().equals("2");
                 })
+                // personaliza os endpoints
                 .addOperationCustomizer((operation, handlerMethod) -> {
                     if (operation.getParameters() != null) {
                         operation.getParameters().stream()
@@ -162,6 +164,7 @@ public class ConfigSwagger {
 
                     return operation;
                 })
+                // aplica uma personalização globalmente (informações gerais)
                 .addOpenApiCustomizer(openApi -> {
                     // personalizar v2 (informações)
                     openApi.getInfo()

@@ -15,11 +15,13 @@ public class ApiVersionConfig implements WebMvcConfigurer {
     private final RateLimitingInterceptor rateLimitingInterceptor;
     private final IdempotencyInterceptor idempotencyInterceptor;
 
+    // injeta as instâncias dos interceptadores fornecidas pelo Spring
     public ApiVersionConfig(RateLimitingInterceptor rateLimitingInterceptor, IdempotencyInterceptor idempotencyInterceptor) {
         this.rateLimitingInterceptor = rateLimitingInterceptor;
         this.idempotencyInterceptor = idempotencyInterceptor;
     }
 
+    // método addInterceptors registra os interceptadores no ciclo do Spring MVC
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
         registry.addInterceptor(new ApiVersionInterceptor());
@@ -27,7 +29,7 @@ public class ApiVersionConfig implements WebMvcConfigurer {
         registry.addInterceptor(idempotencyInterceptor);
     }
 
-// sobreescreve método nativo do spring boot para manipulação da request/response
+    // sobreescreve método nativo do spring boot para manipulação da request/response
     // insere a chave "X-API-Version" com o valor padrão de 1
     // configura uma única vez e usa o atributo direto nas anotações das controllers
     @Override

@@ -68,7 +68,8 @@ public class CategoryController {
                                             """
                             )
                     )
-            )
+            ),
+            @ApiResponse(responseCode = "429", description = "Rate limit exceeded for your plan", content = @Content(mediaType = "application/json", schema = @Schema(example = "{\"error\":\"too many requests. Rate limit exceeded for your plan.\"}")))
     })
     @GetMapping(path = "/{id}", version = "1")
     public ResponseEntity<EntityModel<Category>> getById(
@@ -112,7 +113,8 @@ public class CategoryController {
                                             """
                             )
                     )
-            )
+            ),
+            @ApiResponse(responseCode = "429", description = "Rate limit exceeded for your plan", content = @Content(mediaType = "application/json", schema = @Schema(example = "{\"error\":\"too many requests. Rate limit exceeded for your plan.\"}")))
     })
     @GetMapping(path = "/search", version = "1")
     public ResponseEntity<EntityModel<Category>> getByTitle(
@@ -169,7 +171,8 @@ public class CategoryController {
                                             """
                             )
                     )
-            )
+            ),
+            @ApiResponse(responseCode = "429", description = "Rate limit exceeded for your plan", content = @Content(mediaType = "application/json", schema = @Schema(example = "{\"error\":\"too many requests. Rate limit exceeded for your plan.\"}")))
     })
     @PostMapping(version = "1")
     public ResponseEntity<EntityModel<Category>> create(@RequestBody @Valid CategoryRecordDto dto) {
@@ -235,7 +238,8 @@ public class CategoryController {
                                             """
                             )
                     )
-            )
+            ),
+            @ApiResponse(responseCode = "429", description = "Rate limit exceeded for your plan", content = @Content(mediaType = "application/json", schema = @Schema(example = "{\"error\":\"too many requests. Rate limit exceeded for your plan.\"}")))
     })
     @PutMapping(path = "/{id}", version = "1")
     public ResponseEntity<EntityModel<Category>> update(
@@ -263,7 +267,8 @@ public class CategoryController {
                                             """
                             )
                     )
-            )
+            ),
+            @ApiResponse(responseCode = "429", description = "Rate limit exceeded for your plan", content = @Content(mediaType = "application/json", schema = @Schema(example = "{\"error\":\"too many requests. Rate limit exceeded for your plan.\"}")))
     })
     @DeleteMapping(path = "/{id}", version = "1")
     public ResponseEntity<Void> delete(

@@ -14,6 +14,7 @@ import org.springframework.security.web.authentication.www.BasicAuthenticationFi
 
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 
+// regras de segurança da API
 @Configuration
 @EnableMethodSecurity // ativar o PreAuthorize
 public class SecurityConfig {

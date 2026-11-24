@@ -69,7 +69,8 @@ public class SupplierController {
                                             """
                             )
                     )
-            )
+            ),
+            @ApiResponse(responseCode = "429", description = "Rate limit exceeded for your plan", content = @Content(mediaType = "application/json", schema = @Schema(example = "{\"error\":\"too many requests. Rate limit exceeded for your plan.\"}")))
     })
     @GetMapping(path = "/{id}", version = "1")
     public ResponseEntity<EntityModel<Supplier>> getById(
@@ -113,7 +114,8 @@ public class SupplierController {
                                             """
                             )
                     )
-            )
+            ),
+            @ApiResponse(responseCode = "429", description = "Rate limit exceeded for your plan", content = @Content(mediaType = "application/json", schema = @Schema(example = "{\"error\":\"too many requests. Rate limit exceeded for your plan.\"}")))
     })
     @GetMapping(path = "/search", version = "1")
     public ResponseEntity<EntityModel<Supplier>> getByName(
@@ -159,7 +161,8 @@ public class SupplierController {
                                     )
                             }
                     )
-            )
+            ),
+            @ApiResponse(responseCode = "429", description = "Rate limit exceeded for your plan", content = @Content(mediaType = "application/json", schema = @Schema(example = "{\"error\":\"too many requests. Rate limit exceeded for your plan.\"}")))
     })
     @PostMapping(version = "1")
     public ResponseEntity<EntityModel<Supplier>> create(@RequestBody @Valid SupplierRecordDto dto) {
@@ -214,7 +217,8 @@ public class SupplierController {
                                             """
                             )
                     )
-            )
+            ),
+            @ApiResponse(responseCode = "429", description = "Rate limit exceeded for your plan", content = @Content(mediaType = "application/json", schema = @Schema(example = "{\"error\":\"too many requests. Rate limit exceeded for your plan.\"}")))
     })
     @PutMapping(path = "/{id}", version = "1")
     public ResponseEntity<EntityModel<Supplier>> update(
@@ -242,7 +246,8 @@ public class SupplierController {
                                             """
                             )
                     )
-            )
+            ),
+            @ApiResponse(responseCode = "429", description = "Rate limit exceeded for your plan", content = @Content(mediaType = "application/json", schema = @Schema(example = "{\"error\":\"too many requests. Rate limit exceeded for your plan.\"}")))
     })
     @DeleteMapping(path = "/{id}", version = "1")
     public ResponseEntity<Void> delete(

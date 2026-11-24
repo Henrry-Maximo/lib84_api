@@ -28,6 +28,7 @@ public class RateLimitingInterceptor implements HandlerInterceptor {
         boolean isPremium = false;
 
         Object userIdAttr = request.getAttribute("user_id");
+
         if (userIdAttr != null) {
             clientKey = "user_" + userIdAttr;
             try {
@@ -47,9 +48,11 @@ public class RateLimitingInterceptor implements HandlerInterceptor {
         TokenBucket bucket = rateLimitService.getBucket(clientKey, isPremium);
         long remaining = bucket.tryConsume(1);
 
+        // registar as informações no header
         response.setHeader("X-RateLimit-Limit",     String.valueOf(bucket.getCapacity()));
         response.setHeader("X-RateLimit-Remaining", String.valueOf(Math.max(0, remaining)));
 
+        // atingiu a quantidade máxima de tokens no tempo definido
         if (remaining < 0) {
             response.setStatus(429);
             response.setContentType("application/json");

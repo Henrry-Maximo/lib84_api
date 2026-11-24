@@ -46,7 +46,8 @@ public class BookV2Controller {
             @ApiResponse(responseCode = "200", description = "Returned a paginated list of books"),
             @ApiResponse(responseCode = "401", description = "Missing or invalid JWT token",
                     content = @Content(mediaType = "application/json",
-                            schema = @Schema(example = "{\"error\": \"authentication required.\"}")))
+                            schema = @Schema(example = "{\"error\": \"authentication required.\"}"))),
+            @ApiResponse(responseCode = "429", description = "Rate limit exceeded for your plan", content = @Content(mediaType = "application/json", schema = @Schema(example = "{\"error\":\"too many requests. Rate limit exceeded for your plan.\"}")))
     })
     @GetMapping(version = "2")
     public ResponseEntity<PagedModel<EntityModel<Book>>> all(
@@ -62,7 +63,8 @@ public class BookV2Controller {
                             schema = @Schema(example = "{\"error\": \"authentication required.\"}"))),
             @ApiResponse(responseCode = "404", description = "Book not found",
                     content = @Content(mediaType = "application/json",
-                            schema = @Schema(example = "{\"error\": \"could not find the book with ID: 3fa85f64-5717-4562-b3fc-2c963f66afa6\"}")))
+                            schema = @Schema(example = "{\"error\": \"could not find the book with ID: 3fa85f64-5717-4562-b3fc-2c963f66afa6\"}"))),
+            @ApiResponse(responseCode = "429", description = "Rate limit exceeded for your plan", content = @Content(mediaType = "application/json", schema = @Schema(example = "{\"error\":\"too many requests. Rate limit exceeded for your plan.\"}")))
     })
     @GetMapping(path = "/{id}", version = "2")
     public ResponseEntity<EntityModel<Book>> getById(
@@ -78,7 +80,8 @@ public class BookV2Controller {
                             schema = @Schema(example = "{\"error\": \"authentication required.\"}"))),
             @ApiResponse(responseCode = "404", description = "Category not found",
                     content = @Content(mediaType = "application/json",
-                            schema = @Schema(example = "{\"error\": \"could not find the category with ID: '3fa85f64-5717-4562-b3fc-2c963f66afa6'.\"}")))
+                            schema = @Schema(example = "{\"error\": \"could not find the category with ID: '3fa85f64-5717-4562-b3fc-2c963f66afa6'.\"}"))),
+            @ApiResponse(responseCode = "429", description = "Rate limit exceeded for your plan", content = @Content(mediaType = "application/json", schema = @Schema(example = "{\"error\":\"too many requests. Rate limit exceeded for your plan.\"}")))
     })
     @GetMapping(path = "/category/{categoryId}", version = "2")
     public ResponseEntity<CollectionModel<EntityModel<Book>>> getByCategory(
@@ -108,7 +111,8 @@ public class BookV2Controller {
                                     @ExampleObject(name = "Category not found", value = "{\"error\": \"could not find the category with ID: '3fa85f64-5717-4562-b3fc-2c963f66afa6'.\"}"),
                                     @ExampleObject(name = "Supplier not found", value = "{\"error\": \"could not find the supplier with ID: '3fa85f64-5717-4562-b3fc-2c963f66afa6'.\"}"),
                                     @ExampleObject(name = "Authors not found", value = "{\"error\": \"could not find the authors with ID: ['3fa85f64-5717-4562-b3fc-2c963f66afa6'].\"}")
-                            }))
+                            })),
+            @ApiResponse(responseCode = "429", description = "Rate limit exceeded for your plan", content = @Content(mediaType = "application/json", schema = @Schema(example = "{\"error\":\"too many requests. Rate limit exceeded for your plan.\"}")))
     })
     @PreAuthorize("hasRole('ADMIN')")
     @PostMapping(version = "2")
@@ -133,7 +137,8 @@ public class BookV2Controller {
                             })),
             @ApiResponse(responseCode = "404", description = "Book not found",
                     content = @Content(mediaType = "application/json",
-                            schema = @Schema(example = "{\"error\": \"could not find the book with ID: 3fa85f64-5717-4562-b3fc-2c963f66afa6\"}")))
+                            schema = @Schema(example = "{\"error\": \"could not find the book with ID: 3fa85f64-5717-4562-b3fc-2c963f66afa6\"}"))),
+            @ApiResponse(responseCode = "429", description = "Rate limit exceeded for your plan", content = @Content(mediaType = "application/json", schema = @Schema(example = "{\"error\":\"too many requests. Rate limit exceeded for your plan.\"}")))
     })
     @PreAuthorize("hasRole('ADMIN')")
     @PutMapping(path = "/{id}", version = "2")
@@ -154,7 +159,8 @@ public class BookV2Controller {
                             schema = @Schema(example = "{\"error\": \"access denied: admin role required.\"}"))),
             @ApiResponse(responseCode = "404", description = "Book not found",
                     content = @Content(mediaType = "application/json",
-                            schema = @Schema(example = "{\"error\": \"could not find the book with ID: 3fa85f64-5717-4562-b3fc-2c963f66afa6\"}")))
+                            schema = @Schema(example = "{\"error\": \"could not find the book with ID: 3fa85f64-5717-4562-b3fc-2c963f66afa6\"}"))),
+            @ApiResponse(responseCode = "429", description = "Rate limit exceeded for your plan", content = @Content(mediaType = "application/json", schema = @Schema(example = "{\"error\":\"too many requests. Rate limit exceeded for your plan.\"}")))
     })
     @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping(path = "/{id}", version = "2")

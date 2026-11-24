@@ -55,7 +55,8 @@ public class AuthorController {
     @Operation(summary = "Get an author by id")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Author found"),
-            @ApiResponse(responseCode = "404", description = "Author not found", content = @Content(mediaType = "application/json", schema = @Schema(example = "{\"error\": \"could not find the author with ID: ...\"}")))
+            @ApiResponse(responseCode = "404", description = "Author not found", content = @Content(mediaType = "application/json", schema = @Schema(example = "{\"error\": \"could not find the author with ID: ...\"}"))),
+            @ApiResponse(responseCode = "429", description = "Rate limit exceeded for your plan", content = @Content(mediaType = "application/json", schema = @Schema(example = "{\"error\":\"too many requests. Rate limit exceeded for your plan.\"}")))
     })
     @GetMapping(path = "/{id}", version = "1")
     public ResponseEntity<EntityModel<Author>> getById(@PathVariable @Schema(example = "3fa85f64-5717-4562-b3fc-2c963f66afa6") UUID id) {
@@ -98,7 +99,8 @@ public class AuthorController {
                                             """
                             )
                     )
-            )
+            ),
+            @ApiResponse(responseCode = "429", description = "Rate limit exceeded for your plan", content = @Content(mediaType = "application/json", schema = @Schema(example = "{\"error\":\"too many requests. Rate limit exceeded for your plan.\"}")))
     })
     @GetMapping(path = "/search", version = "1")
     public ResponseEntity<EntityModel<Author>> getByName(
@@ -145,7 +147,8 @@ public class AuthorController {
                             }
                     )
             ),
-            @ApiResponse(responseCode = "409", description = "Author already exists.", content = @Content(mediaType = "application/json", schema = @Schema(example = "{\"error\": \"author 'george orwell' already exists.\"}")))
+            @ApiResponse(responseCode = "409", description = "Author already exists.", content = @Content(mediaType = "application/json", schema = @Schema(example = "{\"error\": \"author 'george orwell' already exists.\"}"))),
+            @ApiResponse(responseCode = "429", description = "Rate limit exceeded for your plan", content = @Content(mediaType = "application/json", schema = @Schema(example = "{\"error\":\"too many requests. Rate limit exceeded for your plan.\"}")))
     })
     @PostMapping(version = "1")
     public ResponseEntity<EntityModel<Author>> create(@RequestBody @Valid AuthorRecordDto dto) {
@@ -215,7 +218,8 @@ public class AuthorController {
                                             """
                             )
                     )
-            )
+            ),
+            @ApiResponse(responseCode = "429", description = "Rate limit exceeded for your plan", content = @Content(mediaType = "application/json", schema = @Schema(example = "{\"error\":\"too many requests. Rate limit exceeded for your plan.\"}")))
     })
     @PutMapping(path = "/{id}", version = "1")
     public ResponseEntity<EntityModel<Author>> update(
@@ -262,7 +266,8 @@ public class AuthorController {
                                             """
                             )
                     )
-            )
+            ),
+            @ApiResponse(responseCode = "429", description = "Rate limit exceeded for your plan", content = @Content(mediaType = "application/json", schema = @Schema(example = "{\"error\":\"too many requests. Rate limit exceeded for your plan.\"}")))
     })
     @DeleteMapping(path = "/{id}", version = "1")
     public ResponseEntity<Void> delete(

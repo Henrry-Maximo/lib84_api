@@ -30,10 +30,14 @@ public class IdempotencyWrapperFilter implements Filter {
 
         // só envolve POST/PATCH na V2 — evita overhead nas demais requisições
         if ("2".equals(version) && ("POST".equals(method) || "PATCH".equals(method))) {
+            // reler corpo da requisição
             CachedBodyRequestWrapper wrappedReq = new CachedBodyRequestWrapper(httpReq);
+
+            // capturar corpo da resposta antes do envio
             ContentCachingResponseWrapper wrappedRes = new ContentCachingResponseWrapper(httpRes);
-            chain.doFilter(wrappedReq, wrappedRes);
-            wrappedRes.copyBodyToResponse();
+
+            chain.doFilter(wrappedReq, wrappedRes); // entrega o conteúdo
+            wrappedRes.copyBodyToResponse(); // cópia para HTTP original
         } else {
             chain.doFilter(request, response);
         }

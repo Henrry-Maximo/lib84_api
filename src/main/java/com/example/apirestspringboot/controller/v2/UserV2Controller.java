@@ -52,7 +52,8 @@ public class UserV2Controller {
                             schema = @Schema(example = "{\"error\": \"authentication required.\"}"))),
             @ApiResponse(responseCode = "403", description = "Admin role required",
                     content = @Content(mediaType = "application/json",
-                            schema = @Schema(example = "{\"error\": \"access denied: admin role required.\"}")))
+                            schema = @Schema(example = "{\"error\": \"access denied: admin role required.\"}"))),
+            @ApiResponse(responseCode = "429", description = "Rate limit exceeded for your plan", content = @Content(mediaType = "application/json", schema = @Schema(example = "{\"error\":\"too many requests. Rate limit exceeded for your plan.\"}")))
     })
     @PreAuthorize("hasRole('ADMIN')")
     @GetMapping(version = "2")
@@ -72,7 +73,8 @@ public class UserV2Controller {
                             schema = @Schema(example = "{\"error\": \"access denied: admin role required.\"}"))),
             @ApiResponse(responseCode = "404", description = "User not found",
                     content = @Content(mediaType = "application/json",
-                            schema = @Schema(example = "{\"error\": \"could not find the user with ID: 3fa85f64-5717-4562-b3fc-2c963f66afa6\"}")))
+                            schema = @Schema(example = "{\"error\": \"could not find the user with ID: 3fa85f64-5717-4562-b3fc-2c963f66afa6\"}"))),
+            @ApiResponse(responseCode = "429", description = "Rate limit exceeded for your plan", content = @Content(mediaType = "application/json", schema = @Schema(example = "{\"error\":\"too many requests. Rate limit exceeded for your plan.\"}")))
     })
     @PreAuthorize("hasRole('ADMIN')")
     @GetMapping(path = "/{id}", version = "2")
@@ -95,7 +97,8 @@ public class UserV2Controller {
                             examples = @ExampleObject(value = "{\"email\": [\"email must not be blank\"]}"))),
             @ApiResponse(responseCode = "404", description = "User not found",
                     content = @Content(mediaType = "application/json",
-                            schema = @Schema(example = "{\"error\": \"could not find the user with email: 'johndoe@example.com'.\"}")))
+                            schema = @Schema(example = "{\"error\": \"could not find the user with email: 'johndoe@example.com'.\"}"))),
+            @ApiResponse(responseCode = "429", description = "Rate limit exceeded for your plan", content = @Content(mediaType = "application/json", schema = @Schema(example = "{\"error\":\"too many requests. Rate limit exceeded for your plan.\"}")))
     })
     @PreAuthorize("hasRole('ADMIN')")
     @GetMapping(path = "/search", version = "2")
@@ -120,7 +123,8 @@ public class UserV2Controller {
                             })),
             @ApiResponse(responseCode = "409", description = "Email already exists",
                     content = @Content(mediaType = "application/json",
-                            schema = @Schema(example = "{\"error\": \"email 'johndoe@example.com' already exists.\"}")))
+                            schema = @Schema(example = "{\"error\": \"email 'johndoe@example.com' already exists.\"}"))),
+            @ApiResponse(responseCode = "429", description = "Rate limit exceeded for your plan", content = @Content(mediaType = "application/json", schema = @Schema(example = "{\"error\":\"too many requests. Rate limit exceeded for your plan.\"}")))
     })
     @PostMapping(version = "2")
     public ResponseEntity<EntityModel<User>> create(@RequestBody @Valid UserRecordDto dto) {
@@ -141,7 +145,8 @@ public class UserV2Controller {
                             })),
             @ApiResponse(responseCode = "404", description = "User not found",
                     content = @Content(mediaType = "application/json",
-                            schema = @Schema(example = "{\"error\": \"could not find the user with ID: 3fa85f64-5717-4562-b3fc-2c963f66afa6\"}")))
+                            schema = @Schema(example = "{\"error\": \"could not find the user with ID: 3fa85f64-5717-4562-b3fc-2c963f66afa6\"}"))),
+            @ApiResponse(responseCode = "429", description = "Rate limit exceeded for your plan", content = @Content(mediaType = "application/json", schema = @Schema(example = "{\"error\":\"too many requests. Rate limit exceeded for your plan.\"}")))
     })
     @PutMapping(path = "/{id}", version = "2")
     public ResponseEntity<EntityModel<User>> update(
@@ -158,7 +163,8 @@ public class UserV2Controller {
                             schema = @Schema(example = "{\"error\": \"authentication required.\"}"))),
             @ApiResponse(responseCode = "404", description = "User not found",
                     content = @Content(mediaType = "application/json",
-                            schema = @Schema(example = "{\"error\": \"could not find the user with ID: 3fa85f64-5717-4562-b3fc-2c963f66afa6\"}")))
+                            schema = @Schema(example = "{\"error\": \"could not find the user with ID: 3fa85f64-5717-4562-b3fc-2c963f66afa6\"}"))),
+            @ApiResponse(responseCode = "429", description = "Rate limit exceeded for your plan", content = @Content(mediaType = "application/json", schema = @Schema(example = "{\"error\":\"too many requests. Rate limit exceeded for your plan.\"}")))
     })
     @PatchMapping(path = "/{id}", version = "2")
     public ResponseEntity<EntityModel<User>> updateSameFields(
@@ -175,7 +181,8 @@ public class UserV2Controller {
                             schema = @Schema(example = "{\"error\": \"authentication required.\"}"))),
             @ApiResponse(responseCode = "404", description = "User not found",
                     content = @Content(mediaType = "application/json",
-                            schema = @Schema(example = "{\"error\": \"could not find the user with ID: 3fa85f64-5717-4562-b3fc-2c963f66afa6\"}")))
+                            schema = @Schema(example = "{\"error\": \"could not find the user with ID: 3fa85f64-5717-4562-b3fc-2c963f66afa6\"}"))),
+            @ApiResponse(responseCode = "429", description = "Rate limit exceeded for your plan", content = @Content(mediaType = "application/json", schema = @Schema(example = "{\"error\":\"too many requests. Rate limit exceeded for your plan.\"}")))
     })
     @DeleteMapping(path = "/{id}", version = "2")
     public ResponseEntity<Void> delete(
